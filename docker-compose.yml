@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+
+    game-server:
+        build: .
+        user: "node"
+        working_dir: /home/node/app
+        container_name: game-server
+        volumes:
+            - ./src:/home/node/app
+        environment:
+            VIRTUAL_HOST: games.q-dev.ru
+            TZ: Europe/Moscow
+            HTTPS_METHOD: nohttps
+            NODE_ENV: production
+        expose:
+             - "3000"
+        command: "nodemon main.js"
+        restart: always
+
+
+networks:
+    default:
+        external:
+            name: nginxproxy_network

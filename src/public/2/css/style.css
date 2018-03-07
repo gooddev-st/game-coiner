@@ -1,0 +1,19 @@
+body{
+    background: #f4cb4a;
+    text-align: center;
+}
+h1{
+    color: #ff6000;
+    margin-bottom: 0px;
+}
+.canvas-wrapper{
+    margin: 20px;
+    display: inline-block;
+}
+.canvas-wrapper .legend{
+    color: #805f09;
+    font-weight: bold;
+}
+#canvas, #canvas2{
+    /*float: left;*/
+}

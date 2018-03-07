@@ -1,0 +1,14 @@
+{
+  "name": "game-server",
+  "version": "0.0.1",
+  "description": "LaLa",
+  "repository": "Games",
+  "license": "MIT",
+  "dependencies": {
+    "socket.io": "*",
+    "express": "^4.16.2"
+  },
+  "scripts": {
+    "start": "node main.js"
+  }
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Socket.io</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<button id="btn">Кно</button>
+<script>
+    var socket = io.connect('http://game-server.q-dev.ru');
+    socket.on("hello", function(serverData) {
+        alert(serverData);
+    });
+    socket.on("message", function(serverData) {
+        alert(serverData);
+    });
+
+    var btn = document.getElementById('btn');
+    btn.addEventListener('click', function () {
+        socket.emit('btn', 'Нажата кнопка!');
+        console.log('Жата Кно!');
+    })
+</script>
+</body>
+</html>
