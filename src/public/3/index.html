@@ -1,0 +1,78 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Игра в монеты</title>
+</head>
+<body>
+<div class="game-wrapper">
+    <div class="game-title">
+        <h1>Игра в монеты</h1>
+        <div class="legend">
+            <p>Жми "вверх", "влево", "вниз", "вправо"</p>
+            <p>собери 10 монет</p>
+        </div>
+    </div>
+    <div>Монет <span id="coins_count">0</span></div>
+</div>
+<div class="logs-wrapper">
+    <div id="logs" class="logs"></div>
+</div>
+<canvas id="canvas" width="1024" height="768">У вас староватый браузер</canvas>
+<div class="sprite-images" style="display: none;">
+<img id="sprites" src="i/sprite.png">
+<img id="sprites2" src="i/sprite2.png">
+<img id="coins" src="i/coin_gold.png">
+    <div style="position: fixed; top: 0; right: 0;width: 50px; height: 50px; background: url(i/sprite2.png) no-repeat -200px -140px"></div>
+</div>
+<script src="dist/client_build.js"></script>
+<script src="js/jquery.min.js"></script>
+<script>
+
+    /*
+     * Управление панелькой логов
+     * и видимостью заголовка игры
+     **/
+
+    var timer = null;
+    var $game_title = $('.game-title');
+
+    function resetTimeout(){
+
+        if(timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+
+        if($game_title.is('.hidden')){
+            timer = setTimeout(function () {
+                $game_title.removeClass('hidden');
+            }, 10000)
+
+        }
+    }
+    $(function () {
+        $('.logs-wrapper').click(function () {
+            $('body').toggleClass('consoled');
+        });
+
+        $(document).keyup(function (e) {
+            if (e.keyCode == 19 || e.keyCode == 192) {//Pause или тильда
+                $('body').toggleClass('consoled');
+            }
+        });
+        $(document).keydown(function (e) {
+            $game_title.addClass('hidden');
+            resetTimeout()
+        });
+        $(window).blur(function () {
+            $game_title.removeClass('hidden');
+            resetTimeout()
+        })
+    });
+</script>
+</body>
+</html>

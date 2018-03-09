@@ -16,7 +16,7 @@ services:
             NODE_ENV: production
         expose:
              - "3000"
-        command: "nodemon main.js"
+        command: "nodemon server.js"
         restart: always
 
 

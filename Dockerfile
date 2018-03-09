@@ -12,4 +12,4 @@ COPY src/ /home/node/app
 
 EXPOSE 3000
 
-CMD ["nodemon","main.js"]
+CMD ["nodemon","server.js"]

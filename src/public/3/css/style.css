@@ -1,0 +1,86 @@
+body{
+    background: #f4cb4a;
+    margin: 0;
+    padding: 0;
+    /*text-align: center;*/
+}
+h1{
+    color: #ff6000;
+    margin-bottom: 0px;
+}
+.game-wrapper{
+    position: fixed;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
+    transition: left 0.5s ease-in-out;
+}
+
+.game-title{
+    display: block;
+    background-color: rgba(0,0,0,0.6);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -200px;
+    width: 400px;
+    border-radius: 0 0 10px 10px;
+    text-align: center;
+}
+.game-title.hidden{
+    display: none;
+}
+
+.game-wrapper .legend{
+    color: #b38509;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+#canvas-wrapper{
+
+}
+
+
+.logs-wrapper{
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    overflow: hidden;
+    background-color: #101010;
+    color: #101010;
+    transition: width 0.5s ease-in-out, background-color 0.5s linear, color 0.5s linear;
+    border: 16px solid rgba(0,0,0,0.8);
+    border-right: 1px solid #000000;
+    border-left: none;
+}
+.consoled .logs-wrapper{
+    width: 450px;
+    overflow-y: auto;
+    background-color: rgba(0,0,0,0.4);
+    color: #ff6000;
+}
+.logs{
+    width: 450px;
+    text-align: justify;
+    font-family: sans-serif;
+    font-size: 12px;
+}
+.logs .msg{
+    padding: 6px 10px 0;
+}
+.logs .msg:after{
+    content: '...';
+    display: block;
+    text-align: center;
+    margin-top: -6px;
+}
+.logs .msg:last-child:after{
+    display: none;
+}
+.logs .msg.error{
+    color: #F00;
+}
