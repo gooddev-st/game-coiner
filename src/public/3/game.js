@@ -72,6 +72,8 @@ export default class {
 
         // html-елемент в который покажем информацию о герое/игре
         this.scoreElement = document.getElementById("coins_count");
+        // html-елемент "загрузка"
+        this.loadingElement = document.getElementById("loading");
 
 
         // Создадим камеру по "канве" из html
@@ -191,6 +193,7 @@ export default class {
 
         this.camera && this.camera.setFollower(this.hero.unit);
 
+        this.loadingElement.style.display = 'none';
     }
 
     /**

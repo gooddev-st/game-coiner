@@ -42,10 +42,13 @@ h1{
     position: absolute;
     right: 0;
     top: 0;
-    padding: 16px 40px;
+    padding: 11px 28px 16px 40px;
     background-color: rgba(0,0,0,0.2);
     color: white;
     font-size: 20px;
+    -webkit-border-radius: 0 0 0 10px;
+    -moz-border-radius: 0 0 0 10px;
+    border-radius: 0 0 0 10px;
 }
 
 
@@ -89,4 +92,31 @@ h1{
 }
 .logs .msg.error{
     color: #F00;
+}
+
+#loading{
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #313425;
+}
+#loading .title{
+    position: absolute;
+    width: 360px;
+    height: 80px;
+    top: 50%;
+    left: 50%;
+    margin-left: -180px;
+    margin-top: -40px;
+    font: 60px Arial;
+    text-align: center;
+    display: table;
+    vertical-align: middle;
+    color: #ff6000;
+    background-color: #1e2017;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
 }
