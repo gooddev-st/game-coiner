@@ -1,16 +1,17 @@
 /**
- * object Game
+ * Игра в монеты
  * - Серверная часть
  */
 module.exports.run = run;
 
 const Player = require('./player.js');
 const Coin = require('./loot.js');
+const sound_event = require('./sound_event.js');//звуковые события
 
 
 const log = function (msg) {
     console.log(msg);
-}
+};
 
 const
     FPS = 30,
@@ -18,9 +19,11 @@ const
     STEP = INTERVAL/1000;//в секундах
 
 const
-    CHARACTER_COIN = 'gold_coin',
-    CHARACTER_DOC = 'doc',
-    CHARACTER_MAN = 'man';
+    LOOT_COUNT = 30;
+
+const
+    PLAYER_START_X = 100,
+    PLAYER_START_Y = 100;
 
 
     var cio = null;
@@ -31,7 +34,7 @@ const
 function run(io){
     cio = io;
 
-    generateLoots(0, 3);
+    generateLoots(0, LOOT_COUNT);
 
     start();
 
@@ -45,11 +48,10 @@ function run(io){
             // log('попытка логина ' + name);
             if (player) return;
 
-            //TODO: авторизация будет тут
+            // Если есть с таким логином - отдаем
+            // TODO: авторизация будет тут
             if(name in players){
                 player = players[name];
-
-                // log('отдан существующий ' + name + '. old: ' + player.socket.id + ', new: ' + socket.id);
 
                 //Если кто-то вошел с тем же логином - старого дисконектим
                 emit(player.socket, 'payer', 'disconnected', {message: "Кто-то вошел с тем же логином"})
@@ -58,16 +60,18 @@ function run(io){
                 player.reset(socket);
             }
             else{
-                //Сохраним подключившегося
-                player = new Player(name, socket, 1000, 1000, CHARACTER_DOC, 0);
+                // Логина нет? - создади игрока с таким логином
+                // TODO: регистрация будет тут
+                player = new Player(name, socket, PLAYER_START_X, PLAYER_START_Y, 0);
                 players[name] = player;
                 // log('создан новый ' + name + '. ' + socket.id);
             }
 
-            //Отправим приветствие
+            //Отправим героя
             emit(player.socket, "player", "hero-create", {info: player.allInfo(), message: "Создаем героя "+player.ID});
 
-            //Отправим комнату
+
+            //Отправим комнату, в которой герой
             let room = getRoom(player.room_id);
             emit(player.socket, "room", "change", {room: room, message: "Выдана Комната"});
 
@@ -76,21 +80,28 @@ function run(io){
             for (let i in players) {
                 let p = players[i];
                  if(p.online && p.ID != player.ID && p.room_id == player.room_id) {
-                    emit(player.socket, "room", "player-create", {info: p.commonInfo(), message: "Выдан игрок[" + p.ID + "]"});
+                    emit(player.socket, "room", "player-create", {info: p.commonInfo()});
                 }
             }
+            emit(player.socket, "player", "info", {message: "Выданы игроки"});
+
+
             //Отправим лут. В той же комнате
             for (let i in loots) {
                 let l = loots[i];
                  if(l.room_id == player.room_id) {
-                    emit(player.socket, "room", "loot-create", {info: l.info(), message: "Выдан лут[" + l.ID + "]"});
+                    emit(player.socket, "room", "loot-create", {info: l.info()});
                 }
             }
+            emit(player.socket, "player", "info", {message: "Выдан лут"});
 
+
+            //Заявим, что пришел игрок
             emit_common_event(socket, "room", "player-create", {info: player.commonInfo(), message: "Пришел игрок[" + player.ID + "]"});
 
             socket.on('keydown', (key_name) => {
                 switch(key_name){
+
                     case "left":
                         player.controller.left = true;
                         break;
@@ -123,6 +134,18 @@ function run(io){
                         break;
                 }
                 // log('Клавиша '+key_name+' отжата');
+            });
+
+            socket.on('target', (target) => {
+                if(
+                    !target ||
+                    (target.x == player.x && target.y == player.y)
+                ){
+                    player.controller.target = null;
+                }
+                else{
+                    player.controller.target = target;
+                }
             });
 
         });
@@ -183,6 +206,13 @@ function start(){
             }
         }
 
+        //Шлем информацию о звуковых событиях
+        let events = sound_event.get();
+        for(let i in events){
+            emit_common_event(cio, "sound", "notice", {info: events[i]}, true);
+        }
+        sound_event.reset();
+
 
 
     }, INTERVAL)
@@ -224,10 +254,10 @@ function generateLoots(room_id, num) {
     let room = getRoom(room_id);
 
     for(let i = 0; i<num; i++){
-        let x = Math.floor(room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right)),
-            y = Math.floor(room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom));
+        let x = room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right),
+            y = room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom);
 
-        loots.push(new Coin(room_id, x, y, CHARACTER_COIN));
+        loots.push(new Coin(room_id, x, y));
     }
 }
 

@@ -54,8 +54,4 @@ export default class {
             this.currentSpriteNum = 0;
         }
     }
-
-    run(){
-
-    }
 }

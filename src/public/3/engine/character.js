@@ -8,7 +8,7 @@ export default class Character{
         };
     }
 
-    draw(context, x, y, width, height, action, spriteNum, volume){
+    draw(context, x, y, width, height, action, spriteNum, level, volume){
         if(!action || !this.sprites[action]){
             action = 'default'
         }
@@ -33,6 +33,17 @@ export default class Character{
                 width,
                 height,
                 volume
+            );
+        }
+
+        if(level!=undefined) {
+            this.drawLevel(
+                context,
+                x,
+                y,
+                width,
+                height,
+                level
             );
         }
 
@@ -61,14 +72,23 @@ export default class Character{
 
         let healthX = Math.floor((width - healthWidth)/2) + x;
 
-        let healthHeight = Math.floor(height/10);
+        let healthHeight = Math.floor(height/8);
 
         context.save();
         context.beginPath();
         context.fillStyle = "red";
         context.fillRect(healthX, y-7, Math.floor(healthWidth*value/100), healthHeight);
-        context.rect(healthX-2, y-8, healthWidth+4, healthHeight+2);
+        context.rect(healthX-1, y-8, healthWidth+2, healthHeight+2);
         context.stroke();
+        context.restore();
+    }
+
+    drawLevel(context, x, y, width, height, level){
+
+        context.save();
+        context.font = "14px Arial";
+        context.fillStyle = "blue";
+        context.fillText(level,x,y-10);
         context.restore();
     }
 

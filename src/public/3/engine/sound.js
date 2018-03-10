@@ -8,6 +8,7 @@ export default class {
         document.body.appendChild(this.sound);
     }
     play(){
+        // this.sound.load();
         this.sound.play();
     }
     stop(){

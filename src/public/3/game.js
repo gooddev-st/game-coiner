@@ -1,45 +1,67 @@
 import * as constants from './constants.js'
+
+import io from "socket.io-client";
+
 import Room from './engine/room.js';
 import Camera from './engine/camera.js';
 import Unit from './engine/unit.js';
 import Player from './engine/player.js';
 import Loot from './engine/loot.js';
+
 import Sound from './engine/sound.js';
 
 import characters from "./characters.js";
-import io from "socket.io-client";
 
+// Логирование TODO: вынести в модуль
 const $logs = document.getElementById('logs');
 const log = function (msg) {
     $logs.innerHTML += '<div class="msg">'+msg+'</div>';
+    $logs.parentElement.scrollTop = $logs.scrollHeight;
     console.log(msg);
-}
+};
 
 
 /**
+ * Основной класс клиента игры
  * class Game
  */
 export default class {
 
     constructor(){
-        /*
-         *   Скины персонажей
-         */
+
+        // Скины персонажей
         this.characters = characters();
 
-        this.eat1Sound = new Sound('sound/eat1.mp3');
-        this.eat2Sound = new Sound('sound/eat2.mp3');
+        // Доступные звуки
+        this.sounds = {
+            "eat1": new Sound('sound/eat1.mp3'),
+            "eat2": new Sound('sound/eat2.mp3'),
+        };
 
+        // Текущая комната. id и сама
         this.room_id = null;
         this.room = null;
+
+        // Камера. Совмещена со въюпортом
         this.camera = null;
 
+        // Герой. за которого играем
+        this.hero = null;
+
+        // Все юниты
         this.units = {};
+
+        // Весь лут
         this.loots = {};
 
-        this.connected = false;
+        // сокет подключения к серверу
         this.socket = null;
 
+
+        /**
+         * Получение и сохранение логина пользователя
+         * TODO: сделать нормальную авторизацию
+         */
         //Если в локальных данных нет пароля - создадим рандомный
         this.login = localStorage.getItem('login');
         if(!this.login) {
@@ -47,33 +69,43 @@ export default class {
             localStorage.setItem('login', this.login);
         }
 
+
+        // html-елемент в который покажем информацию о герое/игре
         this.scoreElement = document.getElementById("coins_count");
 
-        //Создадим камеру по "канве"
+
+        // Создадим камеру по "канве" из html
         this.camera = new Camera(0, 0, canvas);
+        // изменяем камеру под окно
         this.camera.resize();
 
+
+        //При ресайзе окна браузера - изменяем камеру под окно
         const game = this;
         window.addEventListener('resize', function () {
             game.camera.resize();
         });
 
+
         //Подключимся к серверу
         this.connectToServer();
+
     }
 
-    connectToServer(){
-        const
-            EVENTS = [
-                "server",
-                "room",
-                "player"
-            ];
 
+    /**
+     * Подключение к серверу игры
+     */
+    connectToServer(){
+        // Сохраняем this
         var game = this;
 
+
+        // Подключаемся к серверу
         this.socket = io();
 
+
+        // Действия при серверных проблемах
         this.socket.on('connect_error', function () {
             log('Ошибка подключения к серверу');
         });
@@ -82,11 +114,18 @@ export default class {
             log('Вы отключены от сервера');
         });
 
+        // При переподключении сбросим всё
         this.socket.on('reconnect', function () {
             log('от сервера поступил reconnect');
+            game.units = {};
+            game.loots = {};
+            game.hero = null;
         });
 
-        for(let event of EVENTS) {
+
+        // События отправляемые в основной обработчик
+        for(let event of ["server", "room", "player", "sound"]) {
+
             game.socket.on(event, function(data){
                 try{
                     data = JSON.parse(data)
@@ -99,161 +138,198 @@ export default class {
         }
     }
 
+    /**
+     * Отсылка сообщения серверу
+     * @param event_name
+     * @param data
+     */
     emit(event_name, data){
         this.socket && this.socket.emit(event_name, data)
     }
 
+
+    /**
+     * Установка отображаемой комнаты
+     * @param ID
+     * @param width
+     * @param height
+     * @param environment_id
+     */
     roomInit(ID, width, height, environment_id){
         this.room_id = ID;
+
         this.room = new Room(width, height, environment_id);
     }
 
-    playerInit(room_id, x, y, character_id, state, coins_count){
+
+    /**
+     * Установка героя
+     * @param room_id
+     * @param x
+     * @param y
+     * @param character_id
+     * @param state
+     * @param coins_count
+     * @param level
+     * @param levelupCounter
+     */
+    heroInit(room_id, x, y, character_id, state, coins_count, level, levelupCounter){
+
+        //Если ткущая комната отсутствует или не та - шлем на сервер запрос
+        if(!this.room_id || this.room_id != room_id) {
+            this.room_id = null;
+            this.emit('need-room', room_id);
+        }
 
         let character = this.characters[character_id] || this.characters["doc"]
 
-        const unit = new Unit(room_id, x, y, character, 'Hero', state, coins_count);
+        const unit = new Unit(room_id, x, y, character, 'Hero', state, coins_count, level, levelupCounter);
 
-        this.hero = new Player(unit, constants.KEYS_ARROW, this.socket);
+        this.hero = new Player(unit, constants.KEYS_ARROW, this.camera, this.socket);
 
         this.units['hero'] = this.hero;
 
         this.camera && this.camera.setFollower(this.hero.unit);
+
     }
 
-    playerSet(room_id, x, y, character_id, state, coins_count){
+    /**
+     * Обновление информации о герое
+     * @param room_id
+     * @param x
+     * @param y
+     * @param character_id
+     * @param state
+     * @param coins_count
+     * @param level
+     * @param levelupCounter
+     */
+    heroSet(room_id, x, y, character_id, state, coins_count, level, levelupCounter){
 
         let character = this.characters[character_id] || this.characters["doc"]
 
-        this.hero.set(room_id, x, y, character, state, coins_count);
+        this.hero.set(room_id, x, y, character, state, coins_count, level, levelupCounter);
+
     }
 
-    //Сбор монеток TODO: перетащить на сервер
-    harvesting(){
 
-        //Перебираем монеты
-        for(let i=0; i<this.loots.length;i++){
-            let toucher = [];
-
-            //Перебираем юниты
-            for(let j=0;j<this.units.length;j++){
-
-                //если юнит - игрок
-                if(this.units[j] instanceof Player){
-                    //если он коснулся монеты
-                    if(this.units[j].isTouch(this.loots[i])){
-                        //добавим его в коснувшиеся
-                        toucher.push(this.units[j]);
-                    }
-                }
-            }
-
-            //Если монету собрали - переместим в случайное место(типа убрали и создали новую)
-            if(toucher.length>0){
-                this.loots[i].x = Math.floor(this.loots[i].width/2 + Math.random() * (this.map.width-this.loots[i].width));
-                this.loots[i].y = Math.floor(this.loots[i].height/2 + Math.random() * (this.map.height-this.loots[i].height));
-            }
-
-            //Если один коснувшийся - ему плюс
-            if(toucher.length==1){
-                toucher[0].coins_count++;
-                console.log('игрок '+toucher[0].name + ' получил монету');
-
-                if(toucher[0].name=='doc'){
-                    this.doc_score_table.innerHTML=toucher[0].coins_count;
-                    this.eat1Sound.play();
-                }
-                else{
-                    this.man_score_table.innerHTML=toucher[0].coins_count;
-                    this.eat2Sound.play();
-                }
-            }
-            //Если одновременно коснулись больше одного игрока - разыграем
-            else if(toucher.length>1){
-                let winer = Math.floor(Math.random()*toucher.length);
-                //победившему - плюс
-                toucher[winer].coins_count++;
-                console.log('игрок '+toucher[winer].name + ' получил монету');
-                //и вякнем звуком
-                if(toucher[winer].name=='doc'){
-                    this.doc_score_table.innerHTML=toucher[winer].coins_count;
-                    this.eat1Sound.play();
-                }
-                else{
-                    this.man_score_table.innerHTML=toucher[winer].coins_count;
-                    this.eat2Sound.play();
-                }
-            }
-        }
-    }
-
+    /**
+     * Перемещение на клиенте
+     *  то, что не управляется с сервера. Например камера
+     */
     run(){
-        //Юниты
-        /*for (let i = 0; i < this.units.length; i++) {
-            this.units[i].run(this.room, constants.STEP);
-        }*/
-
-        //Лут
-        for (let i = 0; i < this.loots.length; i++) {
-            this.loots[i].run(constants.STEP);
-        }
 
         //Камеры
         this.camera && this.camera.run(this.room);
 
-        this.harvesting()
     }
 
+
+    /**
+     * Анимация
+     */
     animate(){
-        //Юниты
+
+        //Юниты (включая самого героя)
         for (let i in this.units) {
             this.units[i].animate(constants.STEP);
         }
+
         //Лут
         for (let i in this.loots) {
             this.loots[i].animate(constants.STEP);
         }
+
     }
 
+
+    /**
+     * Отрисовка на камеру
+     * @param camera
+     */
     draw(camera){
+
+        // Комната
         this.room && this.room.draw(camera);
 
+
+        // Лут
         for (let i in this.loots) {
             this.loots[i].draw(camera);
         }
+
+
+        // Юниты (включая самого героя)
         for (let i in this.units) {
             this.units[i].draw(camera);
         }
+
     }
 
+
+    /**
+     * Запуск основного цикла
+     */
     start() {
+        // Сохраним tis
         const game = this;
+
+
+        /**
+         * Основной цикл
+         */
         setInterval(function () {
 
-            //Перемещение
+            // Перемещение, управляемое на клиенте
             game.run();
 
-            //Перемещение
+
+            // Анимация
             game.animate();
 
-            //Отрисовка
+
+            // Отрисовка
             game.draw(game.camera);
 
+
         }, constants.INTERVAL);
+
     }
 
-    //Обработчик событий
+    /**
+     * Основной обработчик событий
+     * @param it - this от Game
+     * @param event - событие
+     * @param type - тип серверного события
+     * @param data - данные события
+     */
     eventHandler(it, event, type, data){
-        data.message && log(data.message + ' (Событие '+event+'.'+type+')');
+
+        // Если в данных события есть поле message - выведем в лог
+        data.message && log(data.message/* + ' (Событие '+event+'.'+type+')'*/);
+
+        // Отладка событий без message
         // data.message || log(' (Событие '+event+'.'+type+')');
 
+
+        /**
+         * События "server"
+         */
         if(event=="server") {
             if (type == "hello") {
                 //TODO: переделать в нормальную авторизацию
                 it.emit('login', it.login);
             }
         }
+
+
+        /**
+         * События "room"
+         */
         if(event=="room"){
+
+
+            // Получение комнаты
             if(type=="change") {
                 try {
                     if(!data.room) throw "Ошибка получения с сервера";
@@ -269,6 +345,9 @@ export default class {
                     log(data);
                 }
             }
+
+
+            // Создание нового игрока
             if(type=="player-create") {
                 try {
                     if(!data.info) throw "Ошибка получения с сервера";
@@ -282,12 +361,13 @@ export default class {
                         info.character_id == undefined ||
                         info.room_id == undefined ||
                         info.state == undefined ||
-                        info.coins_count == undefined
+                        info.coins_count == undefined ||
+                        info.level == undefined
                     ) throw "Ошибка получения с сервера";
 
                     let character = it.characters[info.character_id] || it.characters["man"]
 
-                    const player = new Unit(info.room_id, info.x, info.y, character, 'Игрок['+info.ID+']', info.state, info.coins_count);
+                    const player = new Unit(info.room_id, info.x, info.y, character, 'Игрок['+info.ID+']', info.state, info.coins_count, info.level);
                     it.units[info.ID] = player;
                 }
                 catch (e){
@@ -295,6 +375,9 @@ export default class {
                     log(data);
                 }
             }
+
+
+            // Информация об игроке
             if(type=="player-info") {
                 try {
                     if(!data.info) throw "Ошибка получения с сервера";
@@ -308,13 +391,14 @@ export default class {
                         info.character_id == undefined ||
                         info.room_id == undefined ||
                         info.state == undefined ||
-                        info.coins_count == undefined
+                        info.coins_count == undefined ||
+                        info.level == undefined
                     ) throw "Ошибка получения с сервера";
 
                     let character = it.characters[info.character_id] || it.characters["man"]
 
                     if(info.ID in it.units) {
-                        it.units[info.ID].set(info.room_id, info.x, info.y, character, info.state, info.coins_count);
+                        it.units[info.ID].set(info.room_id, info.x, info.y, character, info.state, info.coins_count, info.level);
                     }
                 }
                 catch (e){
@@ -322,6 +406,9 @@ export default class {
                     log(data);
                 }
             }
+
+
+            // Игрок ушел
             if(type=="player-leave") {
                 try {
                     if(!data.ID) throw "Ошибка получения с сервера";
@@ -336,6 +423,8 @@ export default class {
                 }
             }
 
+
+            // Создание лута
             if(type=="loot-create") {
                 try {
                     if(!data.info) throw "Ошибка получения с сервера";
@@ -361,6 +450,8 @@ export default class {
                 }
             }
 
+
+            // Информация о луте
             if(type=="loot-info") {
                 try {
                     if(!data.info) throw "Ошибка получения с сервера";
@@ -386,13 +477,23 @@ export default class {
                     log(data);
                 }
             }
+
         }
 
+
+        /**
+         * События "player" - события героя
+         * TODO: переименовать в "hero"
+         */
         if(event=="player"){
+
+
+            // Создание героя при входе
             if(type=="hero-create") {
+
                 try {
-                    if(it.hero) throw "Герой уже создан";
-                    if(!data.info) throw "Ошибка получения с сервера";
+
+                    if (!data.info) throw "Ошибка получения с сервера";
 
                     var info = data.info;
 
@@ -402,10 +503,18 @@ export default class {
                         info.character_id == undefined ||
                         info.room_id == undefined ||
                         info.state == undefined ||
-                        info.coins_count == undefined
+                        info.coins_count == undefined ||
+                        info.level == undefined ||
+                        info.levelupCounter == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    it.playerInit(info.room_id, info.x, info.y, info.character_id, info.state, info.coins_count);
+                    if(!it.hero) {
+                        it.heroInit(info.room_id, info.x, info.y, info.character_id, info.state, info.coins_count, info.level, info.levelupCounter);
+                    }
+                    else{
+                        it.heroSet(info.room_id, info.x, info.y, info.character_id, info.state, info.coins_count, info.level, info.levelupCounter);
+                    }
+
                     it.showScore(info.coins_count);
                 }
                 catch (e){
@@ -413,6 +522,9 @@ export default class {
                     log(data);
                 }
             }
+
+
+            // Информация о герое
             if(type=="hero-info") {
                 try {
                     if(!data.info) throw "Ошибка получения с сервера";
@@ -425,20 +537,63 @@ export default class {
                         info.character_id == undefined ||
                         info.room_id == undefined ||
                         info.state == undefined ||
-                        info.coins_count == undefined
+                        info.coins_count == undefined ||
+                        info.level == undefined ||
+                        info.levelupCounter == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    it.playerSet(info.room_id, info.x, info.y, info.character_id, info.state, info.coins_count);
-                    it.showScore(info.coins_count);
+                    it.heroSet(info.room_id, info.x, info.y, info.character_id, info.state, info.coins_count, info.level, info.levelupCounter);
+                    it.showScore(info.coins_count, info.level, info.levelupCounter);
                 }
                 catch (e){
                     log("Ошибка обновления Героя. "+e);
                     log(data);
                 }
             }
+
+        }
+
+
+        /**
+         * События "sound"
+         */
+        if(event=="sound"){
+
+
+            // звуковые уведомления
+            if(type=="notice") {
+                try {
+                    if(!data.info) throw "Ошибка получения с сервера";
+
+                    var info = data.info;
+
+                    if (
+                        info.room_id == undefined ||
+                        info.x == undefined ||
+                        info.y == undefined ||
+                        info.ID == undefined
+                    ) throw "Ошибка получения с сервера";
+
+                    if(it.hero.unit.room_id == info.room_id) {
+                        if(info.ID in it.sounds) {
+                            //TODO: по info.x, info.y определять как далеко от this.hero и делать громкость
+                            it.sounds[info.ID].play();
+                        }
+                    }
+                }
+                catch (e){
+                    log("Ошибка звука. "+e);
+                    log(data);
+                }
+            }
+
         }
     }
 
+    /**
+     * Показ информации о герое/игре
+     * @param score
+     */
     showScore(score){
         this.scoreElement && (this.scoreElement.innerText = score);
     }

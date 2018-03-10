@@ -8,6 +8,11 @@ export default class {
         this.width = canvas.width;
         this.height = canvas.height;
 
+        this.deadZone = {
+            x: 200,
+            y: 200
+        };
+
         this.canvas = canvas;
         this.context = canvas.getContext("2d");
 
@@ -34,6 +39,10 @@ export default class {
         this.y = y;
         this.width = width;
         this.height = height;
+
+        this.deadZone.x = Math.floor(width/2)-50;
+        this.deadZone.y = Math.floor(height/2)-50;
+
     }
 
     run(room){
@@ -48,23 +57,19 @@ export default class {
 
     runFollow(room, player){
 
-        let deadZone = {
-            x: 200,
-            y: 200
-        };
         //Следуем за плеером
-        if(player.x - this.x > this.width - deadZone.x) {
-            this.x = player.x - this.width + deadZone.x;
+        if(player.x - this.x > this.width - this.deadZone.x) {
+            this.x = player.x - this.width + this.deadZone.x;
         }
-        else if(player.x < this.x + deadZone.x) {
-            this.x = player.x - deadZone.x;
+        else if(player.x < this.x + this.deadZone.x) {
+            this.x = player.x - this.deadZone.x;
         }
 
-        if(player.y - this.y > this.height - deadZone.y) {
-            this.y = player.y - this.height + deadZone.y;
+        if(player.y - this.y > this.height - this.deadZone.y) {
+            this.y = player.y - this.height + this.deadZone.y;
         }
-        else if(player.y < this.y + deadZone.y) {
-            this.y = player.y - deadZone.y;
+        else if(player.y < this.y + this.deadZone.y) {
+            this.y = player.y - this.deadZone.y;
         }
 
         //Не выходим за границы карты

@@ -2,7 +2,7 @@
  * @class Unit
  */
 export default class {
-    constructor(room_id, startx, starty, character, name, state, coins_count){
+    constructor(room_id, startx, starty, character, name, state, coins_count, level, levelupCounter){
         this.room_id = room_id;
 
         this.x = startx;
@@ -20,6 +20,8 @@ export default class {
         this.name = name;
 
         this.coins_count = coins_count;
+        this.level = level;
+        this.levelupCounter = levelupCounter;
 
         //Если 10 и больше - покажем полное
         if(coins_count>10) coins_count = 10;
@@ -30,18 +32,18 @@ export default class {
         this.currentSpriteNum = 0;
     }
 
-    set(room_id, x, y, character, state, coins_count){
+    set(room_id, x, y, character, state, coins_count, level, levelupCounter){
         this.room_id = room_id;
         this.x = x;
         this.y = y;
         this.character = character;
 
         this.state = state;
-        this.coins_count = coins_count;
 
-        //Если 10 и больше - покажем полное
-        if(coins_count>10) coins_count = 10;
-        this.volume = Math.floor(coins_count*100/10)
+        this.coins_count = coins_count;
+        this.level = level;
+        this.levelupCounter = levelupCounter;
+
     }
 
     animate(step){
@@ -69,6 +71,11 @@ export default class {
         let x = (this.x-this.width/2) - camera.x,
             y = (this.y-this.height/2) - camera.y;
 
-        this.character.draw(camera.context, x, y, this.width, this.height, this.state, this.currentSpriteNum, this.volume);
+        let volume = null;
+        if(this.levelupCounter) {
+            volume = Math.floor(10 - this.levelupCounter%11) * 10;
+        }
+
+        this.character.draw(camera.context, x, y, this.width, this.height, this.state, this.currentSpriteNum, this.level, volume);
     }
 }

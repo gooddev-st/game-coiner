@@ -1,10 +1,14 @@
 module.exports = Coin;
 
+const characters = require('./characters.js');
+
+const sound_event = require('./sound_event.js');//звуковые события
+
 const
     COIN_WIDTH = 44,
     COIN_HEIGHT = 44;
 
-function Coin(room_id, x, y, character_id) {
+function Coin(room_id, x, y) {
     this.ID = 'loot'+Math.floor(Math.random()*65536);
 
     this.room_id = room_id;
@@ -13,7 +17,7 @@ function Coin(room_id, x, y, character_id) {
     this.width = COIN_WIDTH;
     this.height = COIN_HEIGHT;
 
-    this.character_id = character_id;
+    this.character_id = characters.CHARACTER_COIN;
 
     this.changed = true;
 }
@@ -23,6 +27,7 @@ Coin.prototype.info = function(){
         room_id: this.room_id,
         x: this.x,
         y: this.y,
+        touched: this.changed,
         character_id: this.character_id
     }
 }
@@ -32,6 +37,9 @@ Coin.prototype.touch = function(players, room){
     let touchers = [];
 
     for(let i in players){
+        //Если разные комнаты, то не касаются
+        if(this.room_id != players[i].room_id) continue;
+
         if(isTouch(this, players[i])){
             touchers.push(players[i]);
         }
@@ -45,7 +53,10 @@ Coin.prototype.touch = function(players, room){
     if(touchers.length>1){
         winner = Math.floor(Math.random()*touchers.length);
     }
-    touchers[winner].coins_count++;
+    touchers[winner].eating(this);
+
+    //sound
+    sound_event.add("eat1", this.room_id, this.x, this.y);
 
     //переместим (будто удалим и создадим новую)
     this.x = Math.floor(room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right));

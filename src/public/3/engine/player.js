@@ -3,16 +3,20 @@ import Unit from './unit.js'
  * @class Player
  */
 export default class {
-    constructor(unit, controllerKeys, socket){
+    constructor(unit, controllerKeys, clickPad, socket){
         this.unit = unit;
 
         this.controllerKeys = controllerKeys;
 
+        this.clickPad = clickPad;
+
         controllerKeys && this.initController(socket);
+
+        clickPad && this.initClickPad(socket);
     }
 
-    set(room_id, x, y, character, state, coins_count){
-        this.unit.set(room_id, x, y, character, state, coins_count)
+    set(room_id, x, y, character, state, coins_count, level, levelupCounter){
+        this.unit.set(room_id, x, y, character, state, coins_count, level, levelupCounter)
     }
 
     run(event, data){
@@ -27,6 +31,13 @@ export default class {
         this.unit.draw(camera);
     }
 
+    initClickPad(socket){
+        const clickPad = this.clickPad;
+        window.addEventListener("click", function(e){
+            socket.emit('target', {x: e.clientX + clickPad.x, y: e.clientY + clickPad.y});
+        });
+    }
+
     initController(socket){
         const keys = this.controllerKeys;
 
@@ -36,6 +47,7 @@ export default class {
             socket.emit('keyup', 'up');
             socket.emit('keyup', 'right');
             socket.emit('keyup', 'down');
+            socket.emit('target', null);
         });
 
         window.addEventListener("keydown", function(e){

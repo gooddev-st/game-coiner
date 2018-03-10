@@ -38,8 +38,14 @@ h1{
     font-weight: bold;
     margin-bottom: 10px;
 }
-#canvas-wrapper{
-
+#hero-panel{
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 16px 40px;
+    background-color: rgba(0,0,0,0.2);
+    color: white;
+    font-size: 20px;
 }
 
 
