@@ -1,14 +1,12 @@
 module.exports = Coin;
 
-const characters = require('./characters.js');
-
 const sound_event = require('./sound_event.js');//звуковые события
 
 const
     COIN_WIDTH = 44,
     COIN_HEIGHT = 44;
 
-function Coin(room_id, x, y) {
+function Coin(room_id, x, y, character_id) {
     this.ID = 'loot'+Math.floor(Math.random()*65536);
 
     this.room_id = room_id;
@@ -17,7 +15,7 @@ function Coin(room_id, x, y) {
     this.width = COIN_WIDTH;
     this.height = COIN_HEIGHT;
 
-    this.character_id = characters.CHARACTER_COIN;
+    this.character_id = character_id;
 
     this.changed = true;
 }
@@ -56,7 +54,7 @@ Coin.prototype.touch = function(players, room){
     touchers[winner].eating(this);
 
     //sound
-    sound_event.add("eat1", this.room_id, this.x, this.y);
+    sound_event.add("eat", this.room_id, this.x, this.y);
 
     //переместим (будто удалим и создадим новую)
     this.x = Math.floor(room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right));

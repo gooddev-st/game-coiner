@@ -1,4 +1,11 @@
 /**
+ * Модуль камеры
+ */
+
+const MAX_DEADZONE_X = 200;
+const MAX_DEADZONE_Y = 200;
+
+/**
  * @class Camera
  */
 export default class {
@@ -9,8 +16,8 @@ export default class {
         this.height = canvas.height;
 
         this.deadZone = {
-            x: 200,
-            y: 200
+            x: MAX_DEADZONE_X,
+            y: MAX_DEADZONE_Y
         };
 
         this.canvas = canvas;
@@ -22,8 +29,6 @@ export default class {
     }
 
     resize(){
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
 
         let width = window.innerWidth;
         let height = window.innerHeight;
@@ -40,12 +45,10 @@ export default class {
         this.width = width;
         this.height = height;
 
-        this.deadZone.x = Math.floor(width/2)-50;
-        this.deadZone.y = Math.floor(height/2)-50;
-
     }
 
     run(room){
+
         if(this.follower){
             return this.runFollow(room, this.follower);
         }
@@ -57,7 +60,35 @@ export default class {
 
     runFollow(room, player){
 
-        //Следуем за плеером
+        /**
+         * Пересчитаем "мертвые зоны"
+         */
+
+        // Берем половину камеры
+        this.deadZone.x = Math.floor(this.width/2);
+        this.deadZone.y = Math.floor(this.height/2);
+
+
+        // Учтем, что комната может быть меньше камеры
+        if(room.width < this.canvas.width){
+            this.deadZone.x = Math.floor((room.width - this.canvas.width)/2);
+        }
+        if(room.height < this.canvas.height){
+            this.deadZone.y = Math.floor((room.height - this.canvas.height)/2);
+        }
+
+        // Не делаем очень большие "мертвые зоны"
+        if(this.deadZone.x > MAX_DEADZONE_X){
+            this.deadZone.x = MAX_DEADZONE_X;
+        }
+        if(this.deadZone.y > MAX_DEADZONE_Y){
+            this.deadZone.y = MAX_DEADZONE_Y;
+        }
+
+
+        /**
+         * Следуем за плеером
+         */
         if(player.x - this.x > this.width - this.deadZone.x) {
             this.x = player.x - this.width + this.deadZone.x;
         }
@@ -72,7 +103,9 @@ export default class {
             this.y = player.y - this.deadZone.y;
         }
 
-        //Не выходим за границы карты
+        /**
+         * Не выходим за границы карты
+         */
         if(this.x < 0)
             this.x = 0;
         if(this.y < 0)
@@ -81,5 +114,16 @@ export default class {
             this.x = room.width - this.width;
         if(this.y + this.height > room.height)
             this.y = room.height - this.height;
+
+
+        /**
+         * Если камера больше карты - добавим смещение
+         */
+        if(this.width > room.width)
+            this.x += (this.width - room.width)/2;
+        if(this.height > room.height)
+            this.y += (this.height - room.height)/2;
+
+
     }
 }

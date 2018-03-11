@@ -36,6 +36,7 @@ export default class {
         this.sounds = {
             "eat1": new Sound('sound/eat1.mp3'),
             "eat2": new Sound('sound/eat2.mp3'),
+            "eat": new Sound('sound/beltHandle1.ogg'),
         };
 
         // Текущая комната. id и сама
@@ -249,6 +250,7 @@ export default class {
     /**
      * Отрисовка на камеру
      * @param camera
+     * TODO: порядок отрисовки!
      */
     draw(camera){
 
@@ -262,7 +264,6 @@ export default class {
         }
 
 
-        // Юниты (включая самого героя)
         for (let i in this.units) {
             this.units[i].draw(camera);
         }
@@ -442,7 +443,7 @@ export default class {
                         info.room_id == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    let character = it.characters[info.character_id] || it.characters["gold_coin"]
+                    let character = it.characters[info.character_id] || it.characters["coin_gold"]
 
                     const loot = new Loot(info.room_id, info.x, info.y, character, info.ID);
                     it.loots[info.ID] = loot;

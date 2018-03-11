@@ -64,23 +64,62 @@ export default class {
     draw(camera){
         if(!this.image) return false;
 
-        let sw = camera.canvas.width,
-            sh = camera.canvas.height,
+        var
+            sx = 0,
+            sy = 0,
+            sw = this.width,
+            sh = this.height,
             dx = 0,
             dy = 0,
-            dw,
-            dh;
+            dw = camera.width,
+            dh = camera.height;
 
-        if(this.image.width - camera.x < sw){
-            sw = this.image.width - camera.x;
+        if(camera.width < this.width) {
+            sx = camera.x;
+            sw = camera.width;
         }
-        if(this.image.height - camera.y < sh){
-            sh = this.image.height - camera.y;
+        else{
+            // dx = -camera.x;
+            dx = Math.floor((camera.width - this.width)/2);
+            dw = this.width;
         }
 
-        dw = sw;
-        dh = sh;
+        if(camera.height < this.height) {
+            sy = camera.y;
+            sh = camera.height;
+        }
+        else{
+            // dy = -camera.y;
+            dy = Math.floor((camera.height - this.height)/2);
+            dh = this.height;
+        }
 
-        camera.context.drawImage(this.image, camera.x, camera.y, sw, sh, dx, dy, dw, dh);
+        /*    var
+                sx = camera.x,
+                sy = camera.y,
+                sw = camera.width,
+                sh = camera.height,
+                dx = 0,
+                dy = 0,
+                dw,
+                dh;
+
+            if (this.image.width - camera.x < sw) {
+                sw = this.image.width - camera.x;
+            }
+            if (this.image.height - camera.y < sh) {
+                sh = this.image.height - camera.y;
+            }
+
+            dw = sw;
+            dh = sh;
+        }
+        else{
+            var
+                sx = 0,
+                sy
+        }*/
+
+        camera.context.drawImage(this.image, sx, sy, sw, sh, dx, dy, dw, dh);
     }
 }

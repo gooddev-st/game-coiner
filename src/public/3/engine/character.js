@@ -2,31 +2,49 @@
  * @class Character - Персонаж
  */
 export default class Character{
-    constructor(sprites_array){
-        this.sprites = {
-            default: sprites_array
-        };
+
+    constructor(sprite){
+        this.sprite = sprite;
     }
 
-    draw(context, x, y, width, height, action, spriteNum, level, volume){
-        if(!action || !this.sprites[action]){
-            action = 'default'
+
+    /**
+     * Отрисовка персонажа
+     * @param context - куда рисуем
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param state
+     * @param frameNum - номер кадра анимации
+     * @param unit_level
+     * @param volume - значение индикатора
+     */
+    draw(context, x, y, width, height, state, frameNum, unit_level, volume){
+
+        if(!state || !this.sprite.states[state]){
+            state = 'default'
         }
-        if(!spriteNum) spriteNum = 0;
+        if(!frameNum) frameNum = 0;
 
-        if(!this.sprites[action] || !this.sprites[action][spriteNum]) return false;
+        if(!this.sprite.states[state] || !this.sprite.states[state][frameNum]) return;
 
-        this.drawSprite(
+
+        // Рисуем кадр
+        this.drawFrame(
             context,
-            this.sprites[action][spriteNum],
+            this.sprite.image,
+            this.sprite.states[state][frameNum],
             x,
             y,
             width,
             height
         );
 
+
+        // Если есть - рисуем индикатор
         if(volume!=undefined) {
-            this.drawHealth(
+            this.drawVolume(
                 context,
                 x,
                 y,
@@ -36,23 +54,33 @@ export default class Character{
             );
         }
 
-        if(level!=undefined) {
+        // Если есть - рисуем уровень
+        if(unit_level!=undefined) {
             this.drawLevel(
                 context,
                 x,
                 y,
                 width,
                 height,
-                level
+                unit_level
             );
         }
 
-        this.currentStep++;
     }
 
-    drawSprite(context, sprite, x, y, width, height){
+
+    /**
+     * Рисуем кадр анимации
+     * @param context
+     * @param sprite
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     */
+    drawFrame(context, image, sprite, x, y, width, height){
         context.drawImage(
-            sprite.image,
+            image,
             sprite.x,
             sprite.y,
             sprite.width,
@@ -64,25 +92,45 @@ export default class Character{
         );
     }
 
-    drawHealth(context, x, y, width, height, value){
 
-        let healthWidth = width - 10;
+    /**
+     * Рисуем индикатор
+     * @param context
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param value
+     */
+    drawVolume(context, x, y, width, height, value){
 
-        if(healthWidth<10) healthWidth = 10;
+        let volumeWidth = width - 50;
 
-        let healthX = Math.floor((width - healthWidth)/2) + x;
+        if(volumeWidth<10) volumeWidth = 10;
 
-        let healthHeight = Math.floor(height/8);
+        let healthX = Math.floor((width - volumeWidth)/2) + x;
+
+        let healthHeight = Math.floor(height/15);
 
         context.save();
         context.beginPath();
         context.fillStyle = "red";
-        context.fillRect(healthX, y-7, Math.floor(healthWidth*value/100), healthHeight);
-        context.rect(healthX-1, y-8, healthWidth+2, healthHeight+2);
+        context.fillRect(healthX, y-7, Math.floor(volumeWidth*value/100), healthHeight);
+        context.rect(healthX-1, y-8, volumeWidth+2, healthHeight+2);
         context.stroke();
         context.restore();
     }
 
+
+    /**
+     * Рисуем уровень
+     * @param context
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param level
+     */
     drawLevel(context, x, y, width, height, level){
 
         context.save();
@@ -92,7 +140,4 @@ export default class Character{
         context.restore();
     }
 
-    setStateSprites(state, sprites_array){
-        this.sprites[state] = sprites_array;
-    }
 }

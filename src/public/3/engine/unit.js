@@ -10,8 +10,8 @@ export default class {
 
         this.speed = 90;
 
-        this.width = 44;
-        this.height = 44;
+        this.width = 100;
+        this.height = 100;
 
         this.character = character;
 
@@ -52,7 +52,7 @@ export default class {
         this.currentSpriteNum = Math.floor(this.faza);
 
 
-        if (this.currentSpriteNum < 0 || this.currentSpriteNum >= this.character.sprites[this.state].length) {
+        if (this.currentSpriteNum < 0 || this.currentSpriteNum >= this.character.sprite.states[this.state].length) {
             this.faza = 0;
             this.currentSpriteNum = 0;
         }
@@ -61,10 +61,10 @@ export default class {
     draw(camera){
         if(!this.character) return false;
 
-        if(!this.character.sprites[this.state]){
+        if(!this.character.sprite.states[this.state]){
             this.state = 'default';
         }
-        if(!this.character.sprites[this.state]){
+        if(!this.character.sprite.states[this.state]){
             return false;
         }
 

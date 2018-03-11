@@ -8,6 +8,8 @@ const Player = require('./player.js');
 const Coin = require('./loot.js');
 const sound_event = require('./sound_event.js');//звуковые события
 
+const characters = require('./characters.js');
+
 
 const log = function (msg) {
     console.log(msg);
@@ -22,8 +24,8 @@ const
     LOOT_COUNT = 30;
 
 const
-    PLAYER_START_X = 100,
-    PLAYER_START_Y = 100;
+    PLAYER_START_X = 1000,
+    PLAYER_START_Y = 1000;
 
 
     var cio = null;
@@ -231,10 +233,10 @@ function getRoom(room_id){
                 width: 3000,
                 height: 3000,
                 environment_id: 1,
-                dead_zone_left: 10,
-                dead_zone_top: 10,
-                dead_zone_right: 0,
-                dead_zone_bottom: 0,
+                dead_zone_left: 40,
+                dead_zone_top: 40,
+                dead_zone_right: 40,
+                dead_zone_bottom: 40,
             };
         default:
             return {
@@ -242,22 +244,28 @@ function getRoom(room_id){
                 width: 2000,
                 height: 2000,
                 environment_id: 0,
-                dead_zone_left: 10,
-                dead_zone_top: 10,
-                dead_zone_right: 0,
-                dead_zone_bottom: 0,
+                dead_zone_left: 40,
+                dead_zone_top: 40,
+                dead_zone_right: 40,
+                dead_zone_bottom: 40,
             };
     }
 }
 
 function generateLoots(room_id, num) {
-    let room = getRoom(room_id);
+    let room = getRoom(room_id),
+        posible_chars = [
+            characters.CHARACTER_COIN,
+            characters.CHARACTER_COIN_SILVER,
+            characters.CHARACTER_COIN_COPPER,
+        ];
 
     for(let i = 0; i<num; i++){
         let x = room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right),
-            y = room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom);
+            y = room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom),
+            character_id = posible_chars[Math.floor(Math.random()*posible_chars.length)];
 
-        loots.push(new Coin(room_id, x, y));
+        loots.push(new Coin(room_id, x, y, character_id));
     }
 }
 

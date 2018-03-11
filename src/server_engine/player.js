@@ -185,17 +185,22 @@ Player.prototype.run = function (room, step) {
     }
 
 
+    // Если уперлись в границу - остановимся и поправим цель
     if (this.x - this.width / 2 < 0 + room.dead_zone_left) {
         this.x = this.width / 2 + room.dead_zone_left;
+        this.controller.target && (this.controller.target.x = this.x);
     }
     if (this.y - this.height / 2 < 0 + room.dead_zone_top) {
         this.y = this.height / 2 + room.dead_zone_top;
+        this.controller.target && (this.controller.target.y = this.y);
     }
     if (this.x + this.width / 2 > (room.width - room.dead_zone_right)) {
         this.x = room.width - room.dead_zone_right - this.width / 2;
+        this.controller.target && (this.controller.target.x = this.x);
     }
     if (this.y + this.height / 2 > (room.height - room.dead_zone_bottom)) {
         this.y = room.height - room.dead_zone_bottom - this.height / 2;
+        this.controller.target && (this.controller.target.y = this.y);
     }
 };
 
