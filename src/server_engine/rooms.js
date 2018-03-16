@@ -11,8 +11,8 @@ const Room = require("./room.js");
 const rooms = {
     'start-room': new Room({
         ID: 'start-room',
-        width: 3000,
-        height: 3000,
+        width: 2000,
+        height: 2000,
         environment_id: 1,
         dead_zone_left: 40,
         dead_zone_top: 40,

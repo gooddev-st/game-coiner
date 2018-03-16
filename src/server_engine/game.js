@@ -77,24 +77,40 @@ function login(login, socket, callback) {
 
         //Пристегиваем к плееру новый сокет
         player.reset(socket);
+
+        callback(login, player);
     }
     else{
-        // Логина нет? - создади игрока с таким логином
-        // TODO: регистрация будет тут
-        player = new Player(login, socket, PLAYER_START_X, PLAYER_START_Y, 0);
 
-        players.add(login, player);
+        //Посмотрим в БД
+        db.get(login, (err, res)=>{
+            if(res.length==1){
+                const data = res[0];
+                player = new Player(
+                    login, socket, data.x, data.y,
+                    data.room_id, data.coins_count, data.level, data.levelupCounter,
+                    data.character_id,
+                    data.speed
+                );
+            }
+            else{
+                player = new Player(login, socket, PLAYER_START_X, PLAYER_START_Y, 'paradise');
+            }
+            players.add(login, player);
 
-        // log('создан новый ' + name + '. ' + socket.id);
-        db.save(player.allInfo());
+            // log('создан новый ' + name + '. ' + socket.id);
+            db.save(player.allInfo());
+
+            callback(login, player);
+        });
+
     }
-
-    callback(login, player);
 }
 
 
 function logout(login) {
     let player;
+
 
     if(player = players.get(login)){
 
@@ -124,7 +140,7 @@ function start(){
         //Проверим как там монеты
         rooms.each((room_id, room)=>{
             room.lootEach((id, loot)=>{
-                loot.touch(players, room_id);
+                loot.touch(players.list(), room);
             });
         });
 
@@ -141,7 +157,7 @@ function start(){
 
 
                 //сохраняем игроков
-                db.save(player.allInfo());
+                // db.save(player.allInfo());
             }
         });
 

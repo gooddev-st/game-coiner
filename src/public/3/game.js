@@ -82,10 +82,20 @@ export default class Game{
      * @param height
      * @param environment_id
      */
-    roomInit(ID, width, height, environment_id){
-        this.room_id = ID;
+    roomInit(settings){
+        this.room_id = settings.ID;
 
-        this.room = new Room(width, height, environment_id);
+        this.room = new Room(settings.width, settings.height, settings.environment_id);
+
+        if('loot' in settings){
+            for(const item of settings.loot){
+
+                let character = characters[item.character_id] || characters["coin_gold"]
+
+                const loot = new Loot(this.room_id, item.x, item.y, character, item.ID);
+                this.loots[item.ID] = loot;
+            }
+        }
     }
 
 
@@ -240,9 +250,9 @@ export default class Game{
 
                     var room = data.room;
 
-                    if (!room.ID || !room.width || !room.height || room.environment_id==undefined) throw "Ошибка получения с сервера";
+                    if (room.ID==undefined || !room.width || !room.height || room.environment_id==undefined) throw "Ошибка получения с сервера";
 
-                    it.roomInit(room.ID, room.width, room.height, room.environment_id);
+                    it.roomInit(room);
                 }
                 catch (e){
                     log("Ошибка получения Комнаты. "+e);
@@ -268,10 +278,13 @@ export default class Game{
                         info.level == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    let character = characters[info.character_id] || characters["man"];
+                    if(info.room_id==it.room_id) {
 
-                    const unit = new Unit(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
-                    units.add(info.ID, unit);
+                        let character = characters[info.character_id] || characters["man"];
+
+                        const unit = new Unit(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
+                        units.add(info.ID, unit);
+                    }
                 }
                 catch (e){
                     log("Ошибка получения игрока. "+e);
@@ -297,9 +310,12 @@ export default class Game{
                         info.level == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    let character = characters[info.character_id] || characters["man"]
+                    if(info.room_id==it.room_id) {
 
-                    units.item(info.ID).set(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
+                        let character = characters[info.character_id] || characters["man"]
+
+                        units.item(info.ID).set(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
+                    }
                 }
                 catch (e){
                     log("Ошибка обновления игрока. "+e);
@@ -313,7 +329,9 @@ export default class Game{
                 try {
                     if(!data.ID) throw "Ошибка получения с сервера";
 
-                    units.remove(data.ID);
+                    if(data.room_id==it.room_id) {
+                        units.remove(data.ID);
+                    }
                 }
                 catch (e){
                     log("Ошибка удаления игрока. "+e);
@@ -323,7 +341,7 @@ export default class Game{
 
 
             // Создание лута
-            if(type=="loot-create") {
+            /*if(type=="loot-create") {
                 try {
                     if(!data.info) throw "Ошибка получения с сервера";
 
@@ -346,7 +364,7 @@ export default class Game{
                     log("Ошибка получения лута. "+e);
                     log(data);
                 }
-            }
+            }*/
 
 
             // Информация о луте
@@ -364,10 +382,13 @@ export default class Game{
                         info.room_id == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    let character = characters[info.character_id] || characters["gold_coin"]
+                    if(info.room_id==it.room_id) {
 
-                    if(info.ID in it.loots) {
-                        it.loots[info.ID].set(info.room_id, info.x, info.y, character, info.ID);
+                        let character = characters[info.character_id] || characters["gold_coin"]
+
+                        if (info.ID in it.loots) {
+                            it.loots[info.ID].set(info.room_id, info.x, info.y, character, info.ID);
+                        }
                     }
                 }
                 catch (e){

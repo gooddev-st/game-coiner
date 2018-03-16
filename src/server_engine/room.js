@@ -41,3 +41,14 @@ Room.prototype.lootEach = function(callback){
         callback(i, this.loot[i]);
     }
 };
+
+
+Room.prototype.info = function(){
+    return {
+        ID: this.ID,
+        width: this.width,
+        height: this.height,
+        environment_id: this.environment_id,
+        loot: this.loot
+    };
+}

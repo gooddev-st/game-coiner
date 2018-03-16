@@ -5,6 +5,7 @@
 module.exports.get = get;
 module.exports.add = add;
 module.exports.each = each;
+module.exports.list = list;
 module.exports.remove = remove;
 
 const players = {};
@@ -30,6 +31,11 @@ function each(callback) {
     for(const playerID in players){
         callback(playerID, players[playerID]);
     }
+}
+
+
+function list() {
+    return players;
 }
 
 

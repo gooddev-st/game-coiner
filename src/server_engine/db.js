@@ -84,7 +84,7 @@ function save(data) {
 function get(id, callback) {
     connection.query("SELECT * FROM users WHERE ID=?", [id], function (err, res, fields) {
         if(err){
-            console.log("Ошибка записи игрока "+data.ID)
+            console.log("Ошибка чтения игрока "+data.ID)
         }
         else{
             callback(err, res);

@@ -60,7 +60,7 @@ function getRandomCharacter() {
  * @param character_id
  * @constructor
  */
-function Player(playerID, socket, x, y, room_id, coins_count, level, levelupCounter, character_id) {
+function Player(playerID, socket, x, y, room_id, coins_count, level, levelupCounter, character_id, speed) {
     this.x = x;
     this.y = y;
 
@@ -73,7 +73,7 @@ function Player(playerID, socket, x, y, room_id, coins_count, level, levelupCoun
     this.socket = socket;
     this.width = PLAYER_WIDTH;
     this.height = PLAYER_HEIGHT;
-    this.speed = PLAYER_SPEED;
+    this.speed = speed==undefined ? PLAYER_SPEED : speed;
 
     this.ID = playerID;
 
@@ -81,7 +81,7 @@ function Player(playerID, socket, x, y, room_id, coins_count, level, levelupCoun
     if(levelupCounter!=undefined) this.levelupCounter = levelupCounter;
 
     this.level = level || 1;
-    this.coins_count = 0;
+    this.coins_count = coins_count==undefined ? 0 : coins_count;
 
     //Есть ли изменения для отсылки
     this.changed = true;
@@ -102,22 +102,20 @@ function Player(playerID, socket, x, y, room_id, coins_count, level, levelupCoun
 Player.prototype.init = function () {
 
     //Отправим героя
-    events.one(this.socket, "hero", "hero-create", {info: this.allInfo(), message: "Создаем героя "+this.ID});
-    log('Отправили ' + this.ID);
+    events.one(this.socket, "hero", "hero-create", {info: this.allInfo(), message: "Выдан герой "+this.ID});
 
     //Отправим комнату, в которой герой
     let room = rooms.get(this.room_id);
 
-    events.one(this.socket, "room", "change", {room: room, message: "Выдана Комната"});
+    events.one(this.socket, "room", "change", {room: room.info(), message: "Выдана Комната"});
 
 
     //Отправим игроков. В той же комнате. Кроме самого
-    for (let i in players) {
-        let player = players[i];
-        if(player.ID != this.ID && player.room_id == this.room_id) {
-            events.one(this.socket, "room", "player-create", {info: this.commonInfo()});
+    players.each((playerID, player)=>{
+        if(playerID != this.ID && player.room_id == this.room_id) {
+            events.one(this.socket, "room", "player-create", {info: player.commonInfo()});
         }
-    }
+    });
     events.one(this.socket, "hero", "info", {message: "Выданы игроки"});
 
 
@@ -219,6 +217,8 @@ Player.prototype.eating = function (loot) {
         if(this.speed>400) this.speed = 400;
 
     }
+
+    db.save(this.allInfo());
     this.changed = true;
 }
 
@@ -376,7 +376,7 @@ Player.prototype.allInfo = function(){
 
 Player.prototype.destroy = function(){
 
-    events.common(this.socket, "room", "player-leave", {ID: this.ID, message: "Игрок["+this.ID+"] покинул этот мир"});
+    events.common(this.socket, "room", "player-leave", {room_id: this.room_id, ID: this.ID, message: "Игрок["+this.ID+"] покинул этот мир"});
 
     this.socket.removeAllListeners();
 
