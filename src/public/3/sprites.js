@@ -2,8 +2,15 @@
 let s_doc = document.getElementById('s_doc'),
     s_prof = document.getElementById('s_prof'),
     s_gob = document.getElementById('s_gob'),
+    s_girl = document.getElementById('s_girl'),
+    s_blond = document.getElementById('s_blond'),
+    s_mag = document.getElementById('s_mag'),
     s_coins = document.getElementById('s_coins');
 
+
+/**
+ * Доктор
+ */
 exports.doc = {
     "image": s_doc,
     "states": {
@@ -21,6 +28,10 @@ exports.doc = {
 
 };
 
+
+/**
+ * Профессор
+ */
 exports.prof = {
     "image": s_prof,
 
@@ -43,6 +54,10 @@ exports.prof = {
 
 };
 
+
+/**
+ * Гоблин
+ */
 exports.gob = {
     "image": s_gob,
 
@@ -63,6 +78,88 @@ exports.gob = {
 
 };
 
+
+/**
+ * Девочка
+ */
+exports.girl = {
+    "image": s_girl,
+
+    "states": {
+        "default": [
+            {"name": "girl1", "x": 0, "y": 0, "width": 64, "height": 64},
+        ],
+
+        "run": [
+            {"name": "girl1", "x": 0, "y": 0, "width": 64, "height": 64},
+            {"name": "girl2", "x": 0, "y": 64, "width": 64, "height": 64},
+            {"name": "girl3", "x": 64, "y": 0, "width": 64, "height": 64},
+            {"name": "girl4", "x": 64, "y": 64, "width": 64, "height": 64},
+            {"name": "girl5", "x": 0, "y": 128, "width": 64, "height": 64},
+            {"name": "girl6", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "girl7", "x": 128, "y": 0, "width": 64, "height": 64},
+            {"name": "girl8", "x": 128, "y": 64, "width": 64, "height": 64},
+            {"name": "girl9", "x": 128, "y": 128, "width": 64, "height": 64}
+        ]
+    }
+};
+
+
+/**
+ * Блондин
+ */
+exports.blond = {
+    "image": s_blond,
+
+    "states": {
+        "default": [
+            {"name": "blond1", "x": 0, "y": 0, "width": 64, "height": 64},
+        ],
+
+        "run": [
+            {"name": "blond1", "x": 0, "y": 0, "width": 64, "height": 64},
+            {"name": "blond2", "x": 0, "y": 64, "width": 64, "height": 64},
+            {"name": "blond3", "x": 64, "y": 0, "width": 64, "height": 64},
+            {"name": "blond4", "x": 64, "y": 64, "width": 64, "height": 64},
+            {"name": "blond5", "x": 0, "y": 128, "width": 64, "height": 64},
+            {"name": "blond6", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "blond7", "x": 128, "y": 0, "width": 64, "height": 64},
+            {"name": "blond8", "x": 128, "y": 64, "width": 64, "height": 64},
+            {"name": "blond9", "x": 128, "y": 128, "width": 64, "height": 64}
+        ]
+    }
+};
+
+
+/**
+ * Маг
+ */
+exports.mag = {
+    "image": s_mag,
+
+    "states": {
+        "default": [
+            {"name": "mag1", "x": 0, "y": 0, "width": 64, "height": 64},
+        ],
+
+        "run": [
+            {"name": "mag1", "x": 0, "y": 0, "width": 64, "height": 64},
+            {"name": "mag2", "x": 0, "y": 64, "width": 64, "height": 64},
+            {"name": "mag3", "x": 64, "y": 0, "width": 64, "height": 64},
+            {"name": "mag4", "x": 64, "y": 64, "width": 64, "height": 64},
+            {"name": "mag5", "x": 0, "y": 128, "width": 64, "height": 64},
+            {"name": "mag6", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "mag7", "x": 128, "y": 0, "width": 64, "height": 64},
+            {"name": "mag8", "x": 128, "y": 64, "width": 64, "height": 64},
+            {"name": "mag9", "x": 128, "y": 128, "width": 64, "height": 64}
+        ]
+    }
+};
+
+
+/**
+ * Золотая монета
+ */
 exports.coin_gold = {
     "image": s_coins,
 
@@ -80,6 +177,10 @@ exports.coin_gold = {
     }
 };
 
+
+/**
+ * Серебрянная монета
+ */
 exports.coin_silver = {
     "image": s_coins,
 
@@ -97,6 +198,10 @@ exports.coin_silver = {
     }
 };
 
+
+/**
+ * Медная монета
+ */
 exports.coin_copper = {
     "image": s_coins,
 

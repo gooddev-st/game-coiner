@@ -20,7 +20,7 @@ export default class Character{
      * @param unit_level
      * @param volume - значение индикатора
      */
-    draw(context, x, y, width, height, state, frameNum, unit_level, volume){
+    draw(context, x, y, width, height, state, frameNum){
 
         if(!state || !this.sprite.states[state]){
             state = 'default'
@@ -40,32 +40,6 @@ export default class Character{
             width,
             height
         );
-
-
-        // Если есть - рисуем индикатор
-        if(volume!=undefined) {
-            this.drawVolume(
-                context,
-                x,
-                y,
-                width,
-                height,
-                volume
-            );
-        }
-
-        // Если есть - рисуем уровень
-        if(unit_level!=undefined) {
-            this.drawLevel(
-                context,
-                x,
-                y,
-                width,
-                height,
-                unit_level
-            );
-        }
-
     }
 
 
@@ -90,54 +64,6 @@ export default class Character{
             width,
             height
         );
-    }
-
-
-    /**
-     * Рисуем индикатор
-     * @param context
-     * @param x
-     * @param y
-     * @param width
-     * @param height
-     * @param value
-     */
-    drawVolume(context, x, y, width, height, value){
-
-        let volumeWidth = width - 50;
-
-        if(volumeWidth<10) volumeWidth = 10;
-
-        let healthX = Math.floor((width - volumeWidth)/2) + x;
-
-        let healthHeight = Math.floor(height/15);
-
-        context.save();
-        context.beginPath();
-        context.fillStyle = "red";
-        context.fillRect(healthX, y-7, Math.floor(volumeWidth*value/100), healthHeight);
-        context.rect(healthX-1, y-8, volumeWidth+2, healthHeight+2);
-        context.stroke();
-        context.restore();
-    }
-
-
-    /**
-     * Рисуем уровень
-     * @param context
-     * @param x
-     * @param y
-     * @param width
-     * @param height
-     * @param level
-     */
-    drawLevel(context, x, y, width, height, level){
-
-        context.save();
-        context.font = "14px Arial";
-        context.fillStyle = "blue";
-        context.fillText(level,x,y-10);
-        context.restore();
     }
 
 }

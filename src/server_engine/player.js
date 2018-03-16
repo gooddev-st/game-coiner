@@ -4,6 +4,15 @@
  */
 module.exports = Player;
 
+
+const events = require("./events.js");
+const players = require("./players.js");
+const rooms = require("./rooms.js");
+const log = require("./log.js");
+
+const db = require('./db.js');
+
+
 /**
  * Константы персонажей
  */
@@ -16,6 +25,28 @@ const
 
     SIN_45 = Math.sin(45.0);
 
+
+/**
+ * Возвращает случайного персонажа
+ * @returns {*} character_id
+ */
+function getRandomCharacter() {
+
+    const randomArray = [
+        characters.CHARACTER_DOC,
+        characters.CHARACTER_MAN,
+        characters.CHARACTER_GOB,
+        characters.CHARACTER_GIRL,
+        characters.CHARACTER_BLOND,
+        characters.CHARACTER_MAG,
+    ];
+
+    let key = Math.floor(Math.random() * randomArray.length);
+
+    return randomArray[key];
+}
+
+
 /**
  * Игрок
  * @param playerID
@@ -23,12 +54,19 @@ const
  * @param x
  * @param y
  * @param room_id
+ * @param coins_count
+ * @param level
+ * @param levelupCounter
+ * @param character_id
  * @constructor
  */
-function Player(playerID, socket, x, y, room_id) {
+function Player(playerID, socket, x, y, room_id, coins_count, level, levelupCounter, character_id) {
     this.x = x;
     this.y = y;
-    this.character_id = Math.floor(Math.random()*2) ==1 ? characters.CHARACTER_DOC : characters.CHARACTER_MAN;
+
+
+
+    this.character_id = character_id || getRandomCharacter();
     this.room_id = room_id;
     this.state = 'default';
 
@@ -38,11 +76,12 @@ function Player(playerID, socket, x, y, room_id) {
     this.speed = PLAYER_SPEED;
 
     this.ID = playerID;
-    this.levelupCounter = 10;
-    this.level = 1;
-    this.coins_count = 0;
 
-    this.online = true;
+    this.levelupCounter = 10;
+    if(levelupCounter!=undefined) this.levelupCounter = levelupCounter;
+
+    this.level = level || 1;
+    this.coins_count = 0;
 
     //Есть ли изменения для отсылки
     this.changed = true;
@@ -54,7 +93,95 @@ function Player(playerID, socket, x, y, room_id) {
         down: false,
         target: null, //Позиция клика мышкой куда идти
     };
+
+    this.init();
 }
+
+
+
+Player.prototype.init = function () {
+
+    //Отправим героя
+    events.one(this.socket, "hero", "hero-create", {info: this.allInfo(), message: "Создаем героя "+this.ID});
+    log('Отправили ' + this.ID);
+
+    //Отправим комнату, в которой герой
+    let room = rooms.get(this.room_id);
+
+    events.one(this.socket, "room", "change", {room: room, message: "Выдана Комната"});
+
+
+    //Отправим игроков. В той же комнате. Кроме самого
+    for (let i in players) {
+        let player = players[i];
+        if(player.ID != this.ID && player.room_id == this.room_id) {
+            events.one(this.socket, "room", "player-create", {info: this.commonInfo()});
+        }
+    }
+    events.one(this.socket, "hero", "info", {message: "Выданы игроки"});
+
+
+    //Заявим, что пришел игрок
+    events.common(this.socket, "room", "player-create", {info: this.commonInfo(), message: "Пришел игрок[" + this.ID + "]"});
+
+
+    //Навесим обработчики
+    this.socket.on('keydown', (key_name) => {
+        switch(key_name){
+
+            case "left":
+                this.controller.left = true;
+                break;
+            case "up":
+                this.controller.up = true;
+                break;
+            case "right":
+                this.controller.right = true;
+                break;
+            case "down":
+                this.controller.down = true;
+                break;
+        }
+        // log('Нажата клавиша '+key_name);
+    });
+
+    this.socket.on('keyup', (key_name) => {
+        switch(key_name){
+            case "left":
+                this.controller.left = false;
+                break;
+            case "up":
+                this.controller.up = false;
+                break;
+            case "right":
+                this.controller.right = false;
+                break;
+            case "down":
+                this.controller.down = false;
+                break;
+        }
+        // log('Клавиша '+key_name+' отжата');
+    });
+
+    this.socket.on('target', (target) => {
+        if(
+            !target ||
+            (target.x == this.x && target.y == this.y)
+        ){
+            this.controller.target = null;
+        }
+        else{
+            this.controller.target = target;
+        }
+    });
+
+    this.socket.on('signout', (data) => {
+        this.socket.disconnect(true);
+        db.save(this.allInfo());
+    });
+};
+
+
 
 /**
  * Сброс плеера при подключении другого пользователя
@@ -62,14 +189,15 @@ function Player(playerID, socket, x, y, room_id) {
  */
 Player.prototype.reset = function (socket) {
     this.socket = socket;
+
+    //Сбросим кнопки и цель движения
     this.controller.up = false;
     this.controller.left = false;
     this.controller.right = false;
     this.controller.down = false;
     this.controller.target = null;
-
-    this.online = true;
 };
+
 
 /**
  * Поглощение лута
@@ -93,6 +221,7 @@ Player.prototype.eating = function (loot) {
     }
     this.changed = true;
 }
+
 
 /**
  * Движение игрока по контроллеру в комнате
@@ -204,9 +333,10 @@ Player.prototype.run = function (room, step) {
     }
 };
 
+
 /**
  * Возвращает общедоступную информацию об игроке
- * @returns {{ID: *, x: *, y: *, character_id: *, state: *, coins_count: *, level: *, room_id: *, online: *}}
+ * @returns {{ID: *, x: *, y: *, character_id: *, state: *, level: *, room_id: *}}
  */
 Player.prototype.commonInfo = function(){
     return {
@@ -216,13 +346,11 @@ Player.prototype.commonInfo = function(){
         character_id: this.character_id,
         state: this.state,
 
-        coins_count: this.coins_count,
         level: this.level,
         room_id: this.room_id,
-
-        online: this.online,
     }
 };
+
 
 /**
  * Возвращает информацию об игроке для самого игрока
@@ -230,6 +358,7 @@ Player.prototype.commonInfo = function(){
  */
 Player.prototype.allInfo = function(){
     return {
+        ID: this.ID,
         x: this.x,
         y: this.y,
         character_id: this.character_id,
@@ -239,6 +368,17 @@ Player.prototype.allInfo = function(){
         level: this.level,
         levelupCounter: this.levelupCounter,
 
+        speed: this.speed,
+
         room_id: this.room_id
     }
+};
+
+Player.prototype.destroy = function(){
+
+    events.common(this.socket, "room", "player-leave", {ID: this.ID, message: "Игрок["+this.ID+"] покинул этот мир"});
+
+    this.socket.removeAllListeners();
+
+    db.save(this.allInfo());
 };

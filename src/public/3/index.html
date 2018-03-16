@@ -8,31 +8,79 @@
     <title>Игра в монеты</title>
 </head>
 <body>
+
 <div class="game-wrapper">
     <div class="game-title">
         <h1>Игра в монеты</h1>
         <div class="legend">
             <p>Жми "вверх", "влево", "вниз", "вправо"</p>
-            <p>собери 10 монет</p>
+            <p>Собирай монеты!</p>
         </div>
     </div>
-    <div id="hero-panel">Монет <span id="coins_count">0</span></div>
+    <div id="hero-panel" style="display: none">
+        <div>
+            <div class="row">
+                <div class="label">Игрок:</div>
+                <div id="hero-name" class="value"></div>
+            </div>
+            <div class="row">
+                <button id="signout_button">выйти</button>
+            </div>
+            <div class="hr"></div>
+            <div class="row">
+                <div class="label">Монет:</div>
+                <div id="coins_count" class="value">0</div>
+            </div>
+            <div class="row">
+            <div class="label">Уровень героя:</div>
+            <div id="hero_level" class="value">0</div>
+            </div>
+            <div class="row">
+            <div class="label">Скорость героя:</div>
+            <div id="hero_speed" class="value">0</div>
+            </div>
+            <div class="row">
+            <div class="label">До уровня:</div>
+            <div id="hero_levelupcounter" class="value">0</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+
 <div class="logs-wrapper">
     <div id="logs" class="logs"></div>
 </div>
+
+
 <canvas id="canvas" width="1024" height="768">У вас староватый браузер</canvas>
-<div id="loading"><div class="title">Загрузка</div></div>
-<div class="sprite-images" style="display: none;">
-<img id="sprites" src="i/sprite.png">
-<img id="sprites2" src="i/sprite2.png">
-<img id="coins" src="i/coin_gold.png">
-<img id="s_coins" src="i/coins.png">
-<img id="s_doc" src="i/doc.png">
-<img id="s_prof" src="i/prof.png">
-<img id="s_gob" src="i/gob.png">
-    <div style="position: fixed; top: 0; right: 0;width: 50px; height: 50px; background: url(i/sprite2.png) no-repeat -200px -140px"></div>
+
+
+<div id="loading" style="display: none"><div class="title">Загрузка</div></div>
+
+
+<div id="login-panel" class="login-panel" style="display: none"></div>
+<div id="login-form" class="login-form" style="display: none">
+    <div>
+        <input id="login-input" type="text" placeholder="login">
+        <button id="login-button">Войти</button>
+    </div>
 </div>
+
+
+<div class="sprite-images" style="display: none;">
+    <img id="sprites" src="i/sprite.png">
+    <img id="sprites2" src="i/sprite2.png">
+    <img id="coins" src="i/coin_gold.png">
+    <img id="s_coins" src="i/coins.png">
+    <img id="s_doc" src="i/doc.png">
+    <img id="s_prof" src="i/prof.png">
+    <img id="s_gob" src="i/gob.png">
+    <img id="s_girl" src="i/girl.png">
+    <img id="s_blond" src="i/blond.png">
+    <img id="s_mag" src="i/mag.png">
+</div>
+
 <script src="dist/client_build.js"></script>
 <script src="js/jquery.min.js"></script>
 <script>

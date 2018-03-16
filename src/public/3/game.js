@@ -1,38 +1,36 @@
-import * as constants from './constants.js'
+import log from "./logs.js"
 
-import io from "socket.io-client";
+import * as constants from './constants.js';
+
+import ui from './engine/ui/ui.js';
+
+import events from './engine/events.js'
 
 import Room from './engine/room.js';
 import Camera from './engine/camera.js';
 import Unit from './engine/unit.js';
-import Player from './engine/player.js';
+import hero from './engine/hero.js';
 import Loot from './engine/loot.js';
 
 import Sound from './engine/sound.js';
 
 import characters from "./characters.js";
-
-// Логирование TODO: вынести в модуль
-const $logs = document.getElementById('logs');
-const log = function (msg) {
-    $logs.innerHTML += '<div class="msg">'+msg+'</div>';
-    $logs.parentElement.scrollTop = $logs.scrollHeight;
-    console.log(msg);
-};
+// Все юниты
+import units from "./units.js";
+import controller from "./engine/controller.js";
+import account from "./account.js";
 
 
 /**
  * Основной класс клиента игры
  * class Game
  */
-export default class {
+export default class Game{
 
     constructor(){
 
-        // Скины персонажей
-        this.characters = characters();
-
         // Доступные звуки
+        // TODO: вынести в модуль
         this.sounds = {
             "eat1": new Sound('sound/eat1.mp3'),
             "eat2": new Sound('sound/eat2.mp3'),
@@ -49,39 +47,14 @@ export default class {
         // Герой. за которого играем
         this.hero = null;
 
-        // Все юниты
-        this.units = {};
-
         // Весь лут
         this.loots = {};
 
-        // сокет подключения к серверу
-        this.socket = null;
-
-
-        /**
-         * Получение и сохранение логина пользователя
-         * TODO: сделать нормальную авторизацию
-         */
-        //Если в локальных данных нет пароля - создадим рандомный
-        this.login = localStorage.getItem('login');
-        if(!this.login) {
-            this.login = 'login' + Math.floor(Math.random() * 400);
-            localStorage.setItem('login', this.login);
-        }
-
-
-        // html-елемент в который покажем информацию о герое/игре
-        this.scoreElement = document.getElementById("coins_count");
-        // html-елемент "загрузка"
-        this.loadingElement = document.getElementById("loading");
-
-
         // Создадим камеру по "канве" из html
+        const canvas = document.getElementById("canvas");
         this.camera = new Camera(0, 0, canvas);
         // изменяем камеру под окно
         this.camera.resize();
-
 
         //При ресайзе окна браузера - изменяем камеру под окно
         const game = this;
@@ -89,65 +62,16 @@ export default class {
             game.camera.resize();
         });
 
-
-        //Подключимся к серверу
-        this.connectToServer();
-
-    }
-
-
-    /**
-     * Подключение к серверу игры
-     */
-    connectToServer(){
-        // Сохраняем this
-        var game = this;
-
+        // Пишем "Загрузка"
+        ui.waitScreen.show();
 
         // Подключаемся к серверу
-        this.socket = io();
+        events.init(this, this.eventHandler );
 
-
-        // Действия при серверных проблемах
-        this.socket.on('connect_error', function () {
-            log('Ошибка подключения к серверу');
-        });
-
-        this.socket.on('disconnect', function () {
-            log('Вы отключены от сервера');
-        });
-
-        // При переподключении сбросим всё
-        this.socket.on('reconnect', function () {
-            log('от сервера поступил reconnect');
-            game.units = {};
-            game.loots = {};
-            game.hero = null;
-        });
-
-
-        // События отправляемые в основной обработчик
-        for(let event of ["server", "room", "player", "sound"]) {
-
-            game.socket.on(event, function(data){
-                try{
-                    data = JSON.parse(data)
-                }
-                catch (e){}
-                let type = data.type ? data.type : "unknown";
-
-                game.eventHandler(game, event, type, data);
-            });
-        }
     }
 
-    /**
-     * Отсылка сообщения серверу
-     * @param event_name
-     * @param data
-     */
-    emit(event_name, data){
-        this.socket && this.socket.emit(event_name, data)
+    run(){
+
     }
 
 
@@ -166,64 +90,12 @@ export default class {
 
 
     /**
-     * Установка героя
-     * @param room_id
-     * @param x
-     * @param y
-     * @param character_id
-     * @param state
-     * @param coins_count
-     * @param level
-     * @param levelupCounter
-     */
-    heroInit(room_id, x, y, character_id, state, coins_count, level, levelupCounter){
-
-        //Если ткущая комната отсутствует или не та - шлем на сервер запрос
-        if(!this.room_id || this.room_id != room_id) {
-            this.room_id = null;
-            this.emit('need-room', room_id);
-        }
-
-        let character = this.characters[character_id] || this.characters["doc"]
-
-        const unit = new Unit(room_id, x, y, character, 'Hero', state, coins_count, level, levelupCounter);
-
-        this.hero = new Player(unit, constants.KEYS_ARROW, this.camera, this.socket);
-
-        this.units['hero'] = this.hero;
-
-        this.camera && this.camera.setFollower(this.hero.unit);
-
-        this.loadingElement.style.display = 'none';
-    }
-
-    /**
-     * Обновление информации о герое
-     * @param room_id
-     * @param x
-     * @param y
-     * @param character_id
-     * @param state
-     * @param coins_count
-     * @param level
-     * @param levelupCounter
-     */
-    heroSet(room_id, x, y, character_id, state, coins_count, level, levelupCounter){
-
-        let character = this.characters[character_id] || this.characters["doc"]
-
-        this.hero.set(room_id, x, y, character, state, coins_count, level, levelupCounter);
-
-    }
-
-
-    /**
      * Перемещение на клиенте
      *  то, что не управляется с сервера. Например камера
      */
-    run(){
+    update(){
 
-        //Камеры
+        //Камера
         this.camera && this.camera.run(this.room);
 
     }
@@ -235,9 +107,7 @@ export default class {
     animate(){
 
         //Юниты (включая самого героя)
-        for (let i in this.units) {
-            this.units[i].animate(constants.STEP);
-        }
+        units.animate();
 
         //Лут
         for (let i in this.loots) {
@@ -264,9 +134,7 @@ export default class {
         }
 
 
-        for (let i in this.units) {
-            this.units[i].draw(camera);
-        }
+        units.draw(camera);
 
     }
 
@@ -285,7 +153,7 @@ export default class {
         setInterval(function () {
 
             // Перемещение, управляемое на клиенте
-            game.run();
+            game.update();
 
 
             // Анимация
@@ -316,13 +184,45 @@ export default class {
         // data.message || log(' (Событие '+event+'.'+type+')');
 
 
+        if(event=="reconnect"){
+            log('от сервера поступил reconnect');
+            units.reset();
+            it.loots = {};
+            it.hero = null;
+        }
+
+
         /**
          * События "server"
          */
         if(event=="server") {
+
+            // Приветствие от сервера
             if (type == "hello") {
-                //TODO: переделать в нормальную авторизацию
-                it.emit('login', it.login);
+
+                // Возьмем логин из локальных данных браузера
+                let login = account.getUser();
+
+                //Если логин уже есть
+                if(login!=null) {
+
+                    // отправим логин серверу
+                    events.add('login', login);
+
+                }
+                // Если логина нет
+                else {
+
+                    // Запросим ввод логина
+                    ui.login.init( (login) => {
+
+                        // Получив сохраним
+                        account.setUser(login);
+
+                        // и отправим логин серверу
+                        events.add('login', login);
+                    });
+                }
             }
         }
 
@@ -352,7 +252,7 @@ export default class {
 
 
             // Создание нового игрока
-            if(type=="player-create") {
+            if(type=="player-create") { //TODO: переименовать в unit-create
                 try {
                     if(!data.info) throw "Ошибка получения с сервера";
 
@@ -365,14 +265,13 @@ export default class {
                         info.character_id == undefined ||
                         info.room_id == undefined ||
                         info.state == undefined ||
-                        info.coins_count == undefined ||
                         info.level == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    let character = it.characters[info.character_id] || it.characters["man"]
+                    let character = characters[info.character_id] || characters["man"];
 
-                    const player = new Unit(info.room_id, info.x, info.y, character, 'Игрок['+info.ID+']', info.state, info.coins_count, info.level);
-                    it.units[info.ID] = player;
+                    const unit = new Unit(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
+                    units.add(info.ID, unit);
                 }
                 catch (e){
                     log("Ошибка получения игрока. "+e);
@@ -395,15 +294,12 @@ export default class {
                         info.character_id == undefined ||
                         info.room_id == undefined ||
                         info.state == undefined ||
-                        info.coins_count == undefined ||
                         info.level == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    let character = it.characters[info.character_id] || it.characters["man"]
+                    let character = characters[info.character_id] || characters["man"]
 
-                    if(info.ID in it.units) {
-                        it.units[info.ID].set(info.room_id, info.x, info.y, character, info.state, info.coins_count, info.level);
-                    }
+                    units.item(info.ID).set(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
                 }
                 catch (e){
                     log("Ошибка обновления игрока. "+e);
@@ -417,9 +313,7 @@ export default class {
                 try {
                     if(!data.ID) throw "Ошибка получения с сервера";
 
-                    if(data.ID in it.units) {
-                        delete it.units[data.ID];
-                    }
+                    units.remove(data.ID);
                 }
                 catch (e){
                     log("Ошибка удаления игрока. "+e);
@@ -443,7 +337,7 @@ export default class {
                         info.room_id == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    let character = it.characters[info.character_id] || it.characters["coin_gold"]
+                    let character = characters[info.character_id] || characters["coin_gold"]
 
                     const loot = new Loot(info.room_id, info.x, info.y, character, info.ID);
                     it.loots[info.ID] = loot;
@@ -470,7 +364,7 @@ export default class {
                         info.room_id == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    let character = it.characters[info.character_id] || it.characters["gold_coin"]
+                    let character = characters[info.character_id] || characters["gold_coin"]
 
                     if(info.ID in it.loots) {
                         it.loots[info.ID].set(info.room_id, info.x, info.y, character, info.ID);
@@ -486,10 +380,9 @@ export default class {
 
 
         /**
-         * События "player" - события героя
-         * TODO: переименовать в "hero"
+         * События "hero" - события героя
          */
-        if(event=="player"){
+        if(event=="hero"){
 
 
             // Создание героя при входе
@@ -502,6 +395,7 @@ export default class {
                     var info = data.info;
 
                     if (
+                        info.ID == undefined ||
                         info.x == undefined ||
                         info.y == undefined ||
                         info.character_id == undefined ||
@@ -509,17 +403,37 @@ export default class {
                         info.state == undefined ||
                         info.coins_count == undefined ||
                         info.level == undefined ||
-                        info.levelupCounter == undefined
+                        info.levelupCounter == undefined ||
+                        info.speed == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    if(!it.hero) {
-                        it.heroInit(info.room_id, info.x, info.y, info.character_id, info.state, info.coins_count, info.level, info.levelupCounter);
+                    const character = characters[info.character_id] || characters["doc"];
+
+                    if(!hero.unit) {
+                        hero.unit = new Unit(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);
                     }
                     else{
-                        it.heroSet(info.room_id, info.x, info.y, info.character_id, info.state, info.coins_count, info.level, info.levelupCounter);
+                        hero.unit.set(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);
                     }
 
-                    it.showScore(info.coins_count);
+                    units.add('['+info.ID+']', hero.unit);
+
+                    hero.speed = info.speed;
+
+                    ui.heroInfo.start();
+                    ui.heroInfo.update(info);
+
+                    ui.waitScreen.hide();
+
+                    controller.start();
+                    controller.setClickPad(it.camera);
+
+                    //Если ткущая комната отсутствует или не та - шлем на сервер запрос
+                    if(!it.room_id || it.room_id != info.room_id) {
+                        it.room_id = null;
+                        events.add('need-room', info.room_id);
+                    }
+                    it.camera && it.camera.setFollower(hero.unit);
                 }
                 catch (e){
                     log("Ошибка создания Героя. "+e);
@@ -536,6 +450,7 @@ export default class {
                     var info = data.info;
 
                     if (
+                        info.ID == undefined ||
                         info.x == undefined ||
                         info.y == undefined ||
                         info.character_id == undefined ||
@@ -543,11 +458,16 @@ export default class {
                         info.state == undefined ||
                         info.coins_count == undefined ||
                         info.level == undefined ||
-                        info.levelupCounter == undefined
+                        info.levelupCounter == undefined ||
+                        info.speed == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    it.heroSet(info.room_id, info.x, info.y, info.character_id, info.state, info.coins_count, info.level, info.levelupCounter);
-                    it.showScore(info.coins_count, info.level, info.levelupCounter);
+                    const character = characters[info.character_id] || characters["doc"]
+                    hero.unit.set(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);
+
+                    hero.speed = info.speed;
+
+                    ui.heroInfo.update(info, it.login);
                 }
                 catch (e){
                     log("Ошибка обновления Героя. "+e);
@@ -578,7 +498,7 @@ export default class {
                         info.ID == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    if(it.hero.unit.room_id == info.room_id) {
+                    if(hero.unit.room_id == info.room_id) { //TODO: не юнит, а камера
                         if(info.ID in it.sounds) {
                             //TODO: по info.x, info.y определять как далеко от this.hero и делать громкость
                             it.sounds[info.ID].play();
@@ -594,11 +514,4 @@ export default class {
         }
     }
 
-    /**
-     * Показ информации о герое/игре
-     * @param score
-     */
-    showScore(score){
-        this.scoreElement && (this.scoreElement.innerText = score);
-    }
 }

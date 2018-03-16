@@ -1,0 +1,11 @@
+[
+  {"name": "blond1", "x": 0, "y": 0, "width": 64, "height": 64},
+  {"name": "blond2", "x": 0, "y": 64, "width": 64, "height": 64},
+  {"name": "blond3", "x": 64, "y": 0, "width": 64, "height": 64},
+  {"name": "blond4", "x": 64, "y": 64, "width": 64, "height": 64},
+  {"name": "blond5", "x": 0, "y": 128, "width": 64, "height": 64},
+  {"name": "blond6", "x": 64, "y": 128, "width": 64, "height": 64},
+  {"name": "blond7", "x": 128, "y": 0, "width": 64, "height": 64},
+  {"name": "blond8", "x": 128, "y": 64, "width": 64, "height": 64},
+  {"name": "blond9", "x": 128, "y": 128, "width": 64, "height": 64}
+]
