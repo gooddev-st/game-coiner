@@ -15,8 +15,10 @@ import Loot from './engine/loot.js';
 import Sound from './engine/sound.js';
 
 import characters from "./characters.js";
+
 // Все юниты
 import units from "./units.js";
+
 import controller from "./engine/controller.js";
 import account from "./account.js";
 

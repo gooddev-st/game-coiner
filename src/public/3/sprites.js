@@ -5,7 +5,9 @@ let s_doc = document.getElementById('s_doc'),
     s_girl = document.getElementById('s_girl'),
     s_blond = document.getElementById('s_blond'),
     s_mag = document.getElementById('s_mag'),
-    s_coins = document.getElementById('s_coins');
+    s_coins = document.getElementById('s_coins'),
+    t_trees = document.getElementById('t_trees'),
+    t_bushs = document.getElementById('t_bushs');
 
 
 /**
@@ -215,6 +217,87 @@ exports.coin_copper = {
             {"name": "copper6", "x": 160, "y": 0, "width": 32, "height": 32},
             {"name": "copper7", "x": 192, "y": 0, "width": 32, "height": 32},
             {"name": "copper8", "x": 224, "y": 0, "width": 32, "height": 32},
+        ]
+    }
+};
+
+
+/**
+ * Деревья
+ */
+exports.trees = {
+    "image": t_trees,
+
+    "states": {
+        "default": [
+            {"name": "tree_01", "x": 313, "y": 134, "width": 68, "height": 68},
+            {"name": "tree_02", "x": 0, "y": 459, "width": 44, "height": 42},
+            {"name": "tree_03", "x": 313, "y": 272, "width": 68, "height": 68},
+            {"name": "tree_04", "x": 313, "y": 65, "width": 68, "height": 68},
+            {"name": "tree_05", "x": 244, "y": 396, "width": 54, "height": 54},
+            {"name": "tree_06", "x": 452, "y": 340, "width": 46, "height": 48},
+            {"name": "tree_07", "x": 452, "y": 181, "width": 56, "height": 58},
+            {"name": "tree_08", "x": 313, "y": 341, "width": 50, "height": 52},
+            {"name": "tree_09", "x": 86, "y": 459, "width": 40, "height": 40},
+            {"name": "tree_10", "x": 384, "y": 66, "width": 66, "height": 66},
+            {"name": "tree_11", "x": 452, "y": 240, "width": 47, "height": 52},
+            {"name": "tree_12", "x": 405, "y": 396, "width": 46, "height": 48},
+            {"name": "tree_13", "x": 127, "y": 459, "width": 32, "height": 32},
+            {"name": "tree_14", "x": 452, "y": 389, "width": 46, "height": 44},
+            {"name": "tree_15", "x": 384, "y": 133, "width": 66, "height": 66},
+            {"name": "tree_16", "x": 452, "y": 293, "width": 48, "height": 46},
+            {"name": "tree_17", "x": 452, "y": 122, "width": 54, "height": 58},
+            {"name": "tree_18", "x": 313, "y": 0, "width": 70, "height": 64},
+            {"name": "tree_19", "x": 452, "y": 0, "width": 56, "height": 60},
+            {"name": "tree_20", "x": 299, "y": 396, "width": 52, "height": 54},
+            {"name": "tree_21", "x": 384, "y": 267, "width": 64, "height": 60},
+            {"name": "tree_22", "x": 452, "y": 61, "width": 54, "height": 60},
+            {"name": "tree_23", "x": 245, "y": 313, "width": 64, "height": 68},
+            {"name": "tree_24", "x": 45, "y": 459, "width": 40, "height": 42},
+            {"name": "tree_25", "x": 0, "y": 396, "width": 60, "height": 62},
+            {"name": "tree_26", "x": 218, "y": 182, "width": 50, "height": 50},
+            {"name": "tree_27", "x": 384, "y": 328, "width": 60, "height": 62},
+            {"name": "tree_28", "x": 237, "y": 234, "width": 70, "height": 70},
+            {"name": "tree_29", "x": 352, "y": 396, "width": 52, "height": 52},
+            {"name": "tree_30", "x": 384, "y": 200, "width": 66, "height": 66},
+            {"name": "tree_38", "x": 0, "y": 0, "width": 110, "height": 120},
+            {"name": "tree_39", "x": 111, "y": 0, "width": 106, "height": 120},
+            {"name": "tree_40", "x": 384, "y": 0, "width": 67, "height": 65},
+            {"name": "tree_41", "x": 162, "y": 313, "width": 82, "height": 76},
+            {"name": "tree_42", "x": 87, "y": 234, "width": 78, "height": 76},
+            {"name": "tree_43", "x": 0, "y": 313, "width": 84, "height": 82},
+            {"name": "tree_44", "x": 0, "y": 121, "width": 110, "height": 112},
+            {"name": "tree_46", "x": 218, "y": 91, "width": 76, "height": 90},
+            {"name": "tree_47", "x": 122, "y": 396, "width": 60, "height": 56},
+            {"name": "tree_48", "x": 61, "y": 396, "width": 60, "height": 56},
+            {"name": "tree_49", "x": 183, "y": 396, "width": 60, "height": 56},
+            {"name": "tree_50", "x": 166, "y": 234, "width": 70, "height": 76},
+            {"name": "tree_51", "x": 0, "y": 234, "width": 86, "height": 78},
+            {"name": "tree_52", "x": 313, "y": 203, "width": 68, "height": 68},
+            {"name": "tree_53", "x": 111, "y": 121, "width": 94, "height": 98},
+            {"name": "tree_54", "x": 218, "y": 0, "width": 94, "height": 90},
+            {"name": "tree_55", "x": 85, "y": 313, "width": 76, "height": 82}
+        ]
+    }
+};
+
+
+/**
+ * Деревья и кусты
+ */
+exports.bushs = {
+    "image": t_bushs,
+
+    "states": {
+        "default": [
+            {"name": "sprite1", "x": 103, "y": 100, "width": 25, "height": 30},
+            {"name": "sprite2", "x": 103, "y": 60, "width": 30, "height": 39},
+            {"name": "sprite3", "x": 136, "y": 0, "width": 113, "height": 118},
+            {"name": "sprite4", "x": 0, "y": 0, "width": 102, "height": 140},
+            {"name": "sprite5", "x": 156, "y": 119, "width": 15, "height": 13},
+            {"name": "sprite6", "x": 103, "y": 40, "width": 21, "height": 19},
+            {"name": "sprite7", "x": 136, "y": 119, "width": 19, "height": 19},
+            {"name": "sprite8", "x": 103, "y": 0, "width": 32, "height": 39}
         ]
     }
 };

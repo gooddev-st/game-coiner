@@ -1,0 +1,10 @@
+[
+  {"name": "sprite1", "x": 103, "y": 100, "width": 25, "height": 30},
+  {"name": "sprite2", "x": 103, "y": 60, "width": 30, "height": 39},
+  {"name": "sprite3", "x": 136, "y": 0, "width": 113, "height": 118},
+  {"name": "sprite4", "x": 0, "y": 0, "width": 102, "height": 140},
+  {"name": "sprite5", "x": 156, "y": 119, "width": 15, "height": 13},
+  {"name": "sprite6", "x": 103, "y": 40, "width": 21, "height": 19},
+  {"name": "sprite7", "x": 136, "y": 119, "width": 19, "height": 19},
+  {"name": "sprite8", "x": 103, "y": 0, "width": 32, "height": 39}
+]

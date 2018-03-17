@@ -1,5 +1,7 @@
 //Настройки рандомных цветов комнаты
 
+import sprites from "../sprites.js";
+
 const ENVIRONMENTS = {
     0: {
         r: {start: 120, rand: 10},
@@ -22,8 +24,9 @@ export default class {
         this.environment_id = environment_id;
         this.image = null;
 
-        this.generate();
+        this.generate(Math.floor(width/50 + height/50));
     }
+
     randomCSScolor(environment_id){
         let e = ENVIRONMENTS[environment_id];
         let r = e.r.start + Math.floor(Math.random() * e.r.rand ),
@@ -31,7 +34,8 @@ export default class {
             b = e.b.start + Math.floor(Math.random() * e.b.rand);
         return 'rgb('+r+','+g+','+b+')';
     }
-    generate(){
+
+    generate(trees_num){
         var ctx = document.createElement("canvas").getContext("2d"),
             tileWidth = 22,
             tileHeight = 22;
@@ -52,15 +56,56 @@ export default class {
             }
         }
 
+        //Сгенерим деревья
+        for(let i = 0; i<trees_num; i++){
+            let id = Math.floor(Math.random()*sprites.trees.states.default.length),
+
+                tile = sprites.trees.states.default[id],
+
+                x = Math.random()*(this.width + tile.width) - tile.width,
+                y = Math.random()*(this.height + tile.height) - tile.height,
+                w = tile.width, h = tile.height, sx = tile.x, sy = tile.y;
+
+
+
+            if(x < 0){w += x;sx -= x;x = 0;}
+            if(y < 0){h += y;sy -= y;y = 0;}
+            if(x >= this.width - tile.width){ w = x - (this.width - tile.width);}
+            if(y >= this.height - tile.height){ h = y - (this.height - tile.height);}
+
+            ctx.drawImage(sprites.trees.image, sx, sy, w, h, x, y, w, h);
+
+        }
+
+        //Сгенерим кусты
+        /*for(let i = 0; i<trees_num; i++){
+            let id = Math.floor(Math.random()*sprites.bushs.states.default.length),
+
+                tile = sprites.bushs.states.default[id],
+
+                x = Math.random()*(this.width + tile.width) - tile.width,
+                y = Math.random()*(this.height + tile.height) - tile.height,
+                w = tile.width, h = tile.height, sx = tile.x, sy = tile.y;
+
+            if(x < 0){w += x;sx -= x;x = 0;}
+            if(y < 0){h += y;sy -= y;y = 0;}
+            if(x >= this.width - tile.width){ w = x - (this.width - tile.width);}
+            if(y >= this.height - tile.height){ h = y - (this.height - tile.height);}
+
+            ctx.drawImage(sprites.bushs.image, sx, sy, w, h, x, y, w, h);
+
+        }*/
+
         ctx.restore();
 
-        // store the generate map as this image texture
+        // Сохраним картинкой
         this.image = new Image();
         this.image.src = ctx.canvas.toDataURL("image/png");
 
-        // clear context
+
         ctx = null;
     }
+
     draw(camera){
         if(!this.image) return false;
 
