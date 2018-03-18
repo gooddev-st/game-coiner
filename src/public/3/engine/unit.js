@@ -16,15 +16,17 @@ export default class Unit{
      * @param level
      * @param coins_count
      * @param levelupCounter
+     * @param width
+     * @param height
      */
-    constructor(room_id, x, y, character, name, state, level, coins_count, levelupCounter){
+    constructor(room_id, x, y, character, name, state, level, coins_count, levelupCounter, width, height){
         this.room_id = room_id;
 
         this.x = x;
         this.y = y;
 
-        this.width = 100;
-        this.height = 100;
+        this.width = width;
+        this.height = height;
 
         this.character = character;
 
@@ -91,53 +93,67 @@ export default class Unit{
             return false;
         }
 
-        let x = (this.x-this.width/2) - camera.x,
-            y = (this.y-this.height/2) - camera.y;
+        let x = this.x - camera.x,
+            y = this.y - camera.y;
 
-        this.character.draw(camera.context, x, y, this.width, this.height, this.state, this.currentSpriteNum);
+        this.drawCharacter(camera.context, x, y);
 
 
         // Если есть - рисуем индикатор
         if(this.levelupCounter!=undefined && this.levelupCounter!=null) {
             let volume = Math.floor(10 - this.levelupCounter % 11) * 10;
-            this.drawVolume(camera.context, x, y, this.width, this.height, volume);
+            this.drawVolume(camera.context, x, y, volume);
         }
 
         // Если есть - рисуем уровень
         if(this.level!=undefined && this.level!=null) {
-            this.drawLevel(camera.context, x, y, this.width, this.height, this.level);
+            this.drawLevel(camera.context, x, y, this.level);
         }
 
         // Рисуем имя
         if(this.level!=undefined && this.level!=null) {
-            this.drawName(camera.context, x, y, this.width, this.height, this.name);
+            this.drawName(camera.context, x, y, this.name);
         }
     }
+
+
+    drawCharacter(context, sx, sy){
+        let x = sx - (this.character.width-this.width)/2,
+            y = sy - (this.character.height-this.height);
+
+        this.character.draw(context, x, y, this.state, this.currentSpriteNum, this.width, this.height);
+
+        // Рисуем пятно коллизий
+        /*context.save();
+        context.beginPath();
+        context.fillStyle = "rgba(255,255,67,0.4)";
+        context.fillRect(sx, sy, this.width, this.height);
+        context.rect(x, y, this.character.width, this.character.height);
+        context.stroke();
+        context.restore();*/
+    }
+
 
     /**
      * Рисуем индикатор
      * @param context
      * @param x
      * @param y
-     * @param width
-     * @param height
      * @param value
      */
-    drawVolume(context, x, y, width, height, value){
+    drawVolume(context, x, y, value){
 
-        let volumeWidth = width - 50;
+        let volumeWidth = 70;
+        let volumeHeight = 9;
+        let volumeX = x + (this.width - volumeWidth)/2;
+        let volumeY = y - 50;
 
-        if(volumeWidth<10) volumeWidth = 10;
-
-        let healthX = Math.floor((width - volumeWidth)/2) + x;
-
-        let healthHeight = Math.floor(height/15);
 
         context.save();
         context.beginPath();
         context.fillStyle = "red";
-        context.fillRect(healthX, y, Math.floor(volumeWidth*value/100), healthHeight);
-        context.rect(healthX-1, y-1, volumeWidth+2, healthHeight+2);
+        context.fillRect(volumeX, volumeY, Math.floor(volumeWidth*value/100), volumeHeight);
+        context.rect(volumeX-1, volumeY-1, volumeWidth+2, volumeHeight+2);
         context.stroke();
         context.restore();
     }
@@ -146,18 +162,20 @@ export default class Unit{
     /**
      * Рисуем уровень
      * @param context
-     * @param x
-     * @param y
-     * @param width
-     * @param height
+     * @param sx
+     * @param sy
      * @param level
      */
-    drawLevel(context, x, y, width, height, level){
+    drawLevel(context, sx, sy, level){
+
+        let textWidth = context.measureText(level).width,
+            x = sx + (this.width - textWidth)/2,
+            y = sy - 42;
 
         context.save();
-        context.font = "14px Arial";
-        context.fillStyle = "blue";
-        context.fillText(level,x,y+7);
+        context.font = "bold 11px Arial";
+        context.fillStyle = "white";
+        context.fillText(level,x,y);
         context.restore();
     }
 
@@ -165,13 +183,11 @@ export default class Unit{
     /**
      * Рисуем имя
      * @param context
-     * @param x
-     * @param y
-     * @param width
-     * @param height
+     * @param sx
+     * @param sy
      * @param name
      */
-    drawName(context, x, y, width, height, name){
+    drawName(context, sx, sy, name){
 
         context.save();
         context.fillStyle = "yellow";
@@ -179,9 +195,10 @@ export default class Unit{
         context.font = "14px sans-serif";
 
         let textWidth = context.measureText(name).width,
-            textX = x + Math.floor((width - textWidth)/2);
+            x = sx + (this.width - textWidth)/2,
+            y = sy - 60;
 
-        context.fillText(name,textX,y-10);
+        context.fillText(name,x,y);
         context.restore();
     }
 }

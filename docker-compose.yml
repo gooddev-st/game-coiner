@@ -5,7 +5,7 @@ services:
     game-server:
         build: .
         user: "node"
-        working_dir: /home/node/app
+        working_dir: /home/node/app/server
         container_name: game-server
         volumes:
             - ./src:/home/node/app

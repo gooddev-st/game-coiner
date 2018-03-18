@@ -240,13 +240,6 @@ Player.prototype.teleport = function (teleport) {
 
         events.one(this.socket, "room", "change", {room: room.info(), message: "Выдана Комната"});
 
-        //Отправим игроков. В той же комнате. Кроме самого
-        /*players.each((playerID, player)=>{
-            if(playerID != this.ID && player.room_id == this.room_id) {
-                events.one(this.socket, "room", "player-create", {info: player.commonInfo()});
-            }
-        });
-        events.one(this.socket, "hero", "info", {message: "Выданы игроки"});*/
     }
 
     db.save(this.allInfo());
@@ -346,20 +339,20 @@ Player.prototype.run = function (room, step) {
 
 
     // Если уперлись в границу - остановимся и поправим цель
-    if (this.x - this.width / 2 < 0 + room.dead_zone_left) {
-        this.x = this.width / 2 + room.dead_zone_left;
+    if (this.x < 0 + room.dead_zone_left) {
+        this.x = 0 + room.dead_zone_left;
         this.controller.target && (this.controller.target.x = this.x);
     }
-    if (this.y - this.height / 2 < 0 + room.dead_zone_top) {
-        this.y = this.height / 2 + room.dead_zone_top;
+    if (this.y < 0 + room.dead_zone_top) {
+        this.y = 0 + room.dead_zone_top;
         this.controller.target && (this.controller.target.y = this.y);
     }
-    if (this.x + this.width / 2 > (room.width - room.dead_zone_right)) {
-        this.x = room.width - room.dead_zone_right - this.width / 2;
+    if (this.x + this.width > (room.width - room.dead_zone_right)) {
+        this.x = room.width - room.dead_zone_right - this.width;
         this.controller.target && (this.controller.target.x = this.x);
     }
-    if (this.y + this.height / 2 > (room.height - room.dead_zone_bottom)) {
-        this.y = room.height - room.dead_zone_bottom - this.height / 2;
+    if (this.y + this.height > (room.height - room.dead_zone_bottom)) {
+        this.y = room.height - room.dead_zone_bottom - this.height;
         this.controller.target && (this.controller.target.y = this.y);
     }
 };
@@ -401,7 +394,10 @@ Player.prototype.allInfo = function(){
 
         speed: this.speed,
 
-        room_id: this.room_id
+        room_id: this.room_id,
+
+        width: this.width,
+        height: this.height
     }
 };
 

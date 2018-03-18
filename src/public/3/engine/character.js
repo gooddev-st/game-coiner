@@ -5,6 +5,9 @@ export default class Character{
 
     constructor(sprite){
         this.sprite = sprite;
+
+        this.width = sprite.width;
+        this.height = sprite.height;
     }
 
 
@@ -20,7 +23,7 @@ export default class Character{
      * @param unit_level
      * @param volume - значение индикатора
      */
-    draw(context, x, y, width, height, state, frameNum){
+    draw(context, x, y, state, frameNum, width, height){
 
         if(!state || !this.sprite.states[state]){
             state = 'default'
@@ -37,8 +40,8 @@ export default class Character{
             this.sprite.states[state][frameNum],
             x,
             y,
-            width,
-            height
+            this.width,
+            this.height
         );
     }
 

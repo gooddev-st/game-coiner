@@ -12,29 +12,29 @@ const Room = require("./room.js");
 const rooms = {
     'start-room': new Room({
         ID: 'start-room',
-        width: 2000,
-        height: 2000,
+        width: 3000,
+        height: 4000,
         environment_id: 1,
-        dead_zone_left: 40,
-        dead_zone_top: 40,
-        dead_zone_right: 40,
-        dead_zone_bottom: 40,
+        dead_zone_left: 10,
+        dead_zone_top: 80,
+        dead_zone_right: 10,
+        dead_zone_bottom: 0,
     }),
 
     'paradise': new Room({
         ID: 'paradise',
         width: 2000,
-        height: 2000,
+        height: 4000,
         environment_id: 0,
-        dead_zone_left: 40,
-        dead_zone_top: 40,
-        dead_zone_right: 40,
-        dead_zone_bottom: 40,
+        dead_zone_left: 10,
+        dead_zone_top: 80,
+        dead_zone_right: 10,
+        dead_zone_bottom: 0,
     }),
 };
 
 for(const i in rooms){
-    rooms[i].randomTeleports(4);
+    rooms[i].randomTeleports(6);
 }
 
 function get(room_id){

@@ -1,65 +1,11 @@
 [
-  {
-    "name": "prof1",
-    "x": 0,
-    "y": 128,
-    "width": 64,
-    "height": 64
-  },
-  {
-    "name": "prof2",
-    "x": 0,
-    "y": 65,
-    "width": 64,
-    "height": 64
-  },
-  {
-    "name": "prof3",
-    "x": 65,
-    "y": 0,
-    "width": 64,
-    "height": 64
-  },
-  {
-    "name": "prof4",
-    "x": 65,
-    "y": 65,
-    "width": 64,
-    "height": 64
-  },
-  {
-    "name": "prof5",
-    "x": 0,
-    "y": 130,
-    "width": 64,
-    "height": 64
-  },
-  {
-    "name": "prof6",
-    "x": 65,
-    "y": 130,
-    "width": 64,
-    "height": 64
-  },
-  {
-    "name": "prof7",
-    "x": 130,
-    "y": 0,
-    "width": 64,
-    "height": 64
-  },
-  {
-    "name": "prof8",
-    "x": 130,
-    "y": 65,
-    "width": 64,
-    "height": 64
-  },
-  {
-    "name": "prof9",
-    "x": 130,
-    "y": 130,
-    "width": 64,
-    "height": 64
-  }
+  {"name": "idle", "x": 0, "y": 128, "width": 64, "height": 64},
+  {"name": "run1", "x": 64, "y": 128, "width": 64, "height": 64},
+  {"name": "run2", "x": 128, "y": 128, "width": 64, "height": 64},
+  {"name": "run3", "x": 192, "y": 128, "width": 64, "height": 64},
+  {"name": "run4", "x": 256, "y": 128, "width": 64, "height": 64},
+  {"name": "run5", "x": 320, "y": 128, "width": 64, "height": 64},
+  {"name": "run6", "x": 384, "y": 128, "width": 64, "height": 64},
+  {"name": "run7", "x": 448, "y": 128, "width": 64, "height": 64},
+  {"name": "run8", "x": 512, "y": 128, "width": 64, "height": 64}
 ]

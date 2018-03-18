@@ -4,7 +4,7 @@ const sound_event = require('./sound_event.js');//звуковые событи�
 
 const
     COIN_WIDTH = 44,
-    COIN_HEIGHT = 44;
+    COIN_HEIGHT = 33;
 
 function Coin(room_id, x, y, character_id) {
     this.ID = 'loot'+Math.floor(Math.random()*65536);
@@ -25,6 +25,8 @@ Coin.prototype.info = function(){
         room_id: this.room_id,
         x: this.x,
         y: this.y,
+        width: this.width,
+        height: this.height,
         touched: this.changed,
         character_id: this.character_id
     }

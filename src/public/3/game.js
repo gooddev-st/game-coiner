@@ -112,7 +112,7 @@ export default class Game{
 
                 let character = characters[item.character_id] || characters["coin_gold"]
 
-                this.loots[item.ID] = new Loot(this.room_id, item.x, item.y, character, item.ID);
+                this.loots[item.ID] = new Loot(this.room_id, item.x, item.y, character, item.ID, item.width, item.height);
             }
         }
 
@@ -121,7 +121,7 @@ export default class Game{
 
                 let character = characters[item.character_id] || characters["teleport"]
 
-                this.teleports[item.ID] = new Teleport(this.room_id, item.x, item.y, character, item.ID, item.target);
+                this.teleports[item.ID] = new Teleport(this.room_id, item.x, item.y, character, item.ID, item.target, item.state, item.width, item.height);
             }
         }
     }
@@ -170,15 +170,15 @@ export default class Game{
         // Комната
         this.room && this.room.draw(camera);
 
+        // Телепорты
+        for (let i in this.teleports) {
+            this.teleports[i].draw(camera);
+        }
+
 
         // Лут
         for (let i in this.loots) {
             this.loots[i].draw(camera);
-        }
-
-        // Телепорты
-        for (let i in this.teleports) {
-            this.teleports[i].draw(camera);
         }
 
 
@@ -319,7 +319,7 @@ export default class Game{
 
                     let character = characters[info.character_id] || characters["man"];
 
-                    const unit = new Unit(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
+                    const unit = new Unit(info.room_id, info.x, info.y, character, info.ID, info.state, info.level, info.width, info.height);
                     units.add(info.ID, unit);
                 }
                 catch (e){
@@ -417,10 +417,8 @@ export default class Game{
 
                     if (
                         info.ID == undefined ||
-                        info.x == undefined ||
-                        info.y == undefined ||
-                        info.character_id == undefined ||
-                        info.room_id == undefined
+                        info.room_id == undefined ||
+                        info.state == undefined
                     ) throw "Ошибка получения с сервера";
 
                     if(info.room_id==it.room_id) {
@@ -470,7 +468,7 @@ export default class Game{
                     const character = characters[info.character_id] || characters["doc"];
 
                     if(!hero.unit) {
-                        hero.unit = new Unit(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);
+                        hero.unit = new Unit(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter, info.width, info.height);
                     }
                     else{
                         hero.unit.set(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);

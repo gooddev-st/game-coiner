@@ -14,7 +14,7 @@ function Teleport(room_id, x, y, character_id, target) {
     this.y = y;
     this.width = WIDTH;
     this.height = HEIGHT;
-    this.state = 'run';
+    this.state = 'default';
 
     this.character_id = character_id;
 
@@ -32,6 +32,8 @@ Teleport.prototype.info = function(){
         room_id: this.room_id,
         x: this.x,
         y: this.y,
+        width: this.width,
+        height: this.height,
         state: this.state,
         touched: this.changed,
         character_id: this.character_id,
@@ -58,6 +60,8 @@ Teleport.prototype.touch = function(players, room){
     for(let i in touchers){
         touchers[i].teleport(this);
     }
+
+    this.state = 'run';
 
     //sound
     sound_event.add("teleport", this.room_id, this.x, this.y);

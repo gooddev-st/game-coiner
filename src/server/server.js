@@ -9,7 +9,7 @@ http.listen(3000, () => {
 });
 
 //Отдаем статику (включая клиентские скрипты)
-app.use(express.static('public'));
+app.use(express.static('../public'));
 
 //Стартуем игру
 game_server.run(io);

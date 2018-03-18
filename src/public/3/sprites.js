@@ -16,6 +16,9 @@ let s_doc = document.getElementById('s_doc'),
  */
 exports.doc = {
     "image": s_doc,
+    "width": 64,
+    "height": 64,
+
     "states": {
         "default": [
             {"name": "doc1", "x": 0, "y": 0, "width": 32, "height": 32},
@@ -37,21 +40,24 @@ exports.doc = {
  */
 exports.prof = {
     "image": s_prof,
+    "width": 100,
+    "height": 100,
 
     "states": {
         "default": [
-            {"name": "prof1", "x": 0, "y": 128, "width": 64, "height": 64},
+            {"name": "idle", "x": 0, "y": 128, "width": 64, "height": 64}
         ],
 
         "run": [
-            {"name": "prof2", "x": 0, "y": 65, "width": 64, "height": 64},
-            {"name": "prof3", "x": 65, "y": 0, "width": 64, "height": 64},
-            {"name": "prof4", "x": 65, "y": 65, "width": 64, "height": 64},
-            {"name": "prof5", "x": 0, "y": 130, "width": 64, "height": 64},
-            {"name": "prof6", "x": 65, "y": 130, "width": 64, "height": 64},
-            {"name": "prof7", "x": 130, "y": 0, "width": 64, "height": 64},
-            {"name": "prof8", "x": 130, "y": 65, "width": 64, "height": 64},
-            {"name": "prof9", "x": 130, "y": 130, "width": 64, "height": 64}
+            // {"name": "idle", "x": 0, "y": 128, "width": 64, "height": 64},
+            {"name": "run1", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "run2", "x": 128, "y": 128, "width": 64, "height": 64},
+            {"name": "run3", "x": 192, "y": 128, "width": 64, "height": 64},
+            {"name": "run4", "x": 256, "y": 128, "width": 64, "height": 64},
+            {"name": "run5", "x": 320, "y": 128, "width": 64, "height": 64},
+            {"name": "run6", "x": 384, "y": 128, "width": 64, "height": 64},
+            {"name": "run7", "x": 448, "y": 128, "width": 64, "height": 64},
+            {"name": "run8", "x": 512, "y": 128, "width": 64, "height": 64}
         ]
     }
 
@@ -63,6 +69,8 @@ exports.prof = {
  */
 exports.gob = {
     "image": s_gob,
+    "width": 100,
+    "height": 100,
 
     "states": {
         "default": [
@@ -87,6 +95,8 @@ exports.gob = {
  */
 exports.girl = {
     "image": s_girl,
+    "width": 100,
+    "height": 100,
 
     "states": {
         "default": [
@@ -113,6 +123,8 @@ exports.girl = {
  */
 exports.blond = {
     "image": s_blond,
+    "width": 100,
+    "height": 100,
 
     "states": {
         "default": [
@@ -139,6 +151,8 @@ exports.blond = {
  */
 exports.mag = {
     "image": s_mag,
+    "width": 100,
+    "height": 100,
 
     "states": {
         "default": [
@@ -165,6 +179,8 @@ exports.mag = {
  */
 exports.coin_gold = {
     "image": s_coins,
+    "width": 44,
+    "height": 44,
 
     "states": {
         "default": [
@@ -186,6 +202,8 @@ exports.coin_gold = {
  */
 exports.coin_silver = {
     "image": s_coins,
+    "width": 44,
+    "height": 44,
 
     "states": {
         "default": [
@@ -207,6 +225,8 @@ exports.coin_silver = {
  */
 exports.coin_copper = {
     "image": s_coins,
+    "width": 44,
+    "height": 44,
 
     "states": {
         "default": [
@@ -309,6 +329,8 @@ exports.bushs = {
  */
 exports.teleport = {
     "image": s_teleport,
+    "width": 90,
+    "height": 49,
 
     "states": {
         "default": [

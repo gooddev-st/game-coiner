@@ -2,14 +2,14 @@
  * @class Loot
  */
 export default class {
-    constructor(room_id, x, y, character, ID){
+    constructor(room_id, x, y, character, ID, width, height){
         this.ID = ID;
         this.room_id = room_id;
         this.x = x;
         this.y = y;
 
-        this.width = 44;
-        this.height = 44;
+        this.width = width;
+        this.height = height;
 
         this.character = character;
 
@@ -29,7 +29,6 @@ export default class {
     }
 
     draw(camera){
-        //TODO: как-то не так анимация. Переделать
         if(!this.character) return false;
 
         if(!this.character.sprite.states[this.state]){
@@ -39,10 +38,19 @@ export default class {
             return false;
         }
 
-        let x = (this.x-this.width/2) - camera.x,
-            y = (this.y-this.height/2) - camera.y;
+        let x = (this.x-(this.character.width-this.width)/2) - camera.x,
+            y = (this.y-this.character.height+this.height) - camera.y;
 
-        this.character.draw(camera.context, x, y, this.width, this.height, this.state, this.currentSpriteNum);
+        this.character.draw(camera.context, x, y, this.state, this.currentSpriteNum, this.width, this.height);
+
+        // Рисуем пятно коллизий
+        /*camera.context.save();
+        camera.context.beginPath();
+        camera.context.fillStyle = "rgba(255,255,67,0.4)";
+        camera.context.fillRect(this.x-camera.x, this.y-camera.y, this.width, this.height);
+        camera.context.rect(x, y, this.character.width, this.character.height);
+        camera.context.stroke();
+        camera.context.restore();*/
     }
 
     animate(step){
