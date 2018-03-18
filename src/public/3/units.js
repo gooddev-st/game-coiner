@@ -32,8 +32,10 @@ function animate() {
     }
 }
 
-function draw(camera) {
+function draw(camera, room_id) {
     for(const i in units){
-        units[i].draw(camera);
+        if(units[i].room_id==room_id) {
+            units[i].draw(camera);
+        }
     }
 }

@@ -54,7 +54,7 @@ Coin.prototype.touch = function(players, room){
     touchers[winner].eating(this);
 
     //sound
-    sound_event.add("eat", this.room_id, this.x, this.y);
+    sound_event.add("eat_coin", this.room_id, this.x, this.y);
 
     //переместим (будто удалим и создадим новую)
     this.x = Math.floor(room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right));

@@ -2,8 +2,8 @@
  * Модуль камеры
  */
 
-const MAX_DEADZONE_X = 200;
-const MAX_DEADZONE_Y = 200;
+const MAX_DEADZONE_X = 500;
+const MAX_DEADZONE_Y = 500;
 
 /**
  * @class Camera

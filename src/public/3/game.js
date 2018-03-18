@@ -11,6 +11,7 @@ import Camera from './engine/camera.js';
 import Unit from './engine/unit.js';
 import hero from './engine/hero.js';
 import Loot from './engine/loot.js';
+import Teleport from './engine/teleport.js';
 
 import Sound from './engine/sound.js';
 
@@ -34,10 +35,11 @@ export default class Game{
         // Доступные звуки
         // TODO: вынести в модуль
         this.sounds = {
-            "eat1": new Sound('sound/eat1.mp3'),
-            "eat2": new Sound('sound/eat2.mp3'),
-            "eat": new Sound('sound/beltHandle1.ogg'),
+            "eat_coin": new Sound('sound/coin/coin.wav'),
+            "teleport": new Sound('sound/teleport/flaunch.wav'),
         };
+
+        this.rooms = {};
 
         // Текущая комната. id и сама
         this.room_id = null;
@@ -46,11 +48,11 @@ export default class Game{
         // Камера. Совмещена со въюпортом
         this.camera = null;
 
-        // Герой. за которого играем
-        this.hero = null;
-
         // Весь лут
         this.loots = {};
+
+        // Телепорты
+        this.teleports = {};
 
         // Создадим камеру по "канве" из html
         const canvas = document.getElementById("canvas");
@@ -85,17 +87,41 @@ export default class Game{
      * @param environment_id
      */
     roomInit(settings){
+
+        //Зачистим если не впервой
+        for(let i in this.loots){ delete this.loots[i];}
+        for(let i in this.teleports){ delete this.teleports[i];}
+        this.loots = {};
+        this.teleports = {};
+        this.room && delete this.room;
+
+
         this.room_id = settings.ID;
 
-        this.room = new Room(settings.width, settings.height, settings.environment_id);
+        // Сделаем комнату или возмем из кеша
+        if(settings.ID in this.rooms){
+            this.room = this.rooms[settings.ID];
+        }
+        else{
+            this.room = new Room(settings.width, settings.height, settings.environment_id);
+            this.rooms[settings.ID] = this.room;
+        }
 
         if('loot' in settings){
             for(const item of settings.loot){
 
                 let character = characters[item.character_id] || characters["coin_gold"]
 
-                const loot = new Loot(this.room_id, item.x, item.y, character, item.ID);
-                this.loots[item.ID] = loot;
+                this.loots[item.ID] = new Loot(this.room_id, item.x, item.y, character, item.ID);
+            }
+        }
+
+        if('teleports' in settings){
+            for(const item of settings.teleports){
+
+                let character = characters[item.character_id] || characters["teleport"]
+
+                this.teleports[item.ID] = new Teleport(this.room_id, item.x, item.y, character, item.ID, item.target);
             }
         }
     }
@@ -126,6 +152,11 @@ export default class Game{
             this.loots[i].animate(constants.STEP);
         }
 
+        //Телепорты
+        for (let i in this.teleports) {
+            this.teleports[i].animate(constants.STEP);
+        }
+
     }
 
 
@@ -145,8 +176,13 @@ export default class Game{
             this.loots[i].draw(camera);
         }
 
+        // Телепорты
+        for (let i in this.teleports) {
+            this.teleports[i].draw(camera);
+        }
 
-        units.draw(camera);
+
+        this.room && units.draw(camera, this.room_id);
 
     }
 
@@ -280,13 +316,11 @@ export default class Game{
                         info.level == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    if(info.room_id==it.room_id) {
 
-                        let character = characters[info.character_id] || characters["man"];
+                    let character = characters[info.character_id] || characters["man"];
 
-                        const unit = new Unit(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
-                        units.add(info.ID, unit);
-                    }
+                    const unit = new Unit(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
+                    units.add(info.ID, unit);
                 }
                 catch (e){
                     log("Ошибка получения игрока. "+e);
@@ -312,11 +346,12 @@ export default class Game{
                         info.level == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    if(info.room_id==it.room_id) {
+                    let unit = units.item(info.ID);
+                    if(unit) {
 
                         let character = characters[info.character_id] || characters["man"]
 
-                        units.item(info.ID).set(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
+                        unit.set(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
                     }
                 }
                 catch (e){
@@ -340,33 +375,6 @@ export default class Game{
                     log(data);
                 }
             }
-
-
-            // Создание лута
-            /*if(type=="loot-create") {
-                try {
-                    if(!data.info) throw "Ошибка получения с сервера";
-
-                    var info = data.info;
-
-                    if (
-                        info.ID == undefined ||
-                        info.x == undefined ||
-                        info.y == undefined ||
-                        info.character_id == undefined ||
-                        info.room_id == undefined
-                    ) throw "Ошибка получения с сервера";
-
-                    let character = characters[info.character_id] || characters["coin_gold"]
-
-                    const loot = new Loot(info.room_id, info.x, info.y, character, info.ID);
-                    it.loots[info.ID] = loot;
-                }
-                catch (e){
-                    log("Ошибка получения лута. "+e);
-                    log(data);
-                }
-            }*/
 
 
             // Информация о луте
@@ -395,6 +403,35 @@ export default class Game{
                 }
                 catch (e){
                     log("Ошибка получения лута. "+e);
+                    log(data);
+                }
+            }
+
+
+            // Информация о телепортах
+            if(type=="teleport-info") {
+                try {
+                    if(!data.info) throw "Ошибка получения с сервера";
+
+                    var info = data.info;
+
+                    if (
+                        info.ID == undefined ||
+                        info.x == undefined ||
+                        info.y == undefined ||
+                        info.character_id == undefined ||
+                        info.room_id == undefined
+                    ) throw "Ошибка получения с сервера";
+
+                    if(info.room_id==it.room_id) {
+
+                        if (info.ID in it.teleports) {
+                            it.teleports[info.ID].set(info.state);
+                        }
+                    }
+                }
+                catch (e){
+                    log("Ошибка получения телепорта. "+e);
                     log(data);
                 }
             }

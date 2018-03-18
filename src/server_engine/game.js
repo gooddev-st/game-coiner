@@ -29,8 +29,7 @@ const
 
     var cio = null;
         mainTimer = null,
-        players = require("./players.js"),// игроки
-        loots = [];//лут
+        players = require("./players.js");//,// игроки
 
 function run(io){
     cio = io;
@@ -84,7 +83,7 @@ function login(login, socket, callback) {
 
         //Посмотрим в БД
         db.get(login, (err, res)=>{
-            if(res.length==1){
+            if(res.length>0){
                 const data = res[0];
                 player = new Player(
                     login, socket, data.x, data.y,
@@ -144,7 +143,14 @@ function start(){
             });
         });
 
-        //Шлем информацию о плеерах и сохраняем
+        //Проверим как там телепорты
+        rooms.each((room_id, room)=>{
+            room.teleportsEach((id, teleport)=>{
+                teleport.touch(players.list(), room);
+            });
+        });
+
+        //Шлем информацию о плеерах
         players.each((playerID, player)=>{
 
             if(player.changed) {
@@ -155,9 +161,6 @@ function start(){
                 events.common(player.socket, "room", "player-info", {info: player.commonInfo()});
                 player.changed = false;
 
-
-                //сохраняем игроков
-                // db.save(player.allInfo());
             }
         });
 
@@ -172,8 +175,19 @@ function start(){
             });
         });
 
+
+        //Шлем информацию о телепортах
+        rooms.each((room_id, room)=> {
+            room.teleportsEach((id, teleport) => {
+                if (teleport.changed) {
+                    events.common(cio, "room", "teleport-info", {info: teleport.info()}, true);
+                    teleport.changed = false;
+                }
+            });
+        });
+
         //Шлем информацию о звуковых событиях
-        let evs = sound_event.get();
+        let evs = sound_event.list();
         for(let i in evs){
             events.common(cio, "sound", "notice", {info: evs[i]}, true);
         }

@@ -139,32 +139,6 @@ export default class {
             dh = this.height;
         }
 
-        /*    var
-                sx = camera.x,
-                sy = camera.y,
-                sw = camera.width,
-                sh = camera.height,
-                dx = 0,
-                dy = 0,
-                dw,
-                dh;
-
-            if (this.image.width - camera.x < sw) {
-                sw = this.image.width - camera.x;
-            }
-            if (this.image.height - camera.y < sh) {
-                sh = this.image.height - camera.y;
-            }
-
-            dw = sw;
-            dh = sh;
-        }
-        else{
-            var
-                sx = 0,
-                sy
-        }*/
-
         camera.context.drawImage(this.image, sx, sy, sw, sh, dx, dy, dw, dh);
     }
 }

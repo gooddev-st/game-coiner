@@ -15,7 +15,7 @@ exports.add = function(ID, room_id, x, y){
  * Массив с событиями
  * @returns {Array}
  */
-exports.get = function () {
+exports.list = function () {
     return events;
 };
 

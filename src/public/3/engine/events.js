@@ -34,6 +34,8 @@ function init(game, eventHandler) {
         log('от сервера поступил disconnect');
         log('Вы отключены от сервера');
 
+        //TODO: удалять обработчики событий
+
         units.reset();
         game.loots = {};
         game.hero = null;

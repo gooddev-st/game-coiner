@@ -3,6 +3,7 @@
  */
 module.exports.get = get;
 module.exports.each = each;
+module.exports.toArray = toArray;
 
 
 const Room = require("./room.js");
@@ -32,6 +33,10 @@ const rooms = {
     }),
 };
 
+for(const i in rooms){
+    rooms[i].randomTeleports(4);
+}
+
 function get(room_id){
     if(room_id in rooms){
         return rooms[room_id];
@@ -45,4 +50,13 @@ function each(callback) {
     for(const i in rooms){
         callback(i, rooms[i]);
     }
+}
+
+
+function toArray() {
+    const roomsArray = [];
+    for(const i in rooms){
+        roomsArray.push(rooms[i]);
+    }
+    return roomsArray;
 }

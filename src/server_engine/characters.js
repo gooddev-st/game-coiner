@@ -14,3 +14,6 @@ exports.CHARACTER_MAG = 'mag';
 
 exports.CHARACTER_ONE = 'gob';
 exports.CHARACTER_TWO = 'prof';
+
+
+exports.CHARACTER_TELEPORT = 'teleport';

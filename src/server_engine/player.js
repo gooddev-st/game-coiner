@@ -224,6 +224,37 @@ Player.prototype.eating = function (loot) {
 
 
 /**
+ * Телепортация
+ * @param loot
+ */
+Player.prototype.teleport = function (teleport) {
+    this.room_id = teleport.target.room_id;
+    this.x = teleport.target.x;
+    this.y = teleport.target.y;
+
+    this.controller.target = null;
+
+    //Если перемещаемся в другую комнату - закажем смену
+    if(teleport.target.room_id != teleport.room_id){
+        let room = rooms.get(this.room_id);
+
+        events.one(this.socket, "room", "change", {room: room.info(), message: "Выдана Комната"});
+
+        //Отправим игроков. В той же комнате. Кроме самого
+        /*players.each((playerID, player)=>{
+            if(playerID != this.ID && player.room_id == this.room_id) {
+                events.one(this.socket, "room", "player-create", {info: player.commonInfo()});
+            }
+        });
+        events.one(this.socket, "hero", "info", {message: "Выданы игроки"});*/
+    }
+
+    db.save(this.allInfo());
+    this.changed = true;
+}
+
+
+/**
  * Движение игрока по контроллеру в комнате
  * @param room
  * @param step

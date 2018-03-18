@@ -5,6 +5,7 @@ let s_doc = document.getElementById('s_doc'),
     s_girl = document.getElementById('s_girl'),
     s_blond = document.getElementById('s_blond'),
     s_mag = document.getElementById('s_mag'),
+    s_teleport = document.getElementById('s_teleport'),
     s_coins = document.getElementById('s_coins'),
     t_trees = document.getElementById('t_trees'),
     t_bushs = document.getElementById('t_bushs');
@@ -298,6 +299,26 @@ exports.bushs = {
             {"name": "sprite6", "x": 103, "y": 40, "width": 21, "height": 19},
             {"name": "sprite7", "x": 136, "y": 119, "width": 19, "height": 19},
             {"name": "sprite8", "x": 103, "y": 0, "width": 32, "height": 39}
+        ]
+    }
+};
+
+
+/**
+ * Телепорт
+ */
+exports.teleport = {
+    "image": s_teleport,
+
+    "states": {
+        "default": [
+            {"name": "idle", "x": 0, "y": 0, "width": 90, "height": 49},
+        ],
+        "run": [
+            {"name": "run1", "x": 0, "y": 49, "width": 90, "height": 49},
+            {"name": "run2", "x": 0, "y": 98, "width": 90, "height": 49},
+            {"name": "run3", "x": 90, "y": 0, "width": 90, "height": 49},
+            {"name": "run4", "x": 90, "y": 49, "width": 90, "height": 49}
         ]
     }
 };
