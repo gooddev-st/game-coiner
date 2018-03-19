@@ -24,8 +24,19 @@ const rooms = {
     'paradise': new Room({
         ID: 'paradise',
         width: 2000,
-        height: 4000,
+        height: 3000,
         environment_id: 0,
+        dead_zone_left: 10,
+        dead_zone_top: 80,
+        dead_zone_right: 10,
+        dead_zone_bottom: 0,
+    }),
+
+    'sonnorack': new Room({
+        ID: 'sonnorack',
+        width: 600,
+        height: 600,
+        environment_id: 2,
         dead_zone_left: 10,
         dead_zone_top: 80,
         dead_zone_right: 10,

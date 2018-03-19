@@ -3,8 +3,8 @@ module.exports = Teleport;
 const sound_event = require('./sound_event.js');//звуковые события
 
 const
-    WIDTH = 90,
-    HEIGHT = 49;
+    WIDTH = 70,
+    HEIGHT = 30;
 
 function Teleport(room_id, x, y, character_id, target) {
     this.ID = 'teleport'+Math.floor(Math.random()*65536);

@@ -1,4 +1,4 @@
-export default {item, add, remove, reset, animate, draw}
+export default {item, add, remove, reset, toArray}
 
 
 const units = {};
@@ -26,16 +26,10 @@ function reset() {
     }
 }
 
-function animate() {
+function toArray() {
+    let unitsArray = [];
     for(const i in units){
-        units[i].animate();
+        unitsArray.push(units[i]);
     }
-}
-
-function draw(camera, room_id) {
-    for(const i in units){
-        if(units[i].room_id==room_id) {
-            units[i].draw(camera);
-        }
-    }
+    return unitsArray;
 }

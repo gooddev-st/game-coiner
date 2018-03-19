@@ -19,7 +19,7 @@ export default class Unit{
      * @param width
      * @param height
      */
-    constructor(room_id, x, y, character, name, state, level, coins_count, levelupCounter, width, height){
+    constructor(room_id, x, y, width, height, character, name, state, level, coins_count, levelupCounter){
         this.room_id = room_id;
 
         this.x = x;

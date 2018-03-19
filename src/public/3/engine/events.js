@@ -38,6 +38,7 @@ function init(game, eventHandler) {
 
         units.reset();
         game.loots = {};
+        game.teleports = {};
         game.hero = null;
 
         ui.waitScreen.show();

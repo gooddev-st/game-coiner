@@ -13,6 +13,11 @@ const ENVIRONMENTS = {
         g: {start: 100, rand: 23},
         b: {start: 100, rand: 5},
     },
+    2: {
+        r: {start: 210, rand: 45},
+        g: {start: 30, rand: 75},
+        b: {start: 30, rand: 75},
+    },
 };
 /**
  * @class Room
@@ -62,8 +67,8 @@ export default class {
 
                 tile = sprites.trees.states.default[id],
 
-                x = Math.random()*(this.width + tile.width) - tile.width,
-                y = Math.random()*(this.height + tile.height) - tile.height,
+                x = Math.random()*(this.width + 2*tile.width) - tile.width,
+                y = Math.random()*(this.height + 2*tile.height) - tile.height,
                 w = tile.width, h = tile.height, sx = tile.x, sy = tile.y;
 
 
@@ -107,6 +112,14 @@ export default class {
     }
 
     draw(camera){
+
+        camera.context.save();
+        camera.context.beginPath();
+        camera.context.fillStyle = '#9f8e60';
+        camera.context.fillRect(0, 0, camera.width, camera.height);
+        camera.context.closePath();
+        camera.context.restore();
+
         if(!this.image) return false;
 
         var

@@ -35,7 +35,9 @@ export default class Game{
         // Доступные звуки
         // TODO: вынести в модуль
         this.sounds = {
-            "eat_coin": new Sound('sound/coin/coin.wav'),
+            "eat_coin_gold": new Sound('sound/coin/coin.wav'),
+            "eat_coin_silver": new Sound('sound/coin/eat2.mp3'),
+            "eat_coin_copper": new Sound('sound/coin/eat1.mp3'),
             "teleport": new Sound('sound/teleport/flaunch.wav'),
         };
 
@@ -145,7 +147,11 @@ export default class Game{
     animate(){
 
         //Юниты (включая самого героя)
-        units.animate();
+        for (const unit of units.toArray()) {
+            if(unit.room_id==this.room_id) {
+                unit.animate();
+            }
+        }
 
         //Лут
         for (let i in this.loots) {
@@ -176,13 +182,32 @@ export default class Game{
         }
 
 
+        let renderArray = [];
+
         // Лут
         for (let i in this.loots) {
-            this.loots[i].draw(camera);
+            let item = this.loots[i];
+            renderArray.push({y: item.y, item: item});
+            // this.loots[i].draw(camera);
         }
 
+        //Юниты
+        let ua = units.toArray();
 
-        this.room && units.draw(camera, this.room_id);
+        for (let unit of units.toArray()) {
+            if(unit.room_id==this.room_id) {
+                renderArray.push({y: unit.y, item: unit});
+                // unit.draw(camera, this.room_id);
+            }
+        }
+
+        renderArray.sort((a, b)=>{
+            return a.y - b.y;
+        });
+
+        for(let i in renderArray){
+            renderArray[i].item.draw(camera);
+        }
 
     }
 
@@ -319,7 +344,7 @@ export default class Game{
 
                     let character = characters[info.character_id] || characters["man"];
 
-                    const unit = new Unit(info.room_id, info.x, info.y, character, info.ID, info.state, info.level, info.width, info.height);
+                    const unit = new Unit(info.room_id, info.x, info.y, info.width, info.height, character, info.ID, info.state, info.level);
                     units.add(info.ID, unit);
                 }
                 catch (e){
@@ -468,7 +493,7 @@ export default class Game{
                     const character = characters[info.character_id] || characters["doc"];
 
                     if(!hero.unit) {
-                        hero.unit = new Unit(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter, info.width, info.height);
+                        hero.unit = new Unit(info.room_id, info.x, info.y, info.width, info.height, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);
                     }
                     else{
                         hero.unit.set(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);

@@ -110,9 +110,9 @@ Player.prototype.init = function () {
     events.one(this.socket, "room", "change", {room: room.info(), message: "Выдана Комната"});
 
 
-    //Отправим игроков. В той же комнате. Кроме самого
+    //Отправим игроков. Кроме самого
     players.each((playerID, player)=>{
-        if(playerID != this.ID && player.room_id == this.room_id) {
+        if(playerID != this.ID) {
             events.one(this.socket, "room", "player-create", {info: player.commonInfo()});
         }
     });
@@ -372,6 +372,9 @@ Player.prototype.commonInfo = function(){
 
         level: this.level,
         room_id: this.room_id,
+
+        width: this.width,
+        height: this.height
     }
 };
 

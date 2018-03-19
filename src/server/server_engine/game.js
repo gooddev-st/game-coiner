@@ -82,7 +82,7 @@ function login(login, socket, callback) {
     else{
 
         //Посмотрим в БД
-        db.get(login, (err, res)=>{
+        db.get(login, (res)=>{
             if(res.length>0){
                 const data = res[0];
                 player = new Player(

@@ -3,14 +3,37 @@ const mysql = require('mysql');
 module.exports.save = save;
 module.exports.get = get;
 
-// console.log(process.env);
 
-var connection = mysql.createConnection({
+var pool = mysql.createPool({
     host: process.env.MYSQL_HOST,
     database: process.env.MYSQL_DATABASE,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
+    connectionLimit: 100,
 });
+
+
+function query(sql, props) {
+
+    return new Promise((resolve, reject)=>{
+
+        pool.getConnection((err, connection)=>{
+
+            connection.query(sql, props, (err, res)=>{
+                if(err){
+                    reject(err);
+                    // return cb(err);
+                }
+                else{
+                    resolve(res);
+                    // return cb(res);
+                }
+            });
+
+            connection.release()
+        });
+    });
+}
 
 
 function create(data) {
@@ -29,14 +52,12 @@ function create(data) {
 
     };
 
-    connection.query("INSERT INTO users SET ?", d, function (err, res) {
-        if(err){
+    query("INSERT INTO users SET ?", d)
+        .then(()=>{})
+        .catch((err)=>{
             console.log("Ошибка записи игрока "+data.ID)
-        }
-        else{
-            // console.log("user create")
-        }
-    });
+            console.log(err);
+        });
 }
 
 function update(data) {
@@ -55,22 +76,18 @@ function update(data) {
 
     };
 
-    const query = connection.query("UPDATE users SET ? WHERE ID=?", [d, d.ID], function (err, res) {
-        if(err){
-            console.log(err);
+    query("UPDATE users SET ? WHERE ID=?", [d, d.ID])
+        .then(()=>{})
+        .catch( (err)=>{
 
-            console.log("Ошибка записи игрока "+data.ID)
-            console.log(query.sql);
-        }
-        else{
-            // console.log("user update")
-        }
+        console.log("Ошибка записи игрока "+data.ID)
+        console.log(err);
     });
 }
 
 function save(data) {
 
-    get(data.ID, (err, res)=>{
+    get(data.ID, (res)=>{
         if(res.length){
             update(data);
         }
@@ -82,12 +99,12 @@ function save(data) {
 
 //
 function get(id, callback) {
-    connection.query("SELECT * FROM users WHERE ID=?", [id], function (err, res, fields) {
-        if(err){
-            console.log("Ошибка чтения игрока "+data.ID)
-        }
-        else{
-            callback(err, res);
-        }
-    });
+    query("SELECT * FROM users WHERE ID=?", [id])
+        .then((res)=>{
+            callback(res);
+        })
+        .catch((err)=> {
+            console.log("Ошибка чтения игрока " + id);
+            console.log(err);
+        });
 }
