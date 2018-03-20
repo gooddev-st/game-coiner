@@ -63,10 +63,6 @@ Teleport.prototype.touch = function(players, room){
 
     this.state = 'run';
 
-    //sound
-    sound_event.add("teleport", this.room_id, this.x, this.y);
-    sound_event.add("teleport", this.target.room_id, this.target.x, this.target.y);
-
     this.changed = true;
 };
 

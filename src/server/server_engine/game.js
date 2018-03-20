@@ -6,6 +6,7 @@
 module.exports.run = run;
 
 const rooms = require('./rooms.js');
+const npcs = require('./npcs.js');
 const Player = require('./player.js');
 // const Coin = require('./loot.js');
 const sound_event = require('./sound_event.js');//звуковые события
@@ -136,10 +137,21 @@ function start(){
             player.run( rooms.get(player.room_id), STEP );
         });
 
+        //Движем мобов
+        npcs.each((ID, npc)=>{
+            npc.run( rooms.get(npc.room_id), STEP );
+        });
+
         //Проверим как там монеты
+        //TODO: добавить мобов к поедальщикам
         rooms.each((room_id, room)=>{
             room.lootEach((id, loot)=>{
                 loot.touch(players.list(), room);
+            });
+        });
+        rooms.each((room_id, room)=>{
+            room.lootEach((id, loot)=>{
+                loot.touch(npcs.list(), room);
             });
         });
 
@@ -147,6 +159,11 @@ function start(){
         rooms.each((room_id, room)=>{
             room.teleportsEach((id, teleport)=>{
                 teleport.touch(players.list(), room);
+            });
+        });
+        rooms.each((room_id, room)=>{
+            room.teleportsEach((id, teleport)=>{
+                teleport.touch(npcs.list(), room);
             });
         });
 
@@ -160,6 +177,17 @@ function start(){
                 //остальным только общую
                 events.common(player.socket, "room", "player-info", {info: player.commonInfo()});
                 player.changed = false;
+
+            }
+        });
+
+        //Шлем информацию о мобах
+        npcs.each((ID, npc)=>{
+
+            if(npc.changed) {
+
+                events.common(cio, "room", "npc-info", {info: npc.info()}, true);
+                npc.changed = false;
 
             }
         });

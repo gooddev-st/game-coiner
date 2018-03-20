@@ -41,6 +41,18 @@ export default class {
         let x = (this.x-(this.character.width-this.width)/2) - camera.x,
             y = (this.y-this.character.height+this.height) - camera.y;
 
+
+        // не рисуем вне камеры
+        if(
+            x < -this.character.width ||
+            y < -this.character.height ||
+            x > camera.width ||
+            y > camera.height
+        ) {
+            return true;
+        }
+
+
         this.character.draw(camera.context, x, y, this.state, this.currentSpriteNum, this.width, this.height);
 
         // Рисуем пятно коллизий

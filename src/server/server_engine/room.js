@@ -23,6 +23,13 @@ function Room(settings) {
     this.randomLoot(LOOT_COUNT);
 }
 
+Room.prototype.randomPos = function(width, height){
+    return {
+        x: this.dead_zone_left + Math.random() * (this.width - this.dead_zone_left - this.dead_zone_right - width),
+        y: this.dead_zone_top + Math.random() * (this.height - this.dead_zone_top - this.dead_zone_bottom - height),
+    }
+};
+
 Room.prototype.randomLoot = function(num){
     let possible_chars = [
             characters.CHARACTER_COIN,
@@ -31,11 +38,10 @@ Room.prototype.randomLoot = function(num){
         ];
 
     for(let i = 0; i<num; i++){
-        let x = this.dead_zone_left + Math.random()*(this.width - this.dead_zone_left - this.dead_zone_right),
-            y = this.dead_zone_top + Math.random()*(this.height - this.dead_zone_top - this.dead_zone_bottom),
-            character_id = possible_chars[Math.floor(Math.random()*possible_chars.length)];
+        let character_id = possible_chars[Math.floor(Math.random()*possible_chars.length)],
+            pos = this.randomPos(44, 22);
 
-        this.loot.push(new Coin(this.ID, x, y, character_id));
+        this.loot.push(new Coin(this.ID, pos.x, pos.y, character_id));
     }
 };
 
@@ -45,8 +51,7 @@ Room.prototype.randomTeleports = function(num){
         ];
 
     for(let i = 0; i<num; i++){
-        let x = this.dead_zone_left + Math.random()*(this.width - this.dead_zone_left - this.dead_zone_right),
-            y = this.dead_zone_top + Math.random()*(this.height - this.dead_zone_top - this.dead_zone_bottom),
+        let pos = this.randomPos(70,30),
             character_id = possible_chars[Math.floor(Math.random()*possible_chars.length)];
 
         let roomsArray = rooms.toArray(),
@@ -58,7 +63,7 @@ Room.prototype.randomTeleports = function(num){
                 y: room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom),
             };
 
-        this.teleports.push(new Teleport(this.ID, x, y, character_id, target));
+        this.teleports.push(new Teleport(this.ID, pos.x, pos.y, character_id, target));
     }
 };
 

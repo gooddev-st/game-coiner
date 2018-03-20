@@ -2,9 +2,17 @@ import log from "./logs.js"
 
 import * as constants from './constants.js';
 
+import characters from "./characters.js";
+import sounds from "./sounds.js";
+import units from "./units.js";
+
 import ui from './engine/ui/ui.js';
 
+import account from "./account.js";
+
 import events from './engine/events.js'
+
+import controller from "./engine/controller.js";
 
 import Room from './engine/room.js';
 import Camera from './engine/camera.js';
@@ -13,15 +21,8 @@ import hero from './engine/hero.js';
 import Loot from './engine/loot.js';
 import Teleport from './engine/teleport.js';
 
-import Sound from './engine/sound.js';
-
-import characters from "./characters.js";
-
-// Все юниты
-import units from "./units.js";
-
-import controller from "./engine/controller.js";
-import account from "./account.js";
+// Канва для рисования
+const canvas = document.getElementById("canvas");
 
 
 /**
@@ -32,14 +33,13 @@ export default class Game{
 
     constructor(){
 
-        // Доступные звуки
-        // TODO: вынести в модуль
-        this.sounds = {
-            "eat_coin_gold": new Sound('sound/coin/coin.wav'),
-            "eat_coin_silver": new Sound('sound/coin/eat2.mp3'),
-            "eat_coin_copper": new Sound('sound/coin/eat1.mp3'),
-            "teleport": new Sound('sound/teleport/flaunch.wav'),
-        };
+    }
+
+
+    /**
+     * Запуск основного цикла
+     */
+    run() {
 
         this.rooms = {};
 
@@ -56,28 +56,62 @@ export default class Game{
         // Телепорты
         this.teleports = {};
 
-        // Создадим камеру по "канве" из html
-        const canvas = document.getElementById("canvas");
+        // Создадим камеру по "канве"
         this.camera = new Camera(0, 0, canvas);
         // изменяем камеру под окно
         this.camera.resize();
 
         //При ресайзе окна браузера - изменяем камеру под окно
-        const game = this;
-        window.addEventListener('resize', function () {
-            game.camera.resize();
-        });
+        window.addEventListener('resize', () => {this.camera.resize();});
 
         // Пишем "Загрузка"
         ui.waitScreen.show();
 
         // Подключаемся к серверу
-        events.init(this, this.eventHandler );
+        events.init(this);
+
+        events.on("server", (event, type, data)=>{this.eventHandler(this, event, type, data)});
+
+
+        /**
+         * Основной цикл
+         */
+        setInterval(() => {
+
+            // Перемещение, управляемое на клиенте
+            this.update();
+
+
+            // Анимация
+            this.animate();
+
+
+            // Отрисовка
+            this.draw(this.camera);
+
+
+        }, constants.INTERVAL);
 
     }
 
-    run(){
+    start(){
+        events.on("disconnect", ()=>{
+            this.stop();
+            units.reset();
+            this.loots = {};
+            this.hero = null;
+        });
+        events.on("reconnect", (event, type, data)=>{this.eventHandler(this, event, type, data)});
+        events.on("room", (event, type, data)=>{this.eventHandler(this, event, type, data)});
+        events.on("hero", (event, type, data)=>{this.eventHandler(this, event, type, data)});
+        events.on("sound", (event, type, data)=>{this.eventHandler(this, event, type, data)});
+    }
 
+    stop(){
+        events.off("reconnect");
+        events.off("room");
+        events.off("hero");
+        events.off("sound");
     }
 
 
@@ -211,36 +245,6 @@ export default class Game{
 
     }
 
-
-    /**
-     * Запуск основного цикла
-     */
-    start() {
-        // Сохраним tis
-        const game = this;
-
-
-        /**
-         * Основной цикл
-         */
-        setInterval(function () {
-
-            // Перемещение, управляемое на клиенте
-            game.update();
-
-
-            // Анимация
-            game.animate();
-
-
-            // Отрисовка
-            game.draw(game.camera);
-
-
-        }, constants.INTERVAL);
-
-    }
-
     /**
      * Основной обработчик событий
      * @param it - this от Game
@@ -264,6 +268,14 @@ export default class Game{
             it.hero = null;
         }
 
+        if(event=="disconnect"){
+            log('от сервера поступил disconnect');
+            it.stop();
+            units.reset();
+            it.loots = {};
+            it.hero = null;
+        }
+
 
         /**
          * События "server"
@@ -279,6 +291,8 @@ export default class Game{
                 //Если логин уже есть
                 if(login!=null) {
 
+                    it.start();
+
                     // отправим логин серверу
                     events.add('login', login);
 
@@ -291,6 +305,8 @@ export default class Game{
 
                         // Получив сохраним
                         account.setUser(login);
+
+                        it.start();
 
                         // и отправим логин серверу
                         events.add('login', login);
@@ -459,6 +475,66 @@ export default class Game{
                 }
             }
 
+
+            // Создание нового моба
+            if(type=="npc-create") {
+                try {
+                    if(!data.info) throw "Ошибка получения с сервера";
+
+                    var info = data.info;
+
+                    if (
+                        info.ID == undefined ||
+                        info.x == undefined ||
+                        info.y == undefined ||
+                        info.character_id == undefined ||
+                        info.room_id == undefined ||
+                        info.state == undefined
+                    ) throw "Ошибка получения с сервера";
+
+
+                    let character = characters[info.character_id] || characters["gob"];
+
+                    const unit = new Unit(info.room_id, info.x, info.y, info.width, info.height, character, info.ID, info.state);
+                    units.add(info.ID, unit);
+                }
+                catch (e){
+                    log("Ошибка получения моба. "+e);
+                    log(data);
+                }
+            }
+
+
+            // Информация о мобе
+            if(type=="npc-info") {
+                try {
+                    if(!data.info) throw "Ошибка получения с сервера";
+
+                    var info = data.info;
+
+                    if (
+                        info.ID == undefined ||
+                        info.x == undefined ||
+                        info.y == undefined ||
+                        info.character_id == undefined ||
+                        info.room_id == undefined ||
+                        info.state == undefined
+                    ) throw "Ошибка получения с сервера";
+
+                    let unit = units.item(info.ID);
+                    if(unit) {
+
+                        let character = characters[info.character_id] || characters["gob"]
+
+                        unit.set(info.room_id, info.x, info.y, character, info.ID, info.state);
+                    }
+                }
+                catch (e){
+                    log("Ошибка обновления моба. "+e);
+                    log(data);
+                }
+            }
+
         }
 
 
@@ -582,9 +658,9 @@ export default class Game{
                     ) throw "Ошибка получения с сервера";
 
                     if(hero.unit.room_id == info.room_id) { //TODO: не юнит, а камера
-                        if(info.ID in it.sounds) {
+                        if(info.ID in sounds) {
                             //TODO: по info.x, info.y определять как далеко от this.hero и делать громкость
-                            it.sounds[info.ID].play();
+                            sounds[info.ID].play();
                         }
                     }
                 }

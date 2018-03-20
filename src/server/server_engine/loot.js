@@ -1,7 +1,5 @@
 module.exports = Coin;
 
-const sound_event = require('./sound_event.js');//звуковые события
-
 const
     COIN_WIDTH = 44,
     COIN_HEIGHT = 22;
@@ -19,6 +17,7 @@ function Coin(room_id, x, y, character_id) {
 
     this.changed = true;
 }
+
 Coin.prototype.info = function(){
     return {
         ID: this.ID,
@@ -55,20 +54,10 @@ Coin.prototype.touch = function(players, room){
     }
     touchers[winner].eating(this);
 
-    //sound
-    let eat_sounds = {
-        "coin_gold": "eat_coin_gold",
-        "coin_silver": "eat_coin_silver",
-        "coin_copper": "eat_coin_copper",
-    };
-
-    let eat_sound = eat_sounds[this.character_id] || eat_sounds["coin_copper"]
-
-    sound_event.add(eat_sound, this.room_id, this.x, this.y);
 
     //переместим (будто удалим и создадим новую)
-    this.x = Math.floor(room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right));
-    this.y = Math.floor(room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom));
+    this.x = Math.floor(room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right-this.width));
+    this.y = Math.floor(room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom-this.height));
     this.changed = true;
 };
 

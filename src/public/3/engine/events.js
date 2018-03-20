@@ -3,13 +3,13 @@
  */
 import account from "../account";
 
-export default {init, add}
+export default {init, add, on, off}
 
 // Серверный сокет
 import io from "socket.io-client";
 
 import log from "../logs.js";
-import units from "../units";
+// import units from "../units";
 import ui from "./ui/ui";
 
 // Подключение к серверу
@@ -18,11 +18,12 @@ let serverSocket = null;
 
 /**
  * Инитим игровые события
- * @param game
- * @param eventHandler
  */
-function init(game, eventHandler) {
-    serverSocket = io();
+function init(game) {
+    if(!serverSocket) {
+        serverSocket = io();
+    }
+    serverSocket.connect();
 
     // Действия при серверных проблемах
     serverSocket.on('connect_error', function () {
@@ -34,23 +35,16 @@ function init(game, eventHandler) {
         log('от сервера поступил disconnect');
         log('Вы отключены от сервера');
 
-        //TODO: удалять обработчики событий
-
-        units.reset();
-        game.loots = {};
-        game.teleports = {};
-        game.hero = null;
-
         ui.waitScreen.show();
 
         setTimeout(function () {
-            init(game, eventHandler);
+            init(game);
         }, 500);
     });
 
 
     // События отправляемые в основной обработчик
-    for(let event of ["server", "room", "hero", "sound", "reconnect"]) {
+    /*for(let event of ["server", "room", "hero", "sound", "reconnect"]) {
 
         serverSocket.on(event, function(data){
             try{
@@ -61,10 +55,12 @@ function init(game, eventHandler) {
 
             eventHandler(game, event, type, data);
         });
-    }
+    }*/
 
 }
 
+
+const handlers = {};
 
 /**
  * Добавление игрового события
@@ -73,10 +69,54 @@ function init(game, eventHandler) {
  */
 function add(eventName, data) {
 
-    if(eventName=="signout"){
-        account.signout();
-    }
+    // Если есть локальные обработчики - вызовем
+    runHandlers(eventName, data);
 
     // шлем событие на сервер
     serverSocket.emit(eventName, data)
+}
+
+
+function on(eventName, callback) {
+
+    //Сохраним на случай если события возникнут локально
+    if(eventName in handlers===false){
+        handlers[eventName] = [];
+    }
+    handlers[eventName].push(callback);
+
+
+    serverSocket.on(eventName, (data)=>{
+        try{
+            data = JSON.parse(data)
+        }
+        catch (e){}
+        let type = data.type ? data.type : "simple";
+        callback(eventName, type, data)
+    });
+}
+
+function off(eventName) {
+    if(eventName in handlers){
+        delete handlers[eventName];
+    }
+
+    serverSocket.off(eventName);
+}
+
+
+// Запуск для локальных событий
+function runHandlers(eventName, data) {
+    //Если есть обработчики - запускаем
+    if(eventName in handlers){
+        for(const h of handlers[eventName]){
+            h(...data);
+        }
+    }
+
+    if(eventName==="signout"){
+        account.signout();
+    }
+
+
 }

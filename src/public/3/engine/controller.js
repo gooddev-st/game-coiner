@@ -3,6 +3,11 @@
  * TODO: может команды меню тоже событиями
  */
 
+
+// подключим события
+import events from './events.js'
+
+
 // Варианты управления
 const
     KEYS_ARROW = {
@@ -62,10 +67,6 @@ function stop() {
 function setClickPad(_clickPad) {
     clickPad = _clickPad;
 }
-
-
-// подключим события
-import events from './events.js'
 
 /**
  * При нажатии клавиши

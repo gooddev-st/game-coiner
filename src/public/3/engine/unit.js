@@ -96,6 +96,16 @@ export default class Unit{
         let x = this.x - camera.x,
             y = this.y - camera.y;
 
+        // не рисуем вне камеры
+        if(
+            x < -this.character.width ||
+            y < -this.character.height ||
+            x > camera.width ||
+            y > camera.height
+        ) {
+            return true;
+        }
+
         this.drawCharacter(camera.context, x, y);
 
 

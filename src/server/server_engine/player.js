@@ -8,9 +8,11 @@ module.exports = Player;
 const events = require("./events.js");
 const players = require("./players.js");
 const rooms = require("./rooms.js");
-const log = require("./log.js");
+const npcs = require("./npcs.js");
 
 const db = require('./db.js');
+
+const sound_event = require('./sound_event.js');//звуковые события
 
 
 /**
@@ -35,7 +37,7 @@ function getRandomCharacter() {
     const randomArray = [
         characters.CHARACTER_DOC,
         characters.CHARACTER_MAN,
-        characters.CHARACTER_GOB,
+        // characters.CHARACTER_GOB,
         characters.CHARACTER_GIRL,
         characters.CHARACTER_BLOND,
         characters.CHARACTER_MAG,
@@ -117,6 +119,12 @@ Player.prototype.init = function () {
         }
     });
     events.one(this.socket, "hero", "info", {message: "Выданы игроки"});
+
+    //Отправим мобов
+    npcs.each((ID, npc)=>{
+        events.one(this.socket, "room", "npc-create", {info: npc.info()});
+    });
+    events.one(this.socket, "hero", "info", {message: "Выданы мобы"});
 
 
     //Заявим, что пришел игрок
@@ -216,6 +224,20 @@ Player.prototype.eating = function (loot) {
         //    только не слишком
         if(this.speed>400) this.speed = 400;
 
+        sound_event.add('level_up', this.room_id, this.x, this.y);
+    }
+    else {
+
+        //sound
+        let eat_sounds = {
+            "coin_gold": "eat_coin_gold",
+            "coin_silver": "eat_coin_silver",
+            "coin_copper": "eat_coin_copper",
+        };
+
+        let eat_sound = eat_sounds[loot.character_id] || eat_sounds["coin_copper"]
+
+        sound_event.add(eat_sound, this.room_id, this.x, this.y);
     }
 
     db.save(this.allInfo());
@@ -241,6 +263,10 @@ Player.prototype.teleport = function (teleport) {
         events.one(this.socket, "room", "change", {room: room.info(), message: "Выдана Комната"});
 
     }
+
+    //sound
+    sound_event.add("teleport", teleport.room_id, teleport.x, teleport.y);
+    sound_event.add("teleport", teleport.target.room_id, teleport.target.x, teleport.target.y);
 
     db.save(this.allInfo());
     this.changed = true;
