@@ -1,8 +1,6 @@
-import Game from './game'
+import game from './game'
 
 window.onload = function(){
-
-    const game = new Game();
 
     game.run();
 

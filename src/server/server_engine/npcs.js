@@ -7,7 +7,7 @@ module.exports.list = list;
 module.exports.toArray = toArray;
 
 
-const NPC_COUNT = 20;
+const NPC_COUNT = 12;
 const NPC_SPEED = 100;
 
 
@@ -25,7 +25,7 @@ for(let i=0;i<NPC_COUNT;i++) {
         room = rooms.get(room_id),
         x = room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right),
         y = room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom),
-        character_id = 'gob';
+        character_id = null;//'gob';
 
     npcs['npc'+i] = new Npc('npc'+i, x, y, room_id, character_id, NPC_SPEED);
 }

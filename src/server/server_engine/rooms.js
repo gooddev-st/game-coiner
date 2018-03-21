@@ -20,7 +20,7 @@ const rooms = {
         dead_zone_right: 10,
         dead_zone_bottom: 0,
 
-        coins_num: 30,
+        coins_num: 20,
         teleports_num: 6,
     }),
 
@@ -35,7 +35,7 @@ const rooms = {
         dead_zone_bottom: 0,
 
         coins_num: 30,
-        teleports_num: 6,
+        teleports_num: 10,
     }),
 
     'sonnorack': new Room({

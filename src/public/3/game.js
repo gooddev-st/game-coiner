@@ -1,676 +1,73 @@
-import log from "./logs.js"
-
-import * as constants from './constants.js';
-
-import characters from "./characters.js";
-import sounds from "./sounds.js";
-import units from "./units.js";
-
-import ui from './engine/ui/ui.js';
+import ui from "./engine/ui/ui.js";
 
 import account from "./account.js";
 
-import events from './engine/events.js'
+import events from "./engine/events.js"
 
-import controller from "./engine/controller.js";
+import signIn from "./scenes/signin";
 
-import Room from './engine/room.js';
-import Camera from './engine/camera.js';
-import Unit from './engine/unit.js';
-import hero from './engine/hero.js';
-import Loot from './engine/loot.js';
-import Teleport from './engine/teleport.js';
-
-// Канва для рисования
-const canvas = document.getElementById("canvas");
+import sceneMain from "./scenes/main/index.js"
 
 
 /**
  * Основной класс клиента игры
  * class Game
  */
-export default class Game{
-
-    constructor(){
-
-    }
+export default {run}
 
 
     /**
      * Запуск основного цикла
      */
-    run() {
-
-        this.rooms = {};
-
-        // Текущая комната. id и сама
-        this.room_id = null;
-        this.room = null;
-
-        // Камера. Совмещена со въюпортом
-        this.camera = null;
-
-        // Весь лут
-        this.loots = {};
-
-        // Телепорты
-        this.teleports = {};
-
-        // Создадим камеру по "канве"
-        this.camera = new Camera(0, 0, canvas);
-        // изменяем камеру под окно
-        this.camera.resize();
-
-        //При ресайзе окна браузера - изменяем камеру под окно
-        window.addEventListener('resize', () => {this.camera.resize();});
+    function run() {
 
         // Пишем "Загрузка"
         ui.waitScreen.show();
 
+
         // Подключаемся к серверу
-        events.init(this);
+        events.init();
 
-        events.on("server", (event, type, data)=>{this.eventHandler(this, event, type, data)});
+        events.on("server", (event, type, data)=>{
 
-
-        /**
-         * Основной цикл
-         */
-        setInterval(() => {
-
-            // Перемещение, управляемое на клиенте
-            this.update();
-
-
-            // Анимация
-            this.animate();
-
-
-            // Отрисовка
-            this.draw(this.camera);
-
-
-        }, constants.INTERVAL);
-
-    }
-
-    start(){
-        events.on("disconnect", ()=>{
-            this.stop();
-            units.reset();
-            this.loots = {};
-            this.hero = null;
-        });
-        events.on("reconnect", (event, type, data)=>{this.eventHandler(this, event, type, data)});
-        events.on("room", (event, type, data)=>{this.eventHandler(this, event, type, data)});
-        events.on("hero", (event, type, data)=>{this.eventHandler(this, event, type, data)});
-        events.on("sound", (event, type, data)=>{this.eventHandler(this, event, type, data)});
-    }
-
-    stop(){
-        events.off("reconnect");
-        events.off("room");
-        events.off("hero");
-        events.off("sound");
-    }
-
-
-    /**
-     * Установка отображаемой комнаты
-     * @param ID
-     * @param width
-     * @param height
-     * @param environment_id
-     */
-    roomInit(settings){
-
-        //Зачистим если не впервой
-        for(let i in this.loots){ delete this.loots[i];}
-        for(let i in this.teleports){ delete this.teleports[i];}
-        this.loots = {};
-        this.teleports = {};
-        this.room && delete this.room;
-
-
-        this.room_id = settings.ID;
-
-        // Сделаем комнату или возмем из кеша
-        if(settings.ID in this.rooms){
-            this.room = this.rooms[settings.ID];
-        }
-        else{
-            this.room = new Room(settings.width, settings.height, settings.environment_id);
-            this.rooms[settings.ID] = this.room;
-        }
-
-        if('loot' in settings){
-            for(const item of settings.loot){
-
-                let character = characters[item.character_id] || characters["coin_gold"]
-
-                this.loots[item.ID] = new Loot(this.room_id, item.x, item.y, character, item.ID, item.width, item.height);
-            }
-        }
-
-        if('teleports' in settings){
-            for(const item of settings.teleports){
-
-                let character = characters[item.character_id] || characters["teleport"]
-
-                this.teleports[item.ID] = new Teleport(this.room_id, item.x, item.y, character, item.ID, item.target, item.state, item.width, item.height);
-            }
-        }
-    }
-
-
-    /**
-     * Перемещение на клиенте
-     *  то, что не управляется с сервера. Например камера
-     */
-    update(){
-
-        //Камера
-        this.camera && this.camera.run(this.room);
-
-    }
-
-
-    /**
-     * Анимация
-     */
-    animate(){
-
-        //Юниты (включая самого героя)
-        for (const unit of units.toArray()) {
-            if(unit.room_id==this.room_id) {
-                unit.animate();
-            }
-        }
-
-        //Лут
-        for (let i in this.loots) {
-            this.loots[i].animate(constants.STEP);
-        }
-
-        //Телепорты
-        for (let i in this.teleports) {
-            this.teleports[i].animate(constants.STEP);
-        }
-
-    }
-
-
-    /**
-     * Отрисовка на камеру
-     * @param camera
-     * TODO: порядок отрисовки!
-     */
-    draw(camera){
-
-        // Комната
-        this.room && this.room.draw(camera);
-
-        // Телепорты
-        for (let i in this.teleports) {
-            this.teleports[i].draw(camera);
-        }
-
-
-        let renderArray = [];
-
-        // Лут
-        for (let i in this.loots) {
-            let item = this.loots[i];
-            renderArray.push({y: item.y, item: item});
-            // this.loots[i].draw(camera);
-        }
-
-        //Юниты
-        let ua = units.toArray();
-
-        for (let unit of units.toArray()) {
-            if(unit.room_id==this.room_id) {
-                renderArray.push({y: unit.y, item: unit});
-                // unit.draw(camera, this.room_id);
-            }
-        }
-
-        renderArray.sort((a, b)=>{
-            return a.y - b.y;
-        });
-
-        for(let i in renderArray){
-            renderArray[i].item.draw(camera);
-        }
-
-    }
-
-    /**
-     * Основной обработчик событий
-     * @param it - this от Game
-     * @param event - событие
-     * @param type - тип серверного события
-     * @param data - данные события
-     */
-    eventHandler(it, event, type, data){
-
-        // Если в данных события есть поле message - выведем в лог
-        data.message && log(data.message/* + ' (Событие '+event+'.'+type+')'*/);
-
-        // Отладка событий без message
-        // data.message || log(' (Событие '+event+'.'+type+')');
-
-
-        if(event=="reconnect"){
-            log('от сервера поступил reconnect');
-            units.reset();
-            it.loots = {};
-            it.hero = null;
-        }
-
-        if(event=="disconnect"){
-            log('от сервера поступил disconnect');
-            it.stop();
-            units.reset();
-            it.loots = {};
-            it.hero = null;
-        }
-
-
-        /**
-         * События "server"
-         */
-        if(event=="server") {
-
-            // Приветствие от сервера
             if (type == "hello") {
 
-                // Возьмем логин из локальных данных браузера
                 let login = account.getUser();
 
-                //Если логин уже есть
-                if(login!=null) {
+                if(!login) {
 
-                    it.start();
-
-                    // отправим логин серверу
-                    events.add('login', login);
-
-                }
-                // Если логина нет
-                else {
-
-                    // Запросим ввод логина
-                    ui.login.init( (login) => {
+                    // запросим логин
+                    signIn.start(login, (login) => {
 
                         // Получив сохраним
                         account.setUser(login);
 
-                        it.start();
+                        start(login);
 
-                        // и отправим логин серверу
-                        events.add('login', login);
                     });
                 }
-            }
-        }
-
-
-        /**
-         * События "room"
-         */
-        if(event=="room"){
-
-
-            // Получение комнаты
-            if(type=="change") {
-                try {
-                    if(!data.room) throw "Ошибка получения с сервера";
-
-                    var room = data.room;
-
-                    if (room.ID==undefined || !room.width || !room.height || room.environment_id==undefined) throw "Ошибка получения с сервера";
-
-                    it.roomInit(room);
-                }
-                catch (e){
-                    log("Ошибка получения Комнаты. "+e);
-                    log(data);
+                else{
+                    start(login);
                 }
             }
 
+        });
 
-            // Создание нового игрока
-            if(type=="player-create") { //TODO: переименовать в unit-create
-                try {
-                    if(!data.info) throw "Ошибка получения с сервера";
-
-                    var info = data.info;
-
-                    if (
-                        info.ID == undefined ||
-                        info.x == undefined ||
-                        info.y == undefined ||
-                        info.character_id == undefined ||
-                        info.room_id == undefined ||
-                        info.state == undefined ||
-                        info.level == undefined
-                    ) throw "Ошибка получения с сервера";
-
-
-                    let character = characters[info.character_id] || characters["man"];
-
-                    const unit = new Unit(info.room_id, info.x, info.y, info.width, info.height, character, info.ID, info.state, info.level);
-                    units.add(info.ID, unit);
-                }
-                catch (e){
-                    log("Ошибка получения игрока. "+e);
-                    log(data);
-                }
-            }
-
-
-            // Информация об игроке
-            if(type=="player-info") {
-                try {
-                    if(!data.info) throw "Ошибка получения с сервера";
-
-                    var info = data.info;
-
-                    if (
-                        info.ID == undefined ||
-                        info.x == undefined ||
-                        info.y == undefined ||
-                        info.character_id == undefined ||
-                        info.room_id == undefined ||
-                        info.state == undefined ||
-                        info.level == undefined
-                    ) throw "Ошибка получения с сервера";
-
-                    let unit = units.item(info.ID);
-                    if(unit) {
-
-                        let character = characters[info.character_id] || characters["man"]
-
-                        unit.set(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
-                    }
-                }
-                catch (e){
-                    log("Ошибка обновления игрока. "+e);
-                    log(data);
-                }
-            }
-
-
-            // Игрок ушел
-            if(type=="player-leave") {
-                try {
-                    if(!data.ID) throw "Ошибка получения с сервера";
-
-                    if(data.room_id==it.room_id) {
-                        units.remove(data.ID);
-                    }
-                }
-                catch (e){
-                    log("Ошибка удаления игрока. "+e);
-                    log(data);
-                }
-            }
-
-
-            // Информация о луте
-            if(type=="loot-info") {
-                try {
-                    if(!data.info) throw "Ошибка получения с сервера";
-
-                    var info = data.info;
-
-                    if (
-                        info.ID == undefined ||
-                        info.x == undefined ||
-                        info.y == undefined ||
-                        info.character_id == undefined ||
-                        info.room_id == undefined
-                    ) throw "Ошибка получения с сервера";
-
-                    if(info.room_id==it.room_id) {
-
-                        let character = characters[info.character_id] || characters["gold_coin"]
-
-                        if (info.ID in it.loots) {
-                            it.loots[info.ID].set(info.room_id, info.x, info.y, character, info.ID);
-                        }
-                    }
-                }
-                catch (e){
-                    log("Ошибка получения лута. "+e);
-                    log(data);
-                }
-            }
-
-
-            // Информация о телепортах
-            if(type=="teleport-info") {
-                try {
-                    if(!data.info) throw "Ошибка получения с сервера";
-
-                    var info = data.info;
-
-                    if (
-                        info.ID == undefined ||
-                        info.room_id == undefined ||
-                        info.state == undefined
-                    ) throw "Ошибка получения с сервера";
-
-                    if(info.room_id==it.room_id) {
-
-                        if (info.ID in it.teleports) {
-                            it.teleports[info.ID].set(info.state);
-                        }
-                    }
-                }
-                catch (e){
-                    log("Ошибка получения телепорта. "+e);
-                    log(data);
-                }
-            }
-
-
-            // Создание нового моба
-            if(type=="npc-create") {
-                try {
-                    if(!data.info) throw "Ошибка получения с сервера";
-
-                    var info = data.info;
-
-                    if (
-                        info.ID == undefined ||
-                        info.x == undefined ||
-                        info.y == undefined ||
-                        info.character_id == undefined ||
-                        info.room_id == undefined ||
-                        info.state == undefined
-                    ) throw "Ошибка получения с сервера";
-
-
-                    let character = characters[info.character_id] || characters["gob"];
-
-                    const unit = new Unit(info.room_id, info.x, info.y, info.width, info.height, character, info.ID, info.state);
-                    units.add(info.ID, unit);
-                }
-                catch (e){
-                    log("Ошибка получения моба. "+e);
-                    log(data);
-                }
-            }
-
-
-            // Информация о мобе
-            if(type=="npc-info") {
-                try {
-                    if(!data.info) throw "Ошибка получения с сервера";
-
-                    var info = data.info;
-
-                    if (
-                        info.ID == undefined ||
-                        info.x == undefined ||
-                        info.y == undefined ||
-                        info.character_id == undefined ||
-                        info.room_id == undefined ||
-                        info.state == undefined
-                    ) throw "Ошибка получения с сервера";
-
-                    let unit = units.item(info.ID);
-                    if(unit) {
-
-                        let character = characters[info.character_id] || characters["gob"]
-
-                        unit.set(info.room_id, info.x, info.y, character, info.ID, info.state);
-                    }
-                }
-                catch (e){
-                    log("Ошибка обновления моба. "+e);
-                    log(data);
-                }
-            }
-
-        }
-
-
-        /**
-         * События "hero" - события героя
-         */
-        if(event=="hero"){
-
-
-            // Создание героя при входе
-            if(type=="hero-create") {
-
-                try {
-
-                    if (!data.info) throw "Ошибка получения с сервера";
-
-                    var info = data.info;
-
-                    if (
-                        info.ID == undefined ||
-                        info.x == undefined ||
-                        info.y == undefined ||
-                        info.character_id == undefined ||
-                        info.room_id == undefined ||
-                        info.state == undefined ||
-                        info.coins_count == undefined ||
-                        info.level == undefined ||
-                        info.levelupCounter == undefined ||
-                        info.speed == undefined
-                    ) throw "Ошибка получения с сервера";
-
-                    const character = characters[info.character_id] || characters["doc"];
-
-                    if(!hero.unit) {
-                        hero.unit = new Unit(info.room_id, info.x, info.y, info.width, info.height, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);
-                    }
-                    else{
-                        hero.unit.set(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);
-                    }
-
-                    units.add('['+info.ID+']', hero.unit);
-
-                    hero.speed = info.speed;
-
-                    ui.heroInfo.start();
-                    ui.heroInfo.update(info);
-
-                    ui.waitScreen.hide();
-
-                    controller.start();
-                    controller.setClickPad(it.camera);
-
-                    //Если ткущая комната отсутствует или не та - шлем на сервер запрос
-                    if(!it.room_id || it.room_id != info.room_id) {
-                        it.room_id = null;
-                        events.add('need-room', info.room_id);
-                    }
-                    it.camera && it.camera.setFollower(hero.unit);
-                }
-                catch (e){
-                    log("Ошибка создания Героя. "+e);
-                    log(data);
-                }
-            }
-
-
-            // Информация о герое
-            if(type=="hero-info") {
-                try {
-                    if(!data.info) throw "Ошибка получения с сервера";
-
-                    var info = data.info;
-
-                    if (
-                        info.ID == undefined ||
-                        info.x == undefined ||
-                        info.y == undefined ||
-                        info.character_id == undefined ||
-                        info.room_id == undefined ||
-                        info.state == undefined ||
-                        info.coins_count == undefined ||
-                        info.level == undefined ||
-                        info.levelupCounter == undefined ||
-                        info.speed == undefined
-                    ) throw "Ошибка получения с сервера";
-
-                    const character = characters[info.character_id] || characters["doc"]
-                    hero.unit.set(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);
-
-                    hero.speed = info.speed;
-
-                    ui.heroInfo.update(info, it.login);
-                }
-                catch (e){
-                    log("Ошибка обновления Героя. "+e);
-                    log(data);
-                }
-            }
-
-        }
-
-
-        /**
-         * События "sound"
-         */
-        if(event=="sound"){
-
-
-            // звуковые уведомления
-            if(type=="notice") {
-                try {
-                    if(!data.info) throw "Ошибка получения с сервера";
-
-                    var info = data.info;
-
-                    if (
-                        info.room_id == undefined ||
-                        info.x == undefined ||
-                        info.y == undefined ||
-                        info.ID == undefined
-                    ) throw "Ошибка получения с сервера";
-
-                    if(hero && hero.unit && hero.unit.room_id == info.room_id) { //TODO: не юнит, а камера
-                        if(info.ID in sounds) {
-                            //TODO: по info.x, info.y определять как далеко от this.hero и делать громкость
-                            sounds[info.ID].play();
-                        }
-                    }
-                }
-                catch (e){
-                    log("Ошибка звука. "+e);
-                    log(data);
-                }
-            }
-
-        }
     }
 
-}
+
+    function start(login) {
+        // отправим логин серверу
+        events.add('login', login);
+
+        // Стартуем основную сцену
+        sceneMain.start(() => {
+
+            gameover();
+        });
+    }
+
+
+    function gameover(){
+        ui.waitScreen.show();
+    }

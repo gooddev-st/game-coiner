@@ -19,7 +19,7 @@ let serverSocket = null;
 /**
  * Инитим игровые события
  */
-function init(game) {
+function init() {
     if(!serverSocket) {
         serverSocket = io();
     }
@@ -38,24 +38,9 @@ function init(game) {
         ui.waitScreen.show();
 
         setTimeout(function () {
-            init(game);
+            init();
         }, 500);
     });
-
-
-    // События отправляемые в основной обработчик
-    /*for(let event of ["server", "room", "hero", "sound", "reconnect"]) {
-
-        serverSocket.on(event, function(data){
-            try{
-                data = JSON.parse(data)
-            }
-            catch (e){}
-            let type = data.type ? data.type : "simple";
-
-            eventHandler(game, event, type, data);
-        });
-    }*/
 
 }
 
@@ -92,16 +77,23 @@ function on(eventName, callback) {
         }
         catch (e){}
         let type = data.type ? data.type : "simple";
-        callback(eventName, type, data)
+
+        // Если в данных события есть поле message - выведем в лог
+        data.message && log(data.message/* + ' (Событие '+event+'.'+type+')'*/);
+
+        // Отладка событий без message
+        // data.message || log(' (Событие '+event+'.'+type+')');
+
+        callback(eventName, type, data);
     });
 }
 
-function off(eventName) {
-    if(eventName in handlers){
+function off(eventName, handler) {
+    if(eventName in handlers && handlers[eventName]===handler){
         delete handlers[eventName];
     }
 
-    serverSocket.off(eventName);
+    serverSocket.off(eventName, handler);
 }
 
 

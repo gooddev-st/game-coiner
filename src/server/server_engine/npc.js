@@ -19,7 +19,8 @@ const characters = require('./characters.js');
 const
     NPC_WIDTH = 44.0,
     NPC_HEIGHT = 44.0,
-    NPC_SPEED = 100;
+    NPC_SPEED = 100,
+    VIEW_DISTANCE = 250;
 
 
 /**
@@ -207,7 +208,7 @@ Npc.prototype.calculateTarget = function(room) {
 };
 
 
-//Разбегание мобов
+//Разбегание мобов (Не нужно)
 Npc.prototype.targetSplit = function(room) {
     const MIN_DISTANCE = 44;
 
@@ -262,8 +263,6 @@ Npc.prototype.targetSplit = function(room) {
 };
 
 Npc.prototype.targetCoin = function(room) {
-
-    const VIEW_DISTANCE = 300;
 
     if(!room || !room.loot.length) return false;
 
