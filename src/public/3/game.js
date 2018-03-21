@@ -657,7 +657,7 @@ export default class Game{
                         info.ID == undefined
                     ) throw "Ошибка получения с сервера";
 
-                    if(hero.unit.room_id == info.room_id) { //TODO: не юнит, а камера
+                    if(hero && hero.unit && hero.unit.room_id == info.room_id) { //TODO: не юнит, а камера
                         if(info.ID in sounds) {
                             //TODO: по info.x, info.y определять как далеко от this.hero и делать громкость
                             sounds[info.ID].play();

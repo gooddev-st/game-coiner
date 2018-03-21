@@ -12,24 +12,30 @@ const Room = require("./room.js");
 const rooms = {
     'start-room': new Room({
         ID: 'start-room',
-        width: 3000,
-        height: 4000,
+        width: 1100,
+        height: 2000,
         environment_id: 1,
         dead_zone_left: 10,
         dead_zone_top: 80,
         dead_zone_right: 10,
         dead_zone_bottom: 0,
+
+        coins_num: 30,
+        teleports_num: 6,
     }),
 
     'paradise': new Room({
         ID: 'paradise',
         width: 2000,
-        height: 3000,
+        height: 2000,
         environment_id: 0,
         dead_zone_left: 10,
         dead_zone_top: 80,
         dead_zone_right: 10,
         dead_zone_bottom: 0,
+
+        coins_num: 30,
+        teleports_num: 6,
     }),
 
     'sonnorack': new Room({
@@ -38,14 +44,17 @@ const rooms = {
         height: 600,
         environment_id: 2,
         dead_zone_left: 10,
-        dead_zone_top: 80,
+        dead_zone_top: 60,
         dead_zone_right: 10,
         dead_zone_bottom: 0,
+
+        coins_num: 25,
+        teleports_num: 3,
     }),
 };
 
 for(const i in rooms){
-    rooms[i].randomTeleports(6);
+    rooms[i].randomTeleports(rooms[i].teleports_num);
 }
 
 function get(room_id){

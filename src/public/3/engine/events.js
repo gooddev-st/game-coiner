@@ -9,8 +9,8 @@ export default {init, add, on, off}
 import io from "socket.io-client";
 
 import log from "../logs.js";
-// import units from "../units";
-import ui from "./ui/ui";
+
+import ui from "./ui/ui.js";
 
 // Подключение к серверу
 let serverSocket = null;

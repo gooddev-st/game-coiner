@@ -6,6 +6,7 @@ module.exports = Npc;
 
 
 const rooms = require("./rooms.js");
+const npcs = require("./npcs.js");
 
 const sound_event = require('./sound_event.js');//звуковые события
 
@@ -42,12 +43,6 @@ function getRandomCharacter() {
 }
 
 
-function randomTarget(room) {
-    return {
-        x: room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right),
-        y: room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom)
-    };
-}
 
 
 /**
@@ -127,8 +122,13 @@ Npc.prototype.run = function (room, step) {
     //Сохраним старую позицию, чтоб понимать - движется ли
     let x = this.x, y = this.y;
 
+    let target = this.calculateTarget(room);
+    if(target) this.target = target;
+
     // если есть цель
     if (this.target) {
+        // console.log(this.x + ' ' + this.y + ' ' + this.room_id)
+        // console.log('--- '+this.target.x + ' ' + this.target.y)
 
         //Если закончили движение - сбросим цель
         if(
@@ -158,7 +158,7 @@ Npc.prototype.run = function (room, step) {
     }
     // Если нет цели - зададим случайную
     else{
-        this.target = randomTarget(room);
+        this.target = this.targetRandom(room);
     }
 
 
@@ -182,6 +182,150 @@ Npc.prototype.run = function (room, step) {
 
     if(this.x != x || this.y != y) this.changed = true;
 };
+
+
+
+Npc.prototype.calculateTarget = function(room) {
+    let target;
+
+    // Если надо отойти от другого моба - отойдем
+    /*target = this.targetSplit(room);
+    if(target) return target;*/
+
+    // Иначе пойдем за ближайшей монетой
+    target = this.targetCoin(room);
+    if(target) return target;
+
+    // Иначе - шляемся
+    // if(!this.target) return this.targetRandom(room);
+
+    // console.log("Блин!");
+
+    return null;
+
+
+};
+
+
+//Разбегание мобов
+Npc.prototype.targetSplit = function(room) {
+    const MIN_DISTANCE = 44;
+
+
+    if(!room) return false;
+
+    let distances = [];
+
+    // Соберем в массив всех мобов (без этого)
+    npcs.each((i, npc)=>{
+
+        if(npc.ID!==this.ID) {
+
+            let
+                x = npc.x,
+                y = npc.y,
+                xdiff = Math.abs(x - this.x),
+                ydiff = Math.abs(y - this.y);
+
+            distances.push({
+                // Расстояние до моба
+                distance: Math.sqrt(xdiff * xdiff + ydiff * ydiff),
+                // Его расположение
+                pos: {x: x, y: y}
+            });
+        }
+    });
+
+    // Найдем индекс минимального значения
+    let min_index = distances.reduce(
+        (prev, value, i, array) => {
+            return value.distance < array[prev].distance ? i : prev;
+        }, 0
+    );
+
+    if(distances[min_index].distance < MIN_DISTANCE) {
+        let
+            xdiff = distances[min_index].pos.x - this.x,
+            ydiff = distances[min_index].pos.y - this.y;
+
+        // Если очень близко пусть разбегаются рандомно
+        if(Math.abs(xdiff) < 1 && Math.abs(ydiff) < 1){
+            xdiff = -MIN_DISTANCE + Math.random()*(MIN_DISTANCE+MIN_DISTANCE);
+        }
+        let
+            x = this.x - xdiff * MIN_DISTANCE,
+            y = this.y - ydiff * MIN_DISTANCE;
+        return {x: x, y: y};
+    }
+
+    return false;
+};
+
+Npc.prototype.targetCoin = function(room) {
+
+    const VIEW_DISTANCE = 300;
+
+    if(!room || !room.loot.length) return false;
+
+    let distances = [];
+
+    // Соберем в массив все монеты
+    for(const i in room.loot){
+        let
+            x = room.loot[i].x,
+            y = room.loot[i].y,
+            xdiff = Math.abs(x - this.x),
+            ydiff = Math.abs(y - this.y);
+
+        distances.push({
+            // Расстояние до монеты
+            distance: Math.sqrt(xdiff * xdiff + ydiff * ydiff),
+            // Её расположение
+            pos: {x: x, y: y}
+        });
+    }
+
+    // Добавим туда же все телепорты
+    /*for(const i in room.teleports){
+        let
+            x = room.teleports[i].x,
+            y = room.teleports[i].y,
+            xdiff = Math.abs(x - this.x),
+            ydiff = Math.abs(y - this.y);
+
+        distances.push({
+            // Расстояние до монеты
+            distance: Math.sqrt(xdiff * xdiff + ydiff * ydiff),
+            // Её расположение
+            pos: {x: x, y: y}
+        });
+    }*/
+
+    // Найдем индекс минимального значения
+    let min_index = distances.reduce(
+        (prev, value, i, array) => {
+            return value.distance < array[prev].distance ? i : prev;
+        }, 0
+    );
+
+    // Если в поле зрения - идем к луту
+    if(distances[min_index].distance <= VIEW_DISTANCE){
+        return distances[min_index].pos;
+    }
+
+    return null;
+
+};
+
+
+Npc.prototype.targetRandom = function (room) {
+    return {
+        x: room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right-this.width),
+        y: room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom-this.height)
+    };
+};
+
+
 
 
 /**

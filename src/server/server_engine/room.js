@@ -19,8 +19,10 @@ function Room(settings) {
 
     this.loot = [];
     this.teleports = [];
+    this.coins_num = settings.coins_num;
+    this.teleports_num = settings.teleports_num;
 
-    this.randomLoot(LOOT_COUNT);
+    this.randomLoot(this.coins_num);
 }
 
 Room.prototype.randomPos = function(width, height){
