@@ -102,7 +102,7 @@ function runHandlers(eventName, data) {
     //Если есть обработчики - запускаем
     if(eventName in handlers){
         for(const h of handlers[eventName]){
-            h(...data);
+            h(eventName, data);
         }
     }
 

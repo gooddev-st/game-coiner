@@ -17,3 +17,5 @@ exports.CHARACTER_TWO = 'prof';
 
 
 exports.CHARACTER_TELEPORT = 'teleport';
+
+exports.CHARACTER_POINTER = 'pointer';

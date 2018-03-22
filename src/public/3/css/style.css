@@ -238,3 +238,48 @@ h1{
     -moz-border-radius: 10px;
     border-radius: 10px;
 }
+
+#top10-panel{
+    position: absolute;
+    right: 0;
+    top: 200px;
+    width: 200px;
+    max-width: 200px;
+    overflow: hidden;
+    padding: 6px 0px 6px 6px;
+    background-color: rgba(0,0,0,0.4);
+    color: #ffb800;
+    -webkit-border-radius: 0 0 0 10px;
+    -moz-border-radius: 0 0 0 6px;
+    border-radius: 10px 0 0 10px;
+    transition: all .5s ease-in-out;
+}
+
+#top10-panel>div{
+    min-height: 200px;
+    font: bold 14px sans-serif;
+    border: 1px solid #ffb800;
+    padding: 11px 18px 12px 18px;
+    border-radius: 6px 0 0 6px;
+    border-width: 1px 0 1px 1px;
+    text-align: left;
+    overflow: hidden;
+}
+
+#top10-panel .row{
+    overflow: hidden;
+}
+
+#top10-panel .hr{
+    overflow: hidden;
+    border: none;
+    border-bottom: 2px solid #ffb800;
+    margin: 7px 3px 4px 3px;
+}
+
+#top10-panel .label{
+    float: left;
+}
+#top10-panel .value{
+    float: right;
+}

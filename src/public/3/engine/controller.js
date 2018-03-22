@@ -14,14 +14,16 @@ const
         LEFT: 37, //Left
         UP: 38, //Up
         RIGHT: 39, //Right
-        DOWN: 40 //Down
+        DOWN: 40, //Down
+        STATISTIC: 191 // "/"
     },//Управление стрелками
 
     KEYS_WASD = {
         LEFT: 65, //A
         UP: 87, //W
         RIGHT: 68, //D
-        DOWN: 83 // S
+        DOWN: 83, // S
+        STATISTIC: 191 // "/"
     };//Управление кнопками W A S D
 
 // По-умолчанию управляем стрелками
@@ -109,6 +111,9 @@ function onKeyup(e) {
         case keys.DOWN:
             events.add('keyup', 'down');
             break;
+        case keys.STATISTIC:
+            events.add('keyup', 'statistic');
+            break;
         // case 32: // пробел для паузы
         //     Game.togglePause();
         //     break;
@@ -124,7 +129,11 @@ function onClick(e) {
 
     // Если есть по чем кликать отправим событие
     if(clickPad) {
-        events.add('target', {x: e.clientX + clickPad.x, y: e.clientY + clickPad.y});
+        let x = e.clientX + clickPad.x,
+            y = e.clientY + clickPad.y;
+        events.add('target', {x: x, y: y});
+        events.add('click', {x: x, y: y});
+
     }
 }
 

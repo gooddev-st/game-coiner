@@ -8,7 +8,8 @@ let s_doc = document.getElementById('s_doc'),
     s_teleport = document.getElementById('s_teleport'),
     s_coins = document.getElementById('s_coins'),
     t_trees = document.getElementById('t_trees'),
-    t_bushs = document.getElementById('t_bushs');
+    t_bushs = document.getElementById('t_bushs'),
+    s_pointer = document.getElementById('s_pointer');
 
 
 /**
@@ -341,6 +342,31 @@ exports.teleport = {
             {"name": "run2", "x": 0, "y": 98, "width": 90, "height": 49},
             {"name": "run3", "x": 90, "y": 0, "width": 90, "height": 49},
             {"name": "run4", "x": 90, "y": 49, "width": 90, "height": 49}
+        ]
+    }
+};
+
+
+/**
+ * Указатель
+ */
+exports.pointer = {
+    "image": s_pointer,
+    "width": 50,
+    "height": 50,
+
+    "states": {
+        "default": [
+            {"name": "sprite1", "x": 0, "y": 0, "width": 201, "height": 201},
+            {"name": "sprite2", "x": 201, "y": 0, "width": 201, "height": 201},
+            {"name": "sprite3", "x": 402, "y": 0, "width": 201, "height": 201},
+            {"name": "sprite4", "x": 603, "y": 0, "width": 201, "height": 201},
+            {"name": "sprite5", "x": 804, "y": 0, "width": 201, "height": 201},
+            {"name": "sprite6", "x": 0, "y": 201, "width": 201, "height": 201},
+            {"name": "sprite7", "x": 201, "y": 201, "width": 201, "height": 201},
+            {"name": "sprite8", "x": 402, "y": 201, "width": 201, "height": 201},
+            {"name": "sprite9", "x": 603, "y": 201, "width": 201, "height": 201},
+            {"name": "sprite10", "x": 804, "y": 201, "width": 201, "height": 201}
         ]
     }
 };

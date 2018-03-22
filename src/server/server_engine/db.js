@@ -2,6 +2,7 @@ const mysql = require('mysql');
 
 module.exports.save = save;
 module.exports.get = get;
+module.exports.getStatistic = getStatistic;
 
 
 var pool = mysql.createPool({
@@ -105,6 +106,21 @@ function get(id, callback) {
         })
         .catch((err)=> {
             console.log("Ошибка чтения игрока " + id);
+            console.log(err);
+        });
+}
+
+/**
+ * Статистика сервера
+ * @param callback: function(info:object)
+ */
+function getStatistic(callback) {
+    query("SELECT ID, level FROM users ORDER BY level DESC LIMIT 10")
+        .then((res)=>{
+            callback(res);
+        })
+        .catch((err)=> {
+            console.log("Ошибка чтения статистики ");
             console.log(err);
         });
 }

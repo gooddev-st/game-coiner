@@ -21,7 +21,8 @@ const log = require("./log.js");
 const
     FPS = 30,
     INTERVAL = 1000/FPS, //в миллисекундах
-    STEP = INTERVAL/1000;//в секундах
+    STEP = INTERVAL/1000,
+    STATISTIC_INTERVAL = 10000;//в секундах
 
 const
     PLAYER_START_X = 1000,
@@ -223,11 +224,19 @@ function start(){
 
 
 
-    }, INTERVAL)
+    }, INTERVAL);
+
+    this.statisticTimer = setInterval(_=>{
+        db.getStatistic((info)=>{
+            events.common(cio, "server", "statistic", {info: info}, true);
+        });
+
+    }, STATISTIC_INTERVAL);
 }
 
 
 //Остановка ( из админ-панели, если будет:) )
 function stop(){
     clearInterval(this.mainTimer);
+    clearInterval(this.statisticTimer);
 }

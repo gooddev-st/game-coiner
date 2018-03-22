@@ -88,6 +88,10 @@ function Player(playerID, socket, x, y, room_id, coins_count, level, levelupCoun
     //Есть ли изменения для отсылки
     this.changed = true;
 
+    /**
+     *
+     * @type {{up: boolean, left: boolean, right: boolean, down: boolean, target: (?{x:number,y:number})}}
+     */
     this.controller = {
         up: false,
         left: false,
@@ -170,14 +174,22 @@ Player.prototype.init = function () {
     });
 
     this.socket.on('target', (target) => {
-        if(
-            !target ||
-            (target.x == this.x && target.y == this.y)
-        ){
+
+        if(!target){
+            this.controller.target = null;
+            return;
+        }
+
+        //Отцентруем по центру игрока
+        let
+            x = target.x - this.width/2,
+            y = target.y - this.height/2;
+
+        if(x === this.x && y === this.y){
             this.controller.target = null;
         }
         else{
-            this.controller.target = target;
+            this.controller.target = {x: x, y: y};
         }
     });
 

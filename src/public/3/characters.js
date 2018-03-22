@@ -15,7 +15,9 @@ const
 
     coin_gold = new Character(sprites.coin_gold),
     coin_silver = new Character(sprites.coin_silver),
-    coin_copper = new Character(sprites.coin_copper);
+    coin_copper = new Character(sprites.coin_copper),
 
-export default {doc, prof, gob, girl, blond, mag, teleport, coin_gold, coin_silver, coin_copper}
+    pointer = new Character(sprites.pointer);
+
+export default {doc, prof, gob, girl, blond, mag, teleport, coin_gold, coin_silver, coin_copper, pointer}
 

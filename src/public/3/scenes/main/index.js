@@ -12,6 +12,7 @@ import Loot from "../../engine/loot";
 import ui from "../../engine/ui/ui";
 import controller from "../../engine/controller";
 import sounds from "../../sounds";
+import entities from "../../entities";
 
 /**
  * Основная сцена - собственно игра
@@ -64,12 +65,22 @@ function start(callback) {
         units.reset();
         loots = {};
         hero.unit = null;
+        entities.reset();
+        ui.top10.stop();
     });
 
     events.on("reconnect", onReconnect);
     events.on("room", onRoom);
     events.on("hero", onHero);
     events.on("sound", onSound);
+
+    events.on("click", (eventName, pos)=>{
+        if(pos) {
+            entities.add(pos.x, pos.y, 'pointer', .3);
+        }
+    });
+
+    ui.top10.start();
 
 
     /**
@@ -98,6 +109,8 @@ function stop() {
     events.off("room", onRoom);
     events.off("hero");
     events.off("sound");
+
+    events.off("click");
 
     finalCallback();
 }
@@ -462,6 +475,13 @@ function update(){
     //Камера
     camera && camera.run(room);
 
+    //Удалим отработавшие сущности
+    entities.each((entity, index)=>{
+        if(entity.isDie()){
+            entities.remove(index);
+        }
+    });
+
 }
 
 
@@ -486,6 +506,11 @@ function animate(){
     for (let i in teleports) {
         teleports[i].animate(constants.STEP);
     }
+
+    //Сущности
+    entities.each( (entity) => {
+        entity.animate();
+    });
 
 }
 
@@ -515,13 +540,16 @@ function draw(camera){
     }
 
     //Юниты
-    let ua = units.toArray();
-
     for (let unit of units.toArray()) {
         if(unit.room_id==room_id) {
             renderArray.push({y: unit.y, item: unit});
         }
     }
+
+    //Сущности
+    entities.each( (item) => {
+        renderArray.push({y: item.y, item: item});
+    });
 
     renderArray.sort((a, b)=>{
         return a.y - b.y;
