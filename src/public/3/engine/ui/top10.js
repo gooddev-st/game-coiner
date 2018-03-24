@@ -88,7 +88,7 @@ function update(eventName, type, data) {
                 content += '\
                     <div class="row">\
                         <div class="label">'+player.ID + ':</div>\
-                        <div id="hero_speed" class="value">'+player.level+'</div>\
+                        <div id="hero_speed" class="value">'+player.score+'</div>\
                     </div>\
 ';
                 top10ContentElement.innerHTML = content;

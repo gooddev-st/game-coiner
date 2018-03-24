@@ -18,6 +18,16 @@ const ENVIRONMENTS = {
         g: {start: 30, rand: 75},
         b: {start: 30, rand: 75},
     },
+    3: {
+        r: {start: 10, rand: 12},
+        g: {start: 130, rand: 20},
+        b: {start: 210, rand: 45},
+    },
+    4: {
+        r: {start: 150, rand: 12},
+        g: {start: 90, rand: 20},
+        b: {start: 40, rand: 12},
+    },
 };
 /**
  * @class Room

@@ -51,6 +51,34 @@ const rooms = {
         coins_num: 25,
         teleports_num: 3,
     }),
+
+    'hell': new Room({
+        ID: 'hell',
+        width: 400,
+        height: 3000,
+        environment_id: 3,
+        dead_zone_left: 10,
+        dead_zone_top: 80,
+        dead_zone_right: 10,
+        dead_zone_bottom: 0,
+
+        coins_num: 30,
+        teleports_num: 4,
+    }),
+
+    'cave': new Room({
+        ID: 'cave',
+        width: 3000,
+        height: 400,
+        environment_id: 4,
+        dead_zone_left: 10,
+        dead_zone_top: 80,
+        dead_zone_right: 10,
+        dead_zone_bottom: 0,
+
+        coins_num: 30,
+        teleports_num: 4,
+    }),
 };
 
 for(const i in rooms){

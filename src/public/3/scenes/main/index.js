@@ -4,7 +4,6 @@ import Camera from "../../engine/camera";
 import units from "../../units";
 import events from "../../engine/events";
 import hero from '../../engine/hero';
-import characters from "../../characters";
 import Unit from "../../engine/unit";
 import Teleport from "../../engine/teleport";
 import Room from "../../engine/room";
@@ -76,7 +75,22 @@ function start(callback) {
 
     events.on("click", (eventName, pos)=>{
         if(pos) {
-            entities.add(pos.x, pos.y, 'pointer', .3);
+            entities.add(pos.x, pos.y, 'pointer', .35);
+        }
+    });
+
+    events.on("entity", (eventName, type, data)=>{
+        if(type==="remove-coin" && data.room_id===room_id){
+
+            entities.add(data.x, data.y, 'boom1', .65);
+
+            // entities.add(data.x, data.y, 'boom2', .55);
+
+        }
+
+        if(type==="teleport-target" && data.room_id===room_id){
+
+            entities.add(data.x, data.y, 'barier', 0.65);
         }
     });
 
@@ -92,12 +106,12 @@ function start(callback) {
         update();
 
 
-        // Анимация
-        animate();
-
-
         // Отрисовка
         draw(camera);
+
+
+        // Анимация
+        animate();
 
 
     }, constants.INTERVAL);
@@ -111,6 +125,7 @@ function stop() {
     events.off("sound");
 
     events.off("click");
+    events.off("coin");
 
     finalCallback();
 }
@@ -131,7 +146,7 @@ function onReconnect(event, type, data) {
 function onRoom(event, type, data) {
 
     // Получение комнаты
-    if(type=="change") {
+    if(type==="change") {
         try {
             if(!data.room) throw "Ошибка получения с сервера";
 
@@ -149,7 +164,7 @@ function onRoom(event, type, data) {
 
 
     // Создание нового игрока
-    if(type=="player-create") { //TODO: переименовать в unit-create
+    if(type==="player-create") {
         try {
             if(!data.info) throw "Ошибка получения с сервера";
 
@@ -165,10 +180,7 @@ function onRoom(event, type, data) {
                 info.level == undefined
             ) throw "Ошибка получения с сервера";
 
-
-            let character = characters[info.character_id] || characters["man"];
-
-            const unit = new Unit(info.room_id, info.x, info.y, info.width, info.height, character, info.ID, info.state, info.level);
+            const unit = new Unit(info);
             units.add(info.ID, unit);
         }
         catch (e){
@@ -179,7 +191,7 @@ function onRoom(event, type, data) {
 
 
     // Информация об игроке
-    if(type=="player-info") {
+    if(type==="player-info") {
         try {
             if(!data.info) throw "Ошибка получения с сервера";
 
@@ -198,9 +210,7 @@ function onRoom(event, type, data) {
             let unit = units.item(info.ID);
             if(unit) {
 
-                let character = characters[info.character_id] || characters["man"]
-
-                unit.set(info.room_id, info.x, info.y, character, info.ID, info.state, info.level);
+                unit.set(info);
             }
         }
         catch (e){
@@ -211,7 +221,7 @@ function onRoom(event, type, data) {
 
 
     // Игрок ушел
-    if(type=="player-leave") {
+    if(type==="player-leave") {
         try {
             if(!data.ID) throw "Ошибка получения с сервера";
 
@@ -226,8 +236,8 @@ function onRoom(event, type, data) {
     }
 
 
-    // Информация о луте
-    if(type=="loot-info") {
+    // Создание лута
+    if(type==="loot-create") {
         try {
             if(!data.info) throw "Ошибка получения с сервера";
 
@@ -243,10 +253,66 @@ function onRoom(event, type, data) {
 
             if(info.room_id==room_id) {
 
-                let character = characters[info.character_id] || characters["gold_coin"]
+                if (info.ID in loots===false){
+                    loots[info.ID] = new Loot(info.room_id, info.x, info.y, info.character_id, info.ID, info.width, info.height);
+                }
+                else {
+                    loots[info.ID].set(info.room_id, info.x, info.y, info.character_id, info.ID);
+                }
+            }
+        }
+        catch (e){
+            log("Ошибка получения лута. "+e);
+            log(data);
+        }
+    }
+
+
+    // Информация о луте
+    if(type==="loot-info") {
+        try {
+            if(!data.info) throw "Ошибка получения с сервера";
+
+            var info = data.info;
+
+            if (
+                info.ID == undefined ||
+                info.x == undefined ||
+                info.y == undefined ||
+                info.character_id == undefined ||
+                info.room_id == undefined
+            ) throw "Ошибка получения с сервера";
+
+            if(info.room_id==room_id) {
 
                 if (info.ID in loots) {
-                    loots[info.ID].set(info.room_id, info.x, info.y, character, info.ID);
+                    loots[info.ID].set(info.room_id, info.x, info.y, info.character_id, info.ID);
+                }
+            }
+        }
+        catch (e){
+            log("Ошибка получения лута. "+e);
+            log(data);
+        }
+    }
+
+
+    // Удаление лута
+    if(type==="loot-remove") {
+        try {
+            if(!data.info) throw "Ошибка получения с сервера";
+
+            var info = data.info;
+
+            if (
+                info.ID == undefined ||
+                info.room_id == undefined
+            ) throw "Ошибка получения с сервера";
+
+            if(info.room_id===room_id) {
+
+                if (info.ID in loots) {
+                    delete loots[info.ID];
                 }
             }
         }
@@ -301,9 +367,7 @@ function onRoom(event, type, data) {
             ) throw "Ошибка получения с сервера";
 
 
-            let character = characters[info.character_id] || characters["gob"];
-
-            const unit = new Unit(info.room_id, info.x, info.y, info.width, info.height, character, info.ID, info.state);
+            const unit = new Unit(info);
             units.add(info.ID, unit);
         }
         catch (e){
@@ -332,9 +396,7 @@ function onRoom(event, type, data) {
             let unit = units.item(info.ID);
             if(unit) {
 
-                let character = characters[info.character_id] || characters["gob"]
-
-                unit.set(info.room_id, info.x, info.y, character, info.ID, info.state);
+                unit.set(info);
             }
         }
         catch (e){
@@ -368,13 +430,11 @@ function onHero(event, type, data) {
                 info.speed == undefined
             ) throw "Ошибка получения с сервера";
 
-            const character = characters[info.character_id] || characters["doc"];
-
             if(!hero.unit) {
-                hero.unit = new Unit(info.room_id, info.x, info.y, info.width, info.height, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);
+                hero.unit = new Unit(info);
             }
             else{
-                hero.unit.set(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);
+                hero.unit.set(info);
             }
 
             units.add('['+info.ID+']', hero.unit);
@@ -423,8 +483,7 @@ function onHero(event, type, data) {
                 info.speed == undefined
             ) throw "Ошибка получения с сервера";
 
-            const character = characters[info.character_id] || characters["doc"]
-            hero.unit.set(info.room_id, info.x, info.y, character, '['+info.ID+']', info.state, info.level, info.coins_count, info.levelupCounter);
+            hero.unit.set(info);
 
             hero.speed = info.speed;
 
@@ -578,6 +637,7 @@ function roomInit(settings){
     loots = {};
     teleports = {};
     room = null;
+    entities.reset();
 
 
     room_id = settings.ID;
@@ -594,18 +654,14 @@ function roomInit(settings){
     if('loot' in settings){
         for(const item of settings.loot){
 
-            let character = characters[item.character_id] || characters["coin_gold"]
-
-            loots[item.ID] = new Loot(room_id, item.x, item.y, character, item.ID, item.width, item.height);
+            loots[item.ID] = new Loot(room_id, item.x, item.y, item.character_id, item.ID, item.width, item.height);
         }
     }
 
     if('teleports' in settings){
         for(const item of settings.teleports){
 
-            let character = characters[item.character_id] || characters["teleport"]
-
-            teleports[item.ID] = new Teleport(room_id, item.x, item.y, character, item.ID, item.target, item.state, item.width, item.height);
+            teleports[item.ID] = new Teleport(room_id, item.x, item.y, item.character_id, item.ID, item.target, item.state, item.width, item.height);
         }
     }
 }

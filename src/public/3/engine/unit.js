@@ -3,40 +3,39 @@
  *
  */
 import {STEP} from "../constants";
+import characters from "../characters";
+
+const CHARACTER_DEFAULT = 'blond';
+
+const MAX_HEALTH = 100;
 
 export default class Unit{
     /**
      * Конструктор
-     * @param room_id
-     * @param x
-     * @param y
-     * @param character
-     * @param name
-     * @param state
-     * @param level
-     * @param coins_count
-     * @param levelupCounter
-     * @param width
-     * @param height
+     * @param data
      */
-    constructor(room_id, x, y, width, height, character, name, state, level, coins_count, levelupCounter){
-        this.room_id = room_id;
+    constructor(data){
 
-        this.x = x;
-        this.y = y;
+        this.room_id = data.room_id;
 
-        this.width = width;
-        this.height = height;
+        this.x = data.x;
+        this.y = data.y;
 
-        this.character = character;
+        this.width = data.width;
+        this.height = data.height;
 
-        this.state = state;
+        this.character = characters[data.character_id] || characters[CHARACTER_DEFAULT];
 
-        this.name = name;
+        this.state = data.state || 'default';
 
-        this.level = level;
-        this.coins_count = coins_count;
-        this.levelupCounter = levelupCounter;
+        this.name = data.ID;
+
+        this.level = data.level;
+        this.coins_count = data.coins_count;
+        this.levelupValue = data.levelupValue;
+        this.levelupCounter = data.levelupCounter;
+
+        this.health = data.health;
 
         this.animateSpeed = 14; //TODO: вынести в character
         this.faza = 0;
@@ -45,29 +44,25 @@ export default class Unit{
 
     /**
      * Установка параметров юнита
-     * @param room_id
-     * @param x
-     * @param y
-     * @param character
-     * @param name
-     * @param state
-     * @param level
-     * @param coins_count
-     * @param levelupCounter
+     * @param data
      */
-    set(room_id, x, y, character, name, state, level, coins_count, levelupCounter){
-        this.room_id = room_id;
-        this.x = x;
-        this.y = y;
-        this.character = character;
+    set(data){
 
-        this.name = name;
+        this.room_id = data.room_id;
+        this.x = data.x;
+        this.y = data.y;
+        this.character = characters[data.character_id] || characters[CHARACTER_DEFAULT];
 
-        this.state = state;
+        this.name = data.ID;
 
-        this.level = level;
-        this.coins_count = coins_count;
-        this.levelupCounter = levelupCounter;
+        this.state = data.state;
+
+        this.level = data.level;
+        this.coins_count = data.coins_count;
+        this.levelupValue = data.levelupValue;
+        this.levelupCounter = data.levelupCounter;
+
+        this.health = data.health;
 
     }
 
@@ -110,19 +105,20 @@ export default class Unit{
 
 
         // Если есть - рисуем индикатор
-        if(this.levelupCounter!=undefined && this.levelupCounter!=null) {
-            let volume = Math.floor(10 - this.levelupCounter % 11) * 10;
-            this.drawVolume(camera.context, x, y, volume);
+        if(this.health!=undefined) {
+
+            let volume;
+
+                volume = Math.floor(this.health*100/MAX_HEALTH);
+
+            this.drawVolume(camera.context, x, y - 50, volume);
         }
 
-        // Если есть - рисуем уровень
-        if(this.level!=undefined && this.level!=null) {
-            this.drawLevel(camera.context, x, y, this.level);
-        }
+        let ly = this.levelupCounter!=undefined ? y-60 : y-50;
 
         // Рисуем имя
-        if(this.level!=undefined && this.level!=null) {
-            this.drawName(camera.context, x, y, this.name);
+        if(this.level!=undefined) {
+            this.drawName(camera.context, x, ly, this.name, this.level);
         }
     }
 
@@ -153,10 +149,10 @@ export default class Unit{
      */
     drawVolume(context, x, y, value){
 
-        let volumeWidth = 70;
-        let volumeHeight = 9;
+        let volumeWidth = 50;
+        let volumeHeight = 4;
         let volumeX = x + (this.width - volumeWidth)/2;
-        let volumeY = y - 50;
+        let volumeY = y;
 
 
         context.save();
@@ -170,45 +166,35 @@ export default class Unit{
 
 
     /**
-     * Рисуем уровень
-     * @param context
-     * @param sx
-     * @param sy
-     * @param level
-     */
-    drawLevel(context, sx, sy, level){
-
-        let textWidth = context.measureText(level).width,
-            x = sx + (this.width - textWidth)/2,
-            y = sy - 42;
-
-        context.save();
-        context.font = "bold 11px Arial";
-        context.fillStyle = "white";
-        context.fillText(level,x,y);
-        context.restore();
-    }
-
-
-    /**
      * Рисуем имя
      * @param context
      * @param sx
      * @param sy
      * @param name
      */
-    drawName(context, sx, sy, name){
+    drawName(context, sx, sy, name, level){
 
         context.save();
-        context.fillStyle = "yellow";
 
+        //Имя
+        context.fillStyle = "yellow";
         context.font = "14px sans-serif";
 
         let textWidth = context.measureText(name).width,
             x = sx + (this.width - textWidth)/2,
-            y = sy - 60;
+            y = sy;
 
         context.fillText(name,x,y);
+
+        //Уровень
+        let textLevelWidth = context.measureText(level).width,
+            lx = x - 2 - textLevelWidth,
+            ly = y;
+
+        context.font = "bold 12px Arial";
+        context.fillStyle = "white";
+        context.fillText(level,lx,ly);
+
         context.restore();
     }
 }

@@ -23,9 +23,16 @@ const characters = require('./characters.js');
 const
     PLAYER_WIDTH = 44.0,
     PLAYER_HEIGHT = 44.0,
-    PLAYER_SPEED = 200,
 
     SIN_45 = Math.sin(45.0);
+
+const
+    // Таблица уровней игроков
+    TO_LEVELS = [0,
+        10, 40, 100, 200, 350, 600, 900, 1400, 2200,
+        3600, 4900, 6000, 8300, 11000, 15200, 18900, 25000, 40000, 100000,
+        1000000, 2000000, 5000000, 10000000
+    ];
 
 
 /**
@@ -53,37 +60,34 @@ function getRandomCharacter() {
  * Игрок
  * @param playerID
  * @param socket
- * @param x
- * @param y
- * @param room_id
- * @param coins_count
- * @param level
- * @param levelupCounter
- * @param character_id
+ * @param data: Array
  * @constructor
  */
-function Player(playerID, socket, x, y, room_id, coins_count, level, levelupCounter, character_id, speed) {
-    this.x = x;
-    this.y = y;
-
-
-
-    this.character_id = character_id || getRandomCharacter();
-    this.room_id = room_id;
-    this.state = 'default';
-
-    this.socket = socket;
-    this.width = PLAYER_WIDTH;
-    this.height = PLAYER_HEIGHT;
-    this.speed = speed==undefined ? PLAYER_SPEED : speed;
+function Player(playerID, socket, data) {
 
     this.ID = playerID;
+    this.socket = socket;
 
-    this.levelupCounter = 10;
-    if(levelupCounter!=undefined) this.levelupCounter = levelupCounter;
+    this.room_id = data.room_id;
+    this.x = data.x;
+    this.y = data.y;
 
-    this.level = level || 1;
-    this.coins_count = coins_count==undefined ? 0 : coins_count;
+    this.character_id = data.character_id || getRandomCharacter();
+    this.state = 'default';
+
+    this.width = PLAYER_WIDTH;
+    this.height = PLAYER_HEIGHT;
+    this.speed = data.speed;
+
+
+    this.score = data.score ? data.score : 0;
+    this.level = data.level ? data.level : 1;
+
+    this.levelupValue = TO_LEVELS[this.level] - TO_LEVELS[this.level - 1];
+    this.levelupCounter = this.score - TO_LEVELS[this.level - 1];
+
+    this.coins_count = data.coins_count ? data.coins_count : 0;
+    this.health = data.health;
 
     //Есть ли изменения для отсылки
     this.changed = true;
@@ -118,7 +122,7 @@ Player.prototype.init = function () {
 
     //Отправим игроков. Кроме самого
     players.each((playerID, player)=>{
-        if(playerID != this.ID) {
+        if(playerID !== this.ID) {
             events.one(this.socket, "room", "player-create", {info: player.commonInfo()});
         }
     });
@@ -132,7 +136,7 @@ Player.prototype.init = function () {
 
 
     //Заявим, что пришел игрок
-    events.common(this.socket, "room", "player-create", {info: this.commonInfo(), message: "Пришел игрок[" + this.ID + "]"});
+    events.not_me(this.socket, "room", "player-create", {info: this.commonInfo(), message: "Пришел игрок[" + this.ID + "]"});
 
 
     //Навесим обработчики
@@ -222,13 +226,16 @@ Player.prototype.reset = function (socket) {
  * @param loot
  */
 Player.prototype.eating = function (loot) {
-    this.coins_count++;
 
-    this.levelupCounter--;
+    let
+        x = loot.x + loot.width/2,
+        y = loot.y - loot.height/2;
+
+    this.coins_count++;
+    this.score++;
 
     //Левелап (LevelUp)
-    if(this.levelupCounter==0){
-        this.levelupCounter = 10;
+    if(this.score >= TO_LEVELS[this.level]){
         this.level++;
 
         //Увеличим скорость
@@ -249,8 +256,13 @@ Player.prototype.eating = function (loot) {
 
         let eat_sound = eat_sounds[loot.character_id] || eat_sounds["coin_copper"]
 
-        sound_event.add(eat_sound, this.room_id, this.x, this.y);
+        sound_event.add(eat_sound, this.room_id, x, y);
     }
+
+    this.levelupValue = TO_LEVELS[this.level] - TO_LEVELS[this.level - 1];
+    this.levelupCounter = this.score - TO_LEVELS[this.level - 1];
+
+    events.common("entity", "remove-coin", {room_id: loot.room_id, x: x, y: y});
 
     db.save(this.allInfo());
     this.changed = true;
@@ -259,7 +271,7 @@ Player.prototype.eating = function (loot) {
 
 /**
  * Телепортация
- * @param loot
+ * @param teleport
  */
 Player.prototype.teleport = function (teleport) {
     this.room_id = teleport.target.room_id;
@@ -279,6 +291,15 @@ Player.prototype.teleport = function (teleport) {
     //sound
     sound_event.add("teleport", teleport.room_id, teleport.x, teleport.y);
     sound_event.add("teleport", teleport.target.room_id, teleport.target.x, teleport.target.y);
+
+    let
+        x = this.x + this.width/2,
+        y = this.y + this.height/2;
+    events.common('entity', 'teleport-target', {
+        room_id: teleport.target.room_id,
+        x: x,
+        y: y,
+    });
 
     db.save(this.allInfo());
     this.changed = true;
@@ -403,23 +424,25 @@ Player.prototype.run = function (room, step) {
 Player.prototype.commonInfo = function(){
     return {
         ID: this.ID,
+
+        room_id: this.room_id,
         x: this.x,
         y: this.y,
+
+        width: this.width,
+        height: this.height,
+
         character_id: this.character_id,
         state: this.state,
 
-        level: this.level,
-        room_id: this.room_id,
-
-        width: this.width,
-        height: this.height
+        level: this.level
     }
 };
 
 
 /**
  * Возвращает информацию об игроке для самого игрока
- * @returns {{x: *, y: *, character_id: *, state: *, coins_count: *, level: *, levelupCounter: *, room_id: *}}
+ * @returns {{ID: *, x: *, y: *, character_id: *, state: *, coins_count: *, score: *, level: *, levelupValue: *, levelupCounter: *, speed: *, room_id: *, width: *, height: *}}
  */
 Player.prototype.allInfo = function(){
     return {
@@ -430,7 +453,9 @@ Player.prototype.allInfo = function(){
         state: this.state,
 
         coins_count: this.coins_count,
+        score: this.score,
         level: this.level,
+        levelupValue: this.levelupValue,
         levelupCounter: this.levelupCounter,
 
         speed: this.speed,
@@ -444,7 +469,7 @@ Player.prototype.allInfo = function(){
 
 Player.prototype.destroy = function(){
 
-    events.common(this.socket, "room", "player-leave", {room_id: this.room_id, ID: this.ID, message: "Игрок["+this.ID+"] покинул этот мир"});
+    events.not_me(this.socket, "room", "player-leave", {room_id: this.room_id, ID: this.ID, message: "Игрок["+this.ID+"] покинул этот мир"});
 
     this.socket.removeAllListeners();
 

@@ -1,8 +1,10 @@
+import characters from "../characters";
+
 /**
  * @class Loot
  */
 export default class {
-    constructor(room_id, x, y, character, ID, width, height){
+    constructor(room_id, x, y, character_id, ID, width, height){
         this.ID = ID;
         this.room_id = room_id;
         this.x = x;
@@ -11,7 +13,7 @@ export default class {
         this.width = width;
         this.height = height;
 
-        this.character = character;
+        this.character = characters[character_id] || characters['coin_gold'];
 
         this.state = 'default';
 
@@ -20,12 +22,12 @@ export default class {
         this.currentSpriteNum = 0;
     }
 
-    set(room_id, x, y, character, ID){
+    set(room_id, x, y, character_id, ID){
         this.ID = ID;
         this.room_id = room_id;
         this.x = x;
         this.y = y;
-        this.character = character;
+        this.character = characters[character_id] || characters['coin_gold'];
     }
 
     draw(camera){

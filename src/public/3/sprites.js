@@ -9,7 +9,11 @@ let s_doc = document.getElementById('s_doc'),
     s_coins = document.getElementById('s_coins'),
     t_trees = document.getElementById('t_trees'),
     t_bushs = document.getElementById('t_bushs'),
-    s_pointer = document.getElementById('s_pointer');
+    s_pointer = document.getElementById('s_pointer'),
+    s_boom = document.getElementById('s_boom'),
+    s_boom1 = document.getElementById('s_boom1'),
+    s_boom2 = document.getElementById('s_boom2'),
+    s_barier = document.getElementById('s_barier');
 
 
 /**
@@ -352,8 +356,8 @@ exports.teleport = {
  */
 exports.pointer = {
     "image": s_pointer,
-    "width": 50,
-    "height": 50,
+    "width": 64,
+    "height": 64,
 
     "states": {
         "default": [
@@ -367,6 +371,191 @@ exports.pointer = {
             {"name": "sprite8", "x": 402, "y": 201, "width": 201, "height": 201},
             {"name": "sprite9", "x": 603, "y": 201, "width": 201, "height": 201},
             {"name": "sprite10", "x": 804, "y": 201, "width": 201, "height": 201}
+        ]
+    }
+};
+
+
+/**
+ * Взрыв
+ */
+exports.boom = {
+    "image": s_boom,
+    "width": 128,
+    "height": 128,
+    "speed": 30,
+
+    "states": {
+        "default": [
+            {"name": "sprite1", "x": 0, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite2", "x": 128, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite3", "x": 256, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite4", "x": 384, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite5", "x": 512, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite6", "x": 640, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite7", "x": 768, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite8", "x": 896, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite9", "x": 0, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite10", "x": 128, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite11", "x": 256, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite12", "x": 384, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite13", "x": 512, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite14", "x": 640, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite15", "x": 768, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite16", "x": 896, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite17", "x": 0, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite18", "x": 128, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite19", "x": 256, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite20", "x": 384, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite21", "x": 512, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite22", "x": 640, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite23", "x": 768, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite24", "x": 896, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite25", "x": 0, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite26", "x": 128, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite27", "x": 256, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite28", "x": 384, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite29", "x": 512, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite30", "x": 640, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite31", "x": 768, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite32", "x": 896, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite33", "x": 0, "y": 512, "width": 128, "height": 128},
+            {"name": "sprite34", "x": 128, "y": 512, "width": 128, "height": 128},
+            {"name": "sprite35", "x": 256, "y": 512, "width": 128, "height": 128},
+            {"name": "sprite36", "x": 384, "y": 512, "width": 128, "height": 128},
+            {"name": "sprite37", "x": 512, "y": 512, "width": 128, "height": 128},
+            {"name": "sprite38", "x": 640, "y": 512, "width": 128, "height": 128},
+            {"name": "sprite39", "x": 768, "y": 512, "width": 128, "height": 128},
+            {"name": "sprite40", "x": 896, "y": 512, "width": 128, "height": 128},
+            {"name": "sprite41", "x": 0, "y": 640, "width": 128, "height": 128},
+            {"name": "sprite42", "x": 128, "y": 640, "width": 128, "height": 128},
+            {"name": "sprite43", "x": 256, "y": 640, "width": 128, "height": 128},
+            {"name": "sprite44", "x": 384, "y": 640, "width": 128, "height": 128},
+            {"name": "sprite45", "x": 512, "y": 640, "width": 128, "height": 128},
+            {"name": "sprite46", "x": 640, "y": 640, "width": 128, "height": 128},
+            {"name": "sprite47", "x": 768, "y": 640, "width": 128, "height": 128},
+            {"name": "sprite48", "x": 896, "y": 640, "width": 128, "height": 128},
+            {"name": "sprite49", "x": 0, "y": 768, "width": 128, "height": 128},
+            {"name": "sprite50", "x": 128, "y": 768, "width": 128, "height": 128},
+            {"name": "sprite51", "x": 256, "y": 768, "width": 128, "height": 128},
+            {"name": "sprite52", "x": 384, "y": 768, "width": 128, "height": 128},
+            {"name": "sprite53", "x": 512, "y": 768, "width": 128, "height": 128},
+            {"name": "sprite54", "x": 640, "y": 768, "width": 128, "height": 128},
+            {"name": "sprite55", "x": 768, "y": 768, "width": 128, "height": 128},
+            {"name": "sprite56", "x": 896, "y": 768, "width": 128, "height": 128},
+            {"name": "sprite57", "x": 0, "y": 896, "width": 128, "height": 128},
+            {"name": "sprite58", "x": 128, "y": 896, "width": 128, "height": 128},
+            {"name": "sprite59", "x": 256, "y": 896, "width": 128, "height": 128},
+            {"name": "sprite60", "x": 384, "y": 896, "width": 128, "height": 128},
+            {"name": "sprite61", "x": 512, "y": 896, "width": 128, "height": 128},
+            {"name": "sprite62", "x": 640, "y": 896, "width": 128, "height": 128},
+            {"name": "sprite63", "x": 768, "y": 896, "width": 128, "height": 128},
+            {"name": "sprite64", "x": 896, "y": 896, "width": 128, "height": 128}
+        ]
+    }
+};
+
+
+/**
+ * Взрыв1
+ */
+exports.boom1 = {
+    "image": s_boom1,
+    "width": 64,
+    "height": 64,
+    "speed": 22,
+
+    "states": {
+        "default": [
+            {"name": "sprite1", "x": 0, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite2", "x": 128, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite3", "x": 256, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite4", "x": 384, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite5", "x": 0, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite6", "x": 128, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite7", "x": 256, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite8", "x": 384, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite9", "x": 0, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite10", "x": 128, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite11", "x": 256, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite12", "x": 384, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite13", "x": 0, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite14", "x": 128, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite15", "x": 256, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite16", "x": 384, "y": 384, "width": 128, "height": 128}
+        ]
+    }
+};
+
+
+/**
+ * Взрыв2
+ */
+exports.boom2 = {
+    "image": s_boom2,
+    "width": 128,
+    "height": 128,
+    "speed": 28,
+
+    "states": {
+        "default": [
+            {"name": "sprite1", "x": 0, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite2", "x": 128, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite3", "x": 256, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite4", "x": 384, "y": 0, "width": 128, "height": 128},
+            {"name": "sprite5", "x": 0, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite6", "x": 128, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite7", "x": 256, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite8", "x": 384, "y": 128, "width": 128, "height": 128},
+            {"name": "sprite9", "x": 0, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite10", "x": 128, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite11", "x": 256, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite12", "x": 384, "y": 256, "width": 128, "height": 128},
+            {"name": "sprite13", "x": 0, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite14", "x": 128, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite15", "x": 256, "y": 384, "width": 128, "height": 128},
+            {"name": "sprite16", "x": 384, "y": 384, "width": 128, "height": 128}
+        ]
+    }
+};
+
+
+/**
+ * Взрыв1
+ */
+exports.barier = {
+    "image": s_barier,
+    "width": 128,
+    "height": 128,
+    "speed": 38,
+
+    "states": {
+        "default": [
+            {"name": "sprite1", "x": 0, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite2", "x": 64, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite3", "x": 128, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite4", "x": 192, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite5", "x": 256, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite6", "x": 0, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite7", "x": 64, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite8", "x": 128, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite9", "x": 192, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite10", "x": 256, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite11", "x": 0, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite12", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite13", "x": 128, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite14", "x": 192, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite15", "x": 256, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite16", "x": 0, "y": 192, "width": 64, "height": 64},
+            {"name": "sprite17", "x": 64, "y": 192, "width": 64, "height": 64},
+            {"name": "sprite18", "x": 128, "y": 192, "width": 64, "height": 64},
+            {"name": "sprite19", "x": 192, "y": 192, "width": 64, "height": 64},
+            {"name": "sprite20", "x": 256, "y": 192, "width": 64, "height": 64},
+            {"name": "sprite21", "x": 0, "y": 256, "width": 64, "height": 64},
+            {"name": "sprite22", "x": 64, "y": 256, "width": 64, "height": 64},
+            {"name": "sprite23", "x": 128, "y": 256, "width": 64, "height": 64},
+            {"name": "sprite24", "x": 192, "y": 256, "width": 64, "height": 64},
+            {"name": "sprite25", "x": 256, "y": 256, "width": 64, "height": 64}
         ]
     }
 };

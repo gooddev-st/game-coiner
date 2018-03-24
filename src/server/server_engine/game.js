@@ -5,28 +5,19 @@
 
 module.exports.run = run;
 
+//Константы
+require('./constants.js')();
+
 const rooms = require('./rooms.js');
 const npcs = require('./npcs.js');
 const Player = require('./player.js');
-// const Coin = require('./loot.js');
 const sound_event = require('./sound_event.js');//звуковые события
 
-// const characters = require('./characters.js');
 const events = require('./events.js');
 
 const db = require('./db.js');
 
 const log = require("./log.js");
-
-const
-    FPS = 30,
-    INTERVAL = 1000/FPS, //в миллисекундах
-    STEP = INTERVAL/1000,
-    STATISTIC_INTERVAL = 10000;//в секундах
-
-const
-    PLAYER_START_X = 1000,
-    PLAYER_START_Y = 1000;
 
 
     var cio = null;
@@ -35,6 +26,8 @@ const
 
 function run(io){
     cio = io;
+
+    events.init(io);
 
     start();
 
@@ -85,18 +78,32 @@ function login(login, socket, callback) {
 
         //Посмотрим в БД
         db.get(login, (res)=>{
+            let data;
+
             if(res.length>0){
-                const data = res[0];
-                player = new Player(
-                    login, socket, data.x, data.y,
-                    data.room_id, data.coins_count, data.level, data.levelupCounter,
-                    data.character_id,
-                    data.speed
-                );
+                data = res[0];
             }
             else{
-                player = new Player(login, socket, PLAYER_START_X, PLAYER_START_Y, 'paradise');
+                //Для нового игрока
+                data = {
+                    x: PLAYER_START_X,
+                    y: PLAYER_START_Y,
+                    room_id: PLAYER_START_ROOM,
+
+                    score: 0,
+                    level: 1,
+
+                    character_id: false, //Выдаст случайный
+                    speed: PLAYER_START_SPEED,
+
+                    coins_count: 0,
+
+                    health: PLAYER_START_HEALTH,
+                };
             }
+
+            player = new Player( login, socket, data );
+
             players.add(login, player);
 
             // log('создан новый ' + name + '. ' + socket.id);
@@ -133,6 +140,13 @@ function start(){
          * Основной цикл
          */
 
+        //Комнаты "живут"
+        rooms.each((room_id, room)=>{
+            room.cleanUp();
+            room.run();
+        });
+
+
         //Движем плееров
         players.each((playerID, player)=>{
             player.run( rooms.get(player.room_id), STEP );
@@ -144,27 +158,33 @@ function start(){
         });
 
         //Проверим как там монеты
-        //TODO: добавить мобов к поедальщикам
         rooms.each((room_id, room)=>{
             room.lootEach((id, loot)=>{
-                loot.touch(players.list(), room);
-            });
-        });
-        rooms.each((room_id, room)=>{
-            room.lootEach((id, loot)=>{
-                loot.touch(npcs.list(), room);
+
+                loot.touch(
+                    Object.assign( {},
+
+                        players.list(),
+                        npcs.list()
+
+                    ),
+                    room);
             });
         });
 
         //Проверим как там телепорты
         rooms.each((room_id, room)=>{
             room.teleportsEach((id, teleport)=>{
-                teleport.touch(players.list(), room);
-            });
-        });
-        rooms.each((room_id, room)=>{
-            room.teleportsEach((id, teleport)=>{
-                teleport.touch(npcs.list(), room);
+
+                teleport.run(STEP);
+
+                teleport.touch( Object.assign({},
+
+                    players.list(),
+                    npcs.list()
+
+                    ),
+                    room);
             });
         });
 
@@ -176,7 +196,7 @@ function start(){
                 events.one(player.socket, "hero", "hero-info", {info: player.allInfo()});
 
                 //остальным только общую
-                events.common(player.socket, "room", "player-info", {info: player.commonInfo()});
+                events.not_me(player.socket, "room", "player-info", {info: player.commonInfo()});
                 player.changed = false;
 
             }
@@ -187,7 +207,7 @@ function start(){
 
             if(npc.changed) {
 
-                events.common(cio, "room", "npc-info", {info: npc.info()}, true);
+                events.common("room", "npc-info", {info: npc.info()});
                 npc.changed = false;
 
             }
@@ -198,7 +218,7 @@ function start(){
         rooms.each((room_id, room)=> {
             room.lootEach((id, loot) => {
                 if (loot.changed) {
-                    events.common(cio, "room", "loot-info", {info: loot.info()}, true);
+                    events.common("room", "loot-info", {info: loot.info()});
                     loot.changed = false;
                 }
             });
@@ -209,7 +229,7 @@ function start(){
         rooms.each((room_id, room)=> {
             room.teleportsEach((id, teleport) => {
                 if (teleport.changed) {
-                    events.common(cio, "room", "teleport-info", {info: teleport.info()}, true);
+                    events.common("room", "teleport-info", {info: teleport.info()});
                     teleport.changed = false;
                 }
             });
@@ -218,7 +238,7 @@ function start(){
         //Шлем информацию о звуковых событиях
         let evs = sound_event.list();
         for(let i in evs){
-            events.common(cio, "sound", "notice", {info: evs[i]}, true);
+            events.common("sound", "notice", {info: evs[i]});
         }
         sound_event.reset();
 
@@ -226,12 +246,14 @@ function start(){
 
     }, INTERVAL);
 
+
+    // Периодическая отсылка статистики
     this.statisticTimer = setInterval(_=>{
         db.getStatistic((info)=>{
-            events.common(cio, "server", "statistic", {info: info}, true);
+            events.common("server", "statistic", {info: info});
         });
 
-    }, STATISTIC_INTERVAL);
+    }, 10000);
 }
 
 

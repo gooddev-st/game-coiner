@@ -5,7 +5,7 @@
 module.exports = Npc;
 
 
-const rooms = require("./rooms.js");
+const events = require("./events.js");
 const npcs = require("./npcs.js");
 
 const sound_event = require('./sound_event.js');//звуковые события
@@ -108,6 +108,15 @@ Npc.prototype.teleport = function (teleport) {
     //sound
     sound_event.add("teleport", teleport.room_id, teleport.x, teleport.y);
     sound_event.add("teleport", teleport.target.room_id, teleport.target.x, teleport.target.y);
+
+    let
+        x = this.x + this.width/2,
+        y = this.y + this.height/2;
+    events.common('entity', 'teleport-target', {
+        room_id: teleport.target.room_id,
+        x: x,
+        y: y,
+    });
 
     this.changed = true;
 }

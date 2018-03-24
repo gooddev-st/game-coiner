@@ -1,3 +1,5 @@
+const events = require("./events");
+
 module.exports = Coin;
 
 const
@@ -5,6 +7,8 @@ const
     COIN_HEIGHT = 22;
 
 function Coin(room_id, x, y, character_id) {
+
+    //TODO: Потенциальная проблема. Может и совпасть
     this.ID = 'loot'+Math.floor(Math.random()*65536);
 
     this.room_id = room_id;
@@ -16,6 +20,9 @@ function Coin(room_id, x, y, character_id) {
     this.character_id = character_id;
 
     this.changed = true;
+
+    //Признак "удалите меня"
+    this.die = false;
 }
 
 Coin.prototype.info = function(){
@@ -46,7 +53,7 @@ Coin.prototype.touch = function(players, room){
 
     if(touchers.length==0) return;
 
-    //Если коснулись - засчитаем монету и переместим
+    //Если коснулись - засчитаем монету
     let winner = 0;
     //если коснулись более одного - разыграем
     if(touchers.length>1){
@@ -54,11 +61,13 @@ Coin.prototype.touch = function(players, room){
     }
     touchers[winner].eating(this);
 
+    //Пометим на удаление
+    this.die = true;
+};
 
-    //переместим (будто удалим и создадим новую)
-    this.x = Math.floor(room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right-this.width));
-    this.y = Math.floor(room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom-this.height));
-    this.changed = true;
+
+Coin.prototype.isDie = function() {
+    return this.die;
 };
 
 

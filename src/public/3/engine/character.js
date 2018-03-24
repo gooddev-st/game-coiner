@@ -3,11 +3,11 @@
  */
 export default class Character{
 
-    constructor(sprite){
+    constructor(sprite, width, height){
         this.sprite = sprite;
 
-        this.width = sprite.width;
-        this.height = sprite.height;
+        this.width = width || sprite.width;
+        this.height = height || sprite.height;
     }
 
 
@@ -20,8 +20,6 @@ export default class Character{
      * @param height
      * @param state
      * @param frameNum - номер кадра анимации
-     * @param unit_level
-     * @param volume - значение индикатора
      */
     draw(context, x, y, state, frameNum, width, height){
 

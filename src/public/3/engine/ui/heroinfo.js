@@ -14,6 +14,7 @@ const scoreElement = document.getElementById("coins_count");
 const levelElement = document.getElementById("hero_level");
 const levelupcounterElement = document.getElementById("hero_levelupcounter");
 const speedElement = document.getElementById("hero_speed");
+const healthElement = document.getElementById("hero_health");
 
 
 
@@ -52,5 +53,6 @@ function update(info){
     scoreElement && (scoreElement.innerText = info.coins_count);
     levelElement && (levelElement.innerText = info.level);
     speedElement && (speedElement.innerText = info.speed);
-    levelupcounterElement && (levelupcounterElement.innerText = info.levelupCounter);
+    levelupcounterElement && (levelupcounterElement.innerText = info.levelupValue - info.levelupCounter);
+    healthElement && (healthElement.innerText = info.health)
 }

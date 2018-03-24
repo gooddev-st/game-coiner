@@ -1,8 +1,10 @@
+import characters from "../characters";
+
 /**
  * @class Teleport
  */
 export default class {
-    constructor(room_id, x, y, character, ID, target, state, width, height){
+    constructor(room_id, x, y, character_id, ID, target, state, width, height){
         this.ID = ID;
         this.room_id = room_id;
         this.x = x;
@@ -11,7 +13,7 @@ export default class {
         this.width = width;
         this.height = height;
 
-        this.character = character;
+        this.character = characters[character_id] || characters['teleport'];
 
         this.state = state;
 

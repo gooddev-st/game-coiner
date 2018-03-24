@@ -19,7 +19,8 @@ export default class Entity{
         this.width = this.character.width;
         this.height = this.character.height;
 
-        this.animateSpeed = 14;
+        this.animateSpeed = this.character.sprite.speed;
+        if(!this.animateSpeed) this.animateSpeed = 14;
         this.faza = 0;
         this.currentSpriteNum = 0;
 

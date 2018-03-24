@@ -38,22 +38,8 @@ function query(sql, props) {
 
 
 function create(data) {
-    const d = {
-        ID: data.ID,
-        character_id: data.character_id,
-        coins_count: data.coins_count,
-        level: data.level,
-        levelupCounter: data.levelupCounter,
 
-        speed: data.speed,
-
-        room_id: data.room_id,
-        x: data.x,
-        y: data.y
-
-    };
-
-    query("INSERT INTO users SET ?", d)
+    query("INSERT INTO users SET ?", data)
         .then(()=>{})
         .catch((err)=>{
             console.log("Ошибка записи игрока "+data.ID)
@@ -62,22 +48,8 @@ function create(data) {
 }
 
 function update(data) {
-    const d = {
-        ID: data.ID,
-        character_id: data.character_id,
-        coins_count: data.coins_count,
-        level: data.level,
-        levelupCounter: data.levelupCounter,
 
-        speed: data.speed,
-
-        room_id: data.room_id,
-        x: data.x,
-        y: data.y
-
-    };
-
-    query("UPDATE users SET ? WHERE ID=?", [d, d.ID])
+    query("UPDATE users SET ? WHERE ID=?", [data, data.ID])
         .then(()=>{})
         .catch( (err)=>{
 
@@ -89,11 +61,31 @@ function update(data) {
 function save(data) {
 
     get(data.ID, (res)=>{
+
+        const d = {
+            ID: data.ID,
+
+            room_id: data.room_id,
+            x: data.x,
+            y: data.y,
+
+            score: data.score,
+            level: data.level,
+
+            character_id: data.character_id,
+
+            coins_count: data.coins_count,
+            health: data.health,
+
+            speed: data.speed,
+
+        };
+
         if(res.length){
-            update(data);
+            update(d);
         }
         else{
-            create(data);
+            create(d);
         }
     });
 }
@@ -115,7 +107,7 @@ function get(id, callback) {
  * @param callback: function(info:object)
  */
 function getStatistic(callback) {
-    query("SELECT ID, level FROM users ORDER BY level DESC LIMIT 10")
+    query("SELECT ID, level, score FROM users ORDER BY score DESC LIMIT 10")
         .then((res)=>{
             callback(res);
         })

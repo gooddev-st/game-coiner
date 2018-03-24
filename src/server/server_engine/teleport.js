@@ -16,6 +16,8 @@ function Teleport(room_id, x, y, character_id, target) {
     this.height = HEIGHT;
     this.state = 'default';
 
+    this.workTime = 0;
+
     this.character_id = character_id;
 
     this.target = {
@@ -26,6 +28,27 @@ function Teleport(room_id, x, y, character_id, target) {
 
     this.changed = true;
 }
+
+Teleport.prototype.run = function(step){
+
+    let oldState = this.state;
+
+    if(this.workTime>0){
+        this.workTime -= step;
+        this.state = 'run';
+    }
+
+    if(this.workTime <= 0){
+        this.workTime = 0;
+        this.state = 'default';
+    }
+
+    if(this.state !== oldState){
+        this.changed = true;
+    }
+}
+
+
 Teleport.prototype.info = function(){
     return {
         ID: this.ID,
@@ -58,10 +81,32 @@ Teleport.prototype.touch = function(players, room){
 
     //Если коснулись - переместим коснувшихся
     for(let i in touchers){
-        touchers[i].teleport(this);
-    }
 
-    this.state = 'run';
+
+        if(
+            //Если моб (нет "счета")
+            (touchers[i].score ==undefined &&
+                //и телепорт никто не активировал
+                this.workTime<=0) ||
+
+            //или игрок от 4-го уровня
+            (touchers[i].level>=4 &&
+            //и телепорт никто не активировал
+            this.workTime<=0) ||
+
+            //или игрок меньше 4-го уровня
+            (touchers[i].level<4 &&
+                //и телепорт кто-то активировал
+                this.workTime>0)
+        ) {
+
+            // Переместим
+            touchers[i].teleport(this);
+
+            this.workTime = 3.0; //Активируем на 3 секунды
+
+        }
+    }
 
     this.changed = true;
 };
