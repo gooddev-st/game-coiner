@@ -1,6 +1,6 @@
 module.exports = Teleport;
 
-const sound_event = require('./sound_event.js');//звуковые события
+const rooms = require('./rooms.js');
 
 const
     WIDTH = 70,
@@ -41,12 +41,26 @@ Teleport.prototype.run = function(step){
     if(this.workTime <= 0){
         this.workTime = 0;
         this.state = 'default';
+
+        if(TELEPORT_RANDOM_TARGET) {
+            //По деактивации - изменим цель на случайную
+            let roomsArray = rooms.toArray(),
+                room_id = roomsArray[Math.floor(Math.random() * roomsArray.length)].ID,
+                room = rooms.get(room_id),
+                pos = room.randomPos(this.width, this.height);
+
+            this.target = {
+                room_id: room_id,
+                x: pos.x,
+                y: pos.y,
+            };
+        }
     }
 
     if(this.state !== oldState){
         this.changed = true;
     }
-}
+};
 
 
 Teleport.prototype.info = function(){

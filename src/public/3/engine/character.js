@@ -31,16 +31,21 @@ export default class Character{
         if(!this.sprite.states[state] || !this.sprite.states[state][frameNum]) return;
 
 
-        // Рисуем кадр
-        this.drawFrame(
-            context,
-            this.sprite.image,
-            this.sprite.states[state][frameNum],
-            x,
-            y,
-            this.width,
-            this.height
-        );
+        //Обрезка отрисовки вне канвы TODO: резать по камере
+        if(x + this.width > 0 && x < context.canvas.width && y + this.height > 0 && y < context.canvas.height) {
+
+
+            // Рисуем кадр
+            this.drawFrame(
+                context,
+                this.sprite.image,
+                this.sprite.states[state][frameNum],
+                x,
+                y,
+                this.width,
+                this.height
+            );
+        }
     }
 
 
@@ -54,17 +59,50 @@ export default class Character{
      * @param height
      */
     drawFrame(context, image, sprite, x, y, width, height){
-        context.drawImage(
-            image,
-            sprite.x,
-            sprite.y,
-            sprite.width,
-            sprite.height,
-            x,
-            y,
-            width,
-            height
-        );
+
+        if(width>0 && height>0) {
+
+            let scaleX = sprite.width / width,
+                scaleY = sprite.height / height;
+
+            let sx = sprite.x, sy = sprite.y, sw = sprite.width, sh = sprite.height;
+            let dx = x, dy = y, dw = width, dh = height;
+
+            if (x < 0) {
+                dx = 0;
+                dw = width + x;
+                sx -= Math.floor(x * scaleX);
+                sw = Math.floor(dw * scaleX);
+            }
+            if (y < 0) {
+                dy = 0;
+                dh = height + y;
+                sy -= Math.floor(y * scaleY);
+                sh = Math.floor(dh * scaleY);
+            }
+
+            if (dw > context.canvas.width - dx) {
+                dw = context.canvas.width - dx;
+                sw = Math.floor(dw * scaleX);
+            }
+
+            if (dh > context.canvas.height - dy) {
+                dh = context.canvas.height - dy;
+                sh = Math.floor(dh * scaleY);
+            }
+
+            context.drawImage(
+                image,
+                sx,
+                sy,
+                sw,
+                sh,
+                dx,
+                dy,
+                dw,
+                dh
+            );
+        }
     }
 
 }

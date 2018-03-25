@@ -1,15 +1,24 @@
 import characters from "./characters";
+import spritesets from "./spritesets";
 
-export default {add, remove, reset, size, each}
+export default {add, addFromSet, remove, reset, size, each}
 
 import Entity from "./engine/entity";
+import Character from "./engine/character";
+import sprites from "./sprites";
 
 const entities = [];
 
 
-function add(x, y, ID, lifetime) {
+function add(x, y, ID, lifetime, faza) {
     entities.push(
-        new Entity(x, y, characters[ID], lifetime)
+        new Entity(x, y, characters.get(ID), lifetime, faza)
+    );
+}
+
+function addFromSet(x, y, setID, ID, lifetime, faza) {
+    entities.push(
+        new Entity(x, y, characters.getFromSet(setID, ID), lifetime, faza)
     );
 }
 

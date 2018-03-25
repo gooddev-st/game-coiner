@@ -8,24 +8,23 @@ module.exports.run = run;
 //Константы
 require('./constants.js')();
 
-const rooms = require('./rooms.js');
-const npcs = require('./npcs.js');
 const Player = require('./player.js');
+const events = require('./events.js');
 const sound_event = require('./sound_event.js');//звуковые события
 
-const events = require('./events.js');
+const rooms = require('./rooms.js');
+const npcs = require('./npcs.js');
+const players = require("./players.js");//,// игроки
 
 const db = require('./db.js');
 
 const log = require("./log.js");
 
 
-    var cio = null;
-        mainTimer = null,
-        players = require("./players.js");//,// игроки
+    var mainTimer = null;
+
 
 function run(io){
-    cio = io;
 
     events.init(io);
 

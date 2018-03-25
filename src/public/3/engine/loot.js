@@ -13,7 +13,7 @@ export default class {
         this.width = width;
         this.height = height;
 
-        this.character = characters[character_id] || characters['coin_gold'];
+        this.character = characters.get(character_id) || characters.get('coin_gold');
 
         this.state = 'default';
 
@@ -27,7 +27,7 @@ export default class {
         this.room_id = room_id;
         this.x = x;
         this.y = y;
-        this.character = characters[character_id] || characters['coin_gold'];
+        this.character = characters.get(character_id) || characters.get('coin_gold');
     }
 
     draw(camera){

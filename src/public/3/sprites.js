@@ -9,6 +9,7 @@ let s_doc = document.getElementById('s_doc'),
     s_coins = document.getElementById('s_coins'),
     t_trees = document.getElementById('t_trees'),
     t_bushs = document.getElementById('t_bushs'),
+    t_plants = document.getElementById('t_plants'),
     s_pointer = document.getElementById('s_pointer'),
     s_boom = document.getElementById('s_boom'),
     s_boom1 = document.getElementById('s_boom1'),
@@ -248,6 +249,21 @@ exports.coin_copper = {
 };
 
 
+
+/**
+ * Трава
+ */
+exports.grass = {
+    "image": t_trees,
+
+    "states": {
+        "default": [
+            {"name": "tree_46", "x": 218, "y": 91, "width": 76, "height": 90},
+        ]
+    }
+};
+
+
 /**
  * Деревья
  */
@@ -318,12 +334,44 @@ exports.bushs = {
         "default": [
             {"name": "sprite1", "x": 103, "y": 100, "width": 25, "height": 30},
             {"name": "sprite2", "x": 103, "y": 60, "width": 30, "height": 39},
-            {"name": "sprite3", "x": 136, "y": 0, "width": 113, "height": 118},
-            {"name": "sprite4", "x": 0, "y": 0, "width": 102, "height": 140},
             {"name": "sprite5", "x": 156, "y": 119, "width": 15, "height": 13},
             {"name": "sprite6", "x": 103, "y": 40, "width": 21, "height": 19},
             {"name": "sprite7", "x": 136, "y": 119, "width": 19, "height": 19},
             {"name": "sprite8", "x": 103, "y": 0, "width": 32, "height": 39}
+        ]
+    }
+};
+
+
+/**
+ * Пустынное
+ */
+exports.desert = {
+    "image": t_plants,
+
+    "states": {
+        "default": [
+            // {"name": "sprite7", "x": 198, "y": 201, "width": 27, "height": 58},
+            {"name": "sprite13", "x": 198, "y": 293, "width": 31, "height": 30},
+            // {"name": "sprite14", "x": 233, "y": 330, "width": 76, "height": 92},
+            // {"name": "sprite16", "x": 244, "y": 238, "width": 60, "height": 87},
+        ]
+    }
+};
+
+
+/**
+ * Странные деревья
+ */
+exports.belwood = {
+    "image": t_plants,
+
+    "states": {
+        "default": [
+            {"name": "sprite1", "x": 0, "y": 201, "width": 107, "height": 128},
+            {"name": "sprite2", "x": 108, "y": 201, "width": 89, "height": 128},
+            {"name": "sprite19", "x": 0, "y": 330, "width": 95, "height": 117},
+            {"name": "sprite20", "x": 244, "y": 0, "width": 126, "height": 116}
         ]
     }
 };

@@ -7,39 +7,45 @@ const ENVIRONMENTS = {
         r: {start: 120, rand: 10},
         g: {start: 120, rand: 16},
         b: {start: 100, rand: 5},
+        entitiesSprites: "grass",
     },
     1: {
-        r: {start: 70, rand: 16},
-        g: {start: 100, rand: 23},
-        b: {start: 100, rand: 5},
+        r: {start: 239, rand: 16},
+        g: {start: 210, rand: 33},
+        b: {start: 100, rand: 25},
+        entitiesSprites: "desert",
     },
     2: {
         r: {start: 210, rand: 45},
         g: {start: 30, rand: 75},
         b: {start: 30, rand: 75},
+        entitiesSprites: "desert",
     },
     3: {
         r: {start: 10, rand: 12},
         g: {start: 130, rand: 20},
         b: {start: 210, rand: 45},
+        entitiesSprites: "bushs",
     },
     4: {
         r: {start: 150, rand: 12},
         g: {start: 90, rand: 20},
         b: {start: 40, rand: 12},
+        entitiesSprites: "trees",
     },
 };
 /**
  * @class Room
  */
 export default class {
-    constructor(width, height, environment_id){
+    constructor(width, height, environment_id, entities_num){
         this.width = width;
         this.height = height;
         this.environment_id = environment_id;
+        this.entities_num = entities_num;
         this.image = null;
 
-        this.generate(Math.floor(width/50 + height/50));
+        this.generate(this.entities_num);
     }
 
     randomCSScolor(environment_id){
@@ -51,19 +57,19 @@ export default class {
     }
 
     generate(trees_num){
-        var ctx = document.createElement("canvas").getContext("2d"),
+        const ctx = document.createElement("canvas").getContext("2d"),
             tileWidth = 22,
             tileHeight = 22;
         ctx.canvas.width = this.width;
         ctx.canvas.height = this.height;
 
-        var rows = Math.floor(this.width/tileWidth) + 1;
-        var columns = Math.floor(this.height/tileHeight) + 1;
+        const rows = Math.floor(this.width/tileWidth) + 1;
+        const columns = Math.floor(this.height/tileHeight) + 1;
 
         ctx.save();
 
-        for (var x = 0, i = 0; i < rows; x+=tileHeight, i++) {
-            for (var y = 0, j=0; j < columns; y+=tileWidth, j++) {
+        for (let x = 0, i = 0; i < rows; x+=tileHeight, i++) {
+            for (let y = 0, j=0; j < columns; y+=tileWidth, j++) {
                 ctx.beginPath();
                 ctx.fillStyle = this.randomCSScolor(this.environment_id);
                 ctx.fillRect(x, y, tileWidth, tileHeight);
@@ -71,24 +77,41 @@ export default class {
             }
         }
 
+        const env = ENVIRONMENTS[this.environment_id];
+
+        const spr = sprites[env.entitiesSprites];
+
         //Сгенерим деревья
         for(let i = 0; i<trees_num; i++){
-            let id = Math.floor(Math.random()*sprites.trees.states.default.length),
 
-                tile = sprites.trees.states.default[id],
+            //Случайная плитка из набора
+            let id = Math.floor(Math.random()*spr.states.default.length);
+            let tile = spr.states.default[id];
 
-                x = Math.random()*(this.width + 2*tile.width) - tile.width,
-                y = Math.random()*(this.height + 2*tile.height) - tile.height,
-                w = tile.width, h = tile.height, sx = tile.x, sy = tile.y;
+                //Случайные координаты
+            let xx = Math.floor(Math.random()*(this.width + tile.width)/10)*10 - tile.width;
+            let yy = Math.floor(Math.random()*(this.height + tile.height)/10)*10 - tile.height;
+            let w = tile.width, h = tile.height, sx = tile.x, sy = tile.y;
 
 
+            //Обрезка по границам комнаты
 
-            if(x < 0){w += x;sx -= x;x = 0;}
-            if(y < 0){h += y;sy -= y;y = 0;}
-            if(x >= this.width - tile.width){ w = x - (this.width - tile.width);}
-            if(y >= this.height - tile.height){ h = y - (this.height - tile.height);}
+            if(xx < this.width && xx > -tile.width && yy < this.height && yy > -tile.height) {
 
-            ctx.drawImage(sprites.trees.image, sx, sy, w, h, x, y, w, h);
+                if(xx < 0){w += xx;sx -= xx;xx = 0;}
+
+                if(yy < 0){h += yy;sy -= yy;yy = 0;}
+
+                if (xx > this.width - tile.width) {
+                    w = this.width - xx;
+                }
+
+                if (yy > this.height - tile.height) {
+                    h = this.height - yy;
+                }
+
+                ctx.drawImage(spr.image, sx, sy, w, h, xx, yy, w, h);
+            }
 
         }
 
@@ -117,8 +140,6 @@ export default class {
         this.image = new Image();
         this.image.src = ctx.canvas.toDataURL("image/png");
 
-
-        ctx = null;
     }
 
     draw(camera){

@@ -8,27 +8,20 @@
 import events from './events.js'
 
 
-// Варианты управления
-const
-    KEYS_ARROW = {
+const keys = {
         LEFT: 37, //Left
         UP: 38, //Up
         RIGHT: 39, //Right
         DOWN: 40, //Down
-        STATISTIC: 191 // "/"
-    },//Управление стрелками
 
-    KEYS_WASD = {
-        LEFT: 65, //A
-        UP: 87, //W
-        RIGHT: 68, //D
-        DOWN: 83, // S
-        STATISTIC: 191 // "/"
-    };//Управление кнопками W A S D
+        A: 65, //A
+        W: 87, //W
+        D: 68, //D
+        S: 83, // S
 
-// По-умолчанию управляем стрелками
-//TODO: функция смены управления
-let keys = KEYS_ARROW;
+        STATISTIC: 191 // "/"
+
+    };
 
 let clickPad = null;
 
@@ -63,6 +56,8 @@ function stop() {
     window.removeEventListener("blur", onWindowBlur, false);
     document.removeEventListener("keydown", onKeydown, false);
     document.removeEventListener("keyup", onKeyup, false);
+
+    window.removeEventListener("click", onClick, false);
 }
 
 
@@ -77,16 +72,20 @@ function setClickPad(_clickPad) {
 function onKeydown(e) {
     switch (e.keyCode) {
 
-        case keys.LEFT: // left arrow
+        case keys.LEFT:
+        case keys.A:
             events.add('keydown', 'left');
             break;
-        case keys.UP: // up arrow
+        case keys.UP:
+        case keys.W:
             events.add('keydown', 'up');
             break;
-        case keys.RIGHT: // right arrow
+        case keys.RIGHT:
+        case keys.D:
             events.add('keydown', 'right');
             break;
-        case keys.DOWN: // down arrow
+        case keys.DOWN:
+        case keys.S:
             events.add('keydown', 'down');
             break;
     }
@@ -100,15 +99,19 @@ function onKeydown(e) {
 function onKeyup(e) {
     switch (e.keyCode) {
         case keys.LEFT:
+        case keys.A:
             events.add('keyup', 'left');
             break;
         case keys.UP:
+        case keys.W:
             events.add('keyup', 'up');
             break;
         case keys.RIGHT:
+        case keys.D:
             events.add('keyup', 'right');
             break;
         case keys.DOWN:
+        case keys.S:
             events.add('keyup', 'down');
             break;
         case keys.STATISTIC:
@@ -143,11 +146,5 @@ function onClick(e) {
  */
 function onWindowBlur() {
     // отожмем все клавиши
-    events.add('keyup', 'left');
-    events.add('keyup', 'up');
-    events.add('keyup', 'right');
-    events.add('keyup', 'down');
-
-    // очистим цель мыши
-    events.add('target', null);
+    events.add('controllerReset', true);
 }

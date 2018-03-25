@@ -7,6 +7,7 @@ module.exports.add = add;
 module.exports.each = each;
 module.exports.list = list;
 module.exports.remove = remove;
+module.exports.count = count;
 
 const players = {};
 
@@ -43,4 +44,8 @@ function remove(playerID) {
     if(playerID in players) {
         delete players[playerID];
     }
+}
+
+function count() {
+    return Object.keys(players).length;
 }

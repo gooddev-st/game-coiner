@@ -7,6 +7,7 @@ module.exports = Npc;
 
 const events = require("./events.js");
 const npcs = require("./npcs.js");
+const players = require("./players.js");
 
 const sound_event = require('./sound_event.js');//звуковые события
 
@@ -21,6 +22,7 @@ const
     NPC_HEIGHT = 44.0,
     NPC_SPEED = 100,
     VIEW_DISTANCE = 250;
+    ATTACK_DISTANCE = 50;
 
 
 /**
@@ -33,9 +35,6 @@ function getRandomCharacter() {
         characters.CHARACTER_DOC,
         characters.CHARACTER_MAN,
         characters.CHARACTER_GOB,
-        characters.CHARACTER_GIRL,
-        characters.CHARACTER_BLOND,
-        characters.CHARACTER_MAG,
     ];
 
     let key = Math.floor(Math.random() * randomArray.length);
@@ -111,7 +110,7 @@ Npc.prototype.teleport = function (teleport) {
 
     let
         x = this.x + this.width/2,
-        y = this.y + this.height/2;
+        y = this.y;
     events.common('entity', 'teleport-target', {
         room_id: teleport.target.room_id,
         x: x,
@@ -130,7 +129,7 @@ Npc.prototype.teleport = function (teleport) {
 Npc.prototype.run = function (room, step) {
 
     //Сохраним старую позицию, чтоб понимать - движется ли
-    let x = this.x, y = this.y;
+    let oldX = this.x, oldY = this.y;
 
     let target = this.calculateTarget(room);
     if(target) this.target = target;
@@ -190,7 +189,9 @@ Npc.prototype.run = function (room, step) {
         this.target && (this.target.y = this.y);
     }
 
-    if(this.x != x || this.y != y) this.changed = true;
+    if(this.x !== oldX || this.y !== oldY){
+        this.changed = true;
+    }
 };
 
 
@@ -198,9 +199,9 @@ Npc.prototype.run = function (room, step) {
 Npc.prototype.calculateTarget = function(room) {
     let target;
 
-    // Если надо отойти от другого моба - отойдем
-    /*target = this.targetSplit(room);
-    if(target) return target;*/
+    // Идем к ближнему игроку (в поле зрения)
+    target = this.targetPlayer(room);
+    if(target) return target;
 
     // Иначе пойдем за ближайшей монетой
     target = this.targetCoin(room);
@@ -319,6 +320,54 @@ Npc.prototype.targetCoin = function(room) {
     // Если в поле зрения - идем к луту
     if(distances[min_index].distance <= VIEW_DISTANCE){
         return distances[min_index].pos;
+    }
+
+    return null;
+
+};
+
+Npc.prototype.targetPlayer = function(room) {
+
+    if(!room || !players.count()) return false;
+
+    let distances = [];
+
+    // Соберем в массив всех игроков в этой комнате
+    players.each((ID, player)=>{
+        if(player.room_id===this.room_id) {
+            let
+                x = player.x,
+                y = player.y,
+                xdiff = Math.abs(x - this.x),
+                ydiff = Math.abs(y - this.y);
+
+            distances.push({
+                // Расстояние до игрока
+                distance: Math.sqrt(xdiff * xdiff + ydiff * ydiff),
+                // Его расположение
+                pos: {x: x, y: y}
+            });
+        }
+    });
+
+    if(distances.length>0){
+
+        // Найдем индекс минимального значения
+        let min_index = distances.reduce(
+            (prev, value, i, array) => {
+                return value.distance < array[prev].distance ? i : prev;
+            }, 0
+        );
+
+        // Если в поле зрения - идем к игроку
+        if(distances[min_index].distance <= VIEW_DISTANCE){
+            if(distances[min_index].distance >= ATTACK_DISTANCE) {
+                return distances[min_index].pos;
+            }
+            else{
+                return {x: this.x, y: this.y};
+            }
+        }
     }
 
     return null;

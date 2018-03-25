@@ -4,6 +4,7 @@
  */
 module.exports = Player;
 
+require('./constants.js')();
 
 const events = require("./events.js");
 const players = require("./players.js");
@@ -42,9 +43,6 @@ const
 function getRandomCharacter() {
 
     const randomArray = [
-        characters.CHARACTER_DOC,
-        characters.CHARACTER_MAN,
-        // characters.CHARACTER_GOB,
         characters.CHARACTER_GIRL,
         characters.CHARACTER_BLOND,
         characters.CHARACTER_MAG,
@@ -116,6 +114,14 @@ Player.prototype.init = function () {
 
     //Отправим комнату, в которой герой
     let room = rooms.get(this.room_id);
+
+    //Если нет такой комнаты - переместим в стартовую
+    if(room===false){
+        this.room_id = PLAYER_START_ROOM;
+        this.x = PLAYER_START_X;
+        this.y = PLAYER_START_Y;
+        room = rooms.get(this.room_id);
+    }
 
     events.one(this.socket, "room", "change", {room: room.info(), message: "Выдана Комната"});
 
@@ -195,6 +201,14 @@ Player.prototype.init = function () {
         else{
             this.controller.target = {x: x, y: y};
         }
+    });
+
+    this.socket.on('controllerReset', _ => {
+        this.controller.left = false;
+        this.controller.up = false;
+        this.controller.right = false;
+        this.controller.down = false;
+        this.controller.targett = false;
     });
 
     this.socket.on('signout', (data) => {
@@ -284,7 +298,7 @@ Player.prototype.teleport = function (teleport) {
     if(teleport.target.room_id != teleport.room_id){
         let room = rooms.get(this.room_id);
 
-        events.one(this.socket, "room", "change", {room: room.info(), message: "Выдана Комната"});
+        events.one(this.socket, "room", "change", {room: room.info()});
 
     }
 
@@ -294,7 +308,7 @@ Player.prototype.teleport = function (teleport) {
 
     let
         x = this.x + this.width/2,
-        y = this.y + this.height/2;
+        y = this.y + 1;
     events.common('entity', 'teleport-target', {
         room_id: teleport.target.room_id,
         x: x,
@@ -313,7 +327,9 @@ Player.prototype.teleport = function (teleport) {
  */
 Player.prototype.run = function (room, step) {
 
+    let oldPos = {x: this.x, y: this.y};
 
+    //Нажата клавиша - сбросим цель по мыши
     if (
         this.controller.left ||
         this.controller.up ||
@@ -322,6 +338,8 @@ Player.prototype.run = function (room, step) {
     ) {
         this.controller.target = null;
     }
+
+
     if (
         this.controller.left ||
         this.controller.up ||
@@ -329,14 +347,15 @@ Player.prototype.run = function (room, step) {
         this.controller.down ||
         this.controller.target
     ) {
-        this.state = 'run';
-
-        this.changed = true;
+        if (this.state !== 'run') {
+            this.state = 'run';
+            this.changed = true;
+        }
     }
     else {
-        if (this.state != 'default') {
+        if (this.state !== 'default') {
+            // console.log(this.state);
             this.state = 'default';
-
             this.changed = true;
         }
     }
@@ -371,29 +390,32 @@ Player.prototype.run = function (room, step) {
 
     }
 
-    let
-        dx = 0,
-        dy = 0;
+    else {
 
-    if (this.controller.left) {
-        dx = -this.speed * step;
-    }
-    if (this.controller.up) {
-        dy = -this.speed * step;
-    }
-    if (this.controller.right) {
-        dx = this.speed * step;
-    }
-    if (this.controller.down) {
-        dy = this.speed * step;
-    }
+        let
+            dx = 0,
+            dy = 0;
 
-    if(Math.abs(dx) > 0 || Math.abs(dy) > 0) {
-        //Посчитаем перемещение
-        let tx = (Math.abs(dy) > 0 ? SIN_45 : 1.0) * dx;
-        let ty = (Math.abs(dx) > 0 ? SIN_45 : 1.0) * dy;
-        this.x += tx;
-        this.y += ty;
+        if (this.controller.left) {
+            dx -= this.speed * step;
+        }
+        if (this.controller.up) {
+            dy -= this.speed * step;
+        }
+        if (this.controller.right) {
+            dx += this.speed * step;
+        }
+        if (this.controller.down) {
+            dy += this.speed * step;
+        }
+
+        if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+            //Посчитаем перемещение
+            let tx = (Math.abs(dy) > 0 ? SIN_45 : 1.0) * dx;
+            let ty = (Math.abs(dx) > 0 ? SIN_45 : 1.0) * dy;
+            this.x += tx;
+            this.y += ty;
+        }
     }
 
 
@@ -413,6 +435,10 @@ Player.prototype.run = function (room, step) {
     if (this.y + this.height > (room.height - room.dead_zone_bottom)) {
         this.y = room.height - room.dead_zone_bottom - this.height;
         this.controller.target && (this.controller.target.y = this.y);
+    }
+
+    if(this.x!= oldPos.x || this.y!=oldPos.y){
+        this.changed = true;
     }
 };
 
@@ -435,7 +461,9 @@ Player.prototype.commonInfo = function(){
         character_id: this.character_id,
         state: this.state,
 
-        level: this.level
+        level: this.level,
+
+        health: this.health,
     }
 };
 
@@ -457,6 +485,8 @@ Player.prototype.allInfo = function(){
         level: this.level,
         levelupValue: this.levelupValue,
         levelupCounter: this.levelupCounter,
+
+        health: this.health,
 
         speed: this.speed,
 

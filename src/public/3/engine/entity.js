@@ -6,7 +6,7 @@ import {STEP} from "../constants";
 
 export default class Entity{
 
-    constructor(x, y, character, lifetime){
+    constructor(x, y, character, lifetime, faza){
 
         this.x = x;
         this.y = y;
@@ -16,24 +16,42 @@ export default class Entity{
         // время жизни
         this.lifetime = lifetime;
 
+        this.immortal = lifetime > 0.0 ? false : true;
+
         this.width = this.character.width;
         this.height = this.character.height;
 
         this.animateSpeed = this.character.sprite.speed;
         if(!this.animateSpeed) this.animateSpeed = 14;
-        this.faza = 0;
+        this.faza = faza || 0;
         this.currentSpriteNum = 0;
 
         this.state = "default";
+
+        this.die = false;
     }
 
     isDie(){
+        return this.die;
+    }
 
-        if(this.lifetime > 0) {
-            this.lifetime -= STEP;
+    kill(){
+        this.die = true;
+    }
+
+    update(){
+
+        if(!this.immortal) {
+
+            if (this.lifetime > 0) {
+                this.lifetime -= STEP;
+            }
+            else {
+                this.lifetime = 0;
+                this.die = true;
+            }
+
         }
-
-        return !(this.lifetime > 0);
     }
 
     animate(){

@@ -12,6 +12,7 @@ import ui from "../../engine/ui/ui";
 import controller from "../../engine/controller";
 import sounds from "../../sounds";
 import entities from "../../entities";
+import Entity from "../../engine/entity";
 
 /**
  * Основная сцена - собственно игра
@@ -75,7 +76,7 @@ function start(callback) {
 
     events.on("click", (eventName, pos)=>{
         if(pos) {
-            entities.add(pos.x, pos.y, 'pointer', .35);
+            entities.add(pos.x, pos.y+1, 'pointer', .35);
         }
     });
 
@@ -431,7 +432,7 @@ function onHero(event, type, data) {
             ) throw "Ошибка получения с сервера";
 
             if(!hero.unit) {
-                hero.unit = new Unit(info);
+                hero.unit = new Unit(info, true);
             }
             else{
                 hero.unit.set(info);
@@ -532,10 +533,14 @@ function onSound(event, type, data) {
 function update(){
 
     //Камера
-    camera && camera.run(room);
+    camera && camera.update(room);
 
-    //Удалим отработавшие сущности
+    //Сущности
     entities.each((entity, index)=>{
+
+        entity.update();
+
+        //Удалим отработавшие сущности
         if(entity.isDie()){
             entities.remove(index);
         }
@@ -647,8 +652,14 @@ function roomInit(settings){
         room = rooms[settings.ID];
     }
     else{
-        room = new Room(settings.width, settings.height, settings.environment_id);
+        room = new Room(settings.width, settings.height, settings.environment_id, settings.entities_num);
         rooms[settings.ID] = room;
+    }
+
+    if('cartoons' in settings){
+        for(const item of settings.cartoons){
+            entities.addFromSet(item.x, item.y, item.spriteset_id, item.sprite_id);
+        }
     }
 
     if('loot' in settings){

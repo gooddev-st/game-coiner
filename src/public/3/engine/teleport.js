@@ -13,7 +13,7 @@ export default class {
         this.width = width;
         this.height = height;
 
-        this.character = characters[character_id] || characters['teleport'];
+        this.character = characters.get(character_id) || characters.get('teleport');
 
         this.state = state;
 
@@ -29,7 +29,12 @@ export default class {
     }
 
     set(state){
-        this.state = state;
+
+        if(this.state !== state){
+            this.faza = 0;
+            this.currentSpriteNum = 0;
+            this.state = state;
+        }
     }
 
     draw(camera){

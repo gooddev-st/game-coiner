@@ -47,7 +47,7 @@ export default class {
 
     }
 
-    run(room){
+    update(room){
 
         if(this.follower){
             return this.runFollow(room, this.follower);

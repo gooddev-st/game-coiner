@@ -14,7 +14,11 @@ export default class Unit{
      * Конструктор
      * @param data
      */
-    constructor(data){
+    constructor(data, isHero){
+
+        if(isHero){
+            this.isHero = true;
+        }
 
         this.room_id = data.room_id;
 
@@ -24,7 +28,7 @@ export default class Unit{
         this.width = data.width;
         this.height = data.height;
 
-        this.character = characters[data.character_id] || characters[CHARACTER_DEFAULT];
+        this.character = characters.get(data.character_id) || characters.get(CHARACTER_DEFAULT);
 
         this.state = data.state || 'default';
 
@@ -51,10 +55,14 @@ export default class Unit{
         this.room_id = data.room_id;
         this.x = data.x;
         this.y = data.y;
-        this.character = characters[data.character_id] || characters[CHARACTER_DEFAULT];
+        this.character = characters.get(data.character_id) || characters.get(CHARACTER_DEFAULT);
 
         this.name = data.ID;
 
+        if(this.state !== data.state){
+            this.faza = 0;
+            this.currentSpriteNum = 0;
+        }
         this.state = data.state;
 
         this.level = data.level;
@@ -103,22 +111,20 @@ export default class Unit{
 
         this.drawCharacter(camera.context, x, y);
 
+        // Рисуем имя
+        if(this.level!=undefined) {
+
+            this.drawName(camera.context, x, y-55, this.name, this.level, this.isHero);
+        }
 
         // Если есть - рисуем индикатор
         if(this.health!=undefined) {
 
             let volume;
 
-                volume = Math.floor(this.health*100/MAX_HEALTH);
+            volume = Math.floor(this.health*100/MAX_HEALTH);
 
             this.drawVolume(camera.context, x, y - 50, volume);
-        }
-
-        let ly = this.levelupCounter!=undefined ? y-60 : y-50;
-
-        // Рисуем имя
-        if(this.level!=undefined) {
-            this.drawName(camera.context, x, ly, this.name, this.level);
         }
     }
 
@@ -171,25 +177,46 @@ export default class Unit{
      * @param sx
      * @param sy
      * @param name
+     * @param level
+     * @param isHero
      */
-    drawName(context, sx, sy, name, level){
+    drawName(context, sx, sy, name, level, isHero){
+
+        let paddingColor = "rgba(0,0,0,0.3)";
+        if(isHero){
+            paddingColor = "rgba(0,200,40,0.4)";
+        }
 
         context.save();
 
         //Имя
-        context.fillStyle = "yellow";
         context.font = "14px sans-serif";
-
-        let textWidth = context.measureText(name).width,
-            x = sx + (this.width - textWidth)/2,
-            y = sy;
-
-        context.fillText(name,x,y);
+        let textWidth = context.measureText(name).width;
 
         //Уровень
-        let textLevelWidth = context.measureText(level).width,
-            lx = x - 2 - textLevelWidth,
-            ly = y;
+        context.font = "bold 12px Arial";
+        let textLevelWidth = context.measureText(level).width;
+
+        //Считаем размеры
+        let padWidth = textWidth + textLevelWidth + 2;
+
+        let lx = sx+(this.width - padWidth)/2,
+            x = lx + textLevelWidth + 2,
+            ly = sy,
+            y = sy;
+
+
+        context.beginPath();
+        context.fillStyle = paddingColor;
+        context.arc(lx-2, y-12+18/2, 18/2, Math.PI/2, -Math.PI/2);
+        context.arc(lx-2+padWidth, y-12+18/2, 18/2, -Math.PI/2, Math.PI/2);
+        context.rect(lx-2, y-12, padWidth, 18);
+        context.fill();
+        context.beginPath();
+
+        context.font = "14px sans-serif";
+        context.fillStyle = "yellow";
+        context.fillText(name,x,y);
 
         context.font = "bold 12px Arial";
         context.fillStyle = "white";

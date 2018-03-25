@@ -7,7 +7,7 @@ module.exports.list = list;
 module.exports.toArray = toArray;
 
 
-const NPC_COUNT = 12;
+const NPC_COUNT = 20;
 const NPC_SPEED = 100;
 
 
