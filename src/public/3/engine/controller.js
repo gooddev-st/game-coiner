@@ -9,19 +9,21 @@ import events from './events.js'
 
 
 const keys = {
-        LEFT: 37, //Left
-        UP: 38, //Up
-        RIGHT: 39, //Right
-        DOWN: 40, //Down
+    LEFT: 37, //Left
+    UP: 38, //Up
+    RIGHT: 39, //Right
+    DOWN: 40, //Down
 
-        A: 65, //A
-        W: 87, //W
-        D: 68, //D
-        S: 83, // S
+    A: 65, //A
+    W: 87, //W
+    D: 68, //D
+    S: 83, // S
 
-        STATISTIC: 191 // "/"
+    SPACE: 32, //Огонь!
 
-    };
+    STATISTIC: 73 // "I"
+
+};
 
 let clickPad = null;
 
@@ -45,6 +47,8 @@ function start() {
     document.addEventListener("keyup", onKeyup, false);
 
     window.addEventListener("click", onClick, false);
+    window.addEventListener("mousedown", onMouseDown, false);
+    window.addEventListener("mouseup", onMouseUp, false);
 }
 
 
@@ -58,6 +62,8 @@ function stop() {
     document.removeEventListener("keyup", onKeyup, false);
 
     window.removeEventListener("click", onClick, false);
+    window.removeEventListener("mousedown", onMouseDown, false);
+    window.removeEventListener("mouseup", onMouseUp, false);
 }
 
 
@@ -88,6 +94,9 @@ function onKeydown(e) {
         case keys.S:
             events.add('keydown', 'down');
             break;
+        case keys.SPACE:
+            events.add('keydown', 'fire');
+            break;
     }
 }
 
@@ -114,12 +123,12 @@ function onKeyup(e) {
         case keys.S:
             events.add('keyup', 'down');
             break;
+        case keys.SPACE:
+            events.add('keyup', 'fire');
+            break;
         case keys.STATISTIC:
             events.add('keyup', 'statistic');
             break;
-        // case 32: // пробел для паузы
-        //     Game.togglePause();
-        //     break;
     }
 }
 
@@ -136,6 +145,42 @@ function onClick(e) {
             y = e.clientY + clickPad.y;
         events.add('target', {x: x, y: y});
         events.add('click', {x: x, y: y});
+
+    }
+}
+
+//Мышь нажали
+function onMouseDown(e) {
+
+    // Если есть по чем кликать отправим событие
+    if(clickPad) {
+        let x = e.clientX + clickPad.x,
+            y = e.clientY + clickPad.y;
+
+        if(e.button === 0 || e.button===1) {
+            events.add('mouse-down-left', {x: x, y: y});
+        }
+        else if(e.button === 2){
+            events.add('mouse-down-right', {x: x, y: y});
+        }
+
+    }
+}
+
+//Мышь отпустили
+function onMouseUp(e) {
+
+    // Если есть по чем кликать отправим событие
+    if(clickPad) {
+        let x = e.clientX + clickPad.x,
+            y = e.clientY + clickPad.y;
+
+        if(e.button === 0 || e.button===1) {
+            events.add('mouse-up-left', {x: x, y: y});
+        }
+        else if(e.button === 2){
+            events.add('mouse-up-right', {x: x, y: y});
+        }
 
     }
 }

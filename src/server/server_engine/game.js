@@ -148,7 +148,7 @@ function start(){
 
         //Движем плееров
         players.each((playerID, player)=>{
-            player.run( rooms.get(player.room_id), STEP );
+            player.run( rooms.get(player.room_id) );
         });
 
         //Движем мобов

@@ -70,6 +70,8 @@ function Player(playerID, socket, data) {
     this.x = data.x;
     this.y = data.y;
 
+    this.target = null;// Позиция куда идти
+
     this.character_id = data.character_id || getRandomCharacter();
     this.state = 'default';
 
@@ -87,19 +89,25 @@ function Player(playerID, socket, data) {
     this.coins_count = data.coins_count ? data.coins_count : 0;
     this.health = data.health;
 
+
+    this.effects = {
+        'no-control': true
+    };
+
     //Есть ли изменения для отсылки
     this.changed = true;
 
     /**
-     *
-     * @type {{up: boolean, left: boolean, right: boolean, down: boolean, target: (?{x:number,y:number})}}
+     * Контроллер
      */
     this.controller = {
         up: false,
         left: false,
         right: false,
         down: false,
-        target: null, //Позиция клика мышкой куда идти
+        mouseLeft: false,
+        mouseRight: false,
+        click: null,
     };
 
     this.init();
@@ -180,27 +188,24 @@ Player.prototype.init = function () {
                 this.controller.down = false;
                 break;
         }
-        // log('Клавиша '+key_name+' отжата');
     });
 
-    this.socket.on('target', (target) => {
+    this.socket.on('mouse-down-left', (target) => {
 
-        if(!target){
-            this.controller.target = null;
-            return;
+        this.controller.mouseLeft = true;
+
+    });
+
+    this.socket.on('mouse-up-left', (target) => {
+
+        //Если случился - отметим клик
+        if(this.controller.mouseLeft){
+
+            this.controller.click = target;
         }
 
-        //Отцентруем по центру игрока
-        let
-            x = target.x - this.width/2,
-            y = target.y - this.height/2;
+        this.controller.mouseLeft = false;
 
-        if(x === this.x && y === this.y){
-            this.controller.target = null;
-        }
-        else{
-            this.controller.target = {x: x, y: y};
-        }
     });
 
     this.socket.on('controllerReset', _ => {
@@ -208,13 +213,21 @@ Player.prototype.init = function () {
         this.controller.up = false;
         this.controller.right = false;
         this.controller.down = false;
-        this.controller.targett = false;
+        this.controller.click = false;
+        this.target = false;
     });
 
     this.socket.on('signout', (data) => {
         this.socket.disconnect(true);
         db.save(this.allInfo());
     });
+};
+
+
+Player.prototype.getClick = function () {
+    let click = this.controller.click;
+    this.controller.click = null;
+    return click;
 };
 
 
@@ -231,7 +244,7 @@ Player.prototype.reset = function (socket) {
     this.controller.left = false;
     this.controller.right = false;
     this.controller.down = false;
-    this.controller.target = null;
+    this.target = null;
 };
 
 
@@ -292,7 +305,7 @@ Player.prototype.teleport = function (teleport) {
     this.x = teleport.target.x;
     this.y = teleport.target.y;
 
-    this.controller.target = null;
+    this.target = null;
 
     //Если перемещаемся в другую комнату - закажем смену
     if(teleport.target.room_id != teleport.room_id){
@@ -325,64 +338,37 @@ Player.prototype.teleport = function (teleport) {
  * @param room
  * @param step
  */
-Player.prototype.run = function (room, step) {
+Player.prototype.run = function (room) {
 
-    let oldPos = {x: this.x, y: this.y};
+    let oldPos = {x: this.x, y: this.y},
+        oldState = this.state;
 
-    //Нажата клавиша - сбросим цель по мыши
-    if (
-        this.controller.left ||
-        this.controller.up ||
-        this.controller.right ||
-        this.controller.down
-    ) {
-        this.controller.target = null;
-    }
+    let target = this.calculateTarget();
+    if(target) this.target = target;
 
 
-    if (
-        this.controller.left ||
-        this.controller.up ||
-        this.controller.right ||
-        this.controller.down ||
-        this.controller.target
-    ) {
-        if (this.state !== 'run') {
-            this.state = 'run';
-            this.changed = true;
-        }
-    }
-    else {
-        if (this.state !== 'default') {
-            // console.log(this.state);
-            this.state = 'default';
-            this.changed = true;
-        }
-    }
+    //Если есть цель
+    if (this.target) {
 
-    // если есть цель
-    if (this.controller.target) {
-
-        //Если закончили движение - сбросим цель
+        //Если уже пришли - сбросим цель
         if(
-            this.x == this.controller.target.x &&
-            this.y == this.controller.target.y
+            this.x === this.target.x &&
+            this.y === this.target.y
         ){
-            this.controller.target = null;
+            this.target = null;
         }
+        //Иначе - движемся
+        else {
 
-        //иначе движемся
-        else{
-            let target = this.controller.target,
-                inctement = this.speed * step,
-                x = target.x - this.x,
-                y = target.y - this.y,
+            let inctement = this.speed * STEP,
+                x = this.target.x - this.x,
+                y = this.target.y - this.y,
                 l = Math.sqrt(x * x + y * y),
                 x_increment = inctement * x / l,
                 y_increment = inctement * y / l;
 
-            if(Math.abs(x_increment) > Math.abs(x)) x_increment = x;
-            if(Math.abs(y_increment) > Math.abs(y)) y_increment = y;
+            if (Math.abs(x_increment) > Math.abs(x)) x_increment = x;
+            if (Math.abs(y_increment) > Math.abs(y)) y_increment = y;
 
             this.x += x_increment;
             this.y += y_increment;
@@ -390,56 +376,108 @@ Player.prototype.run = function (room, step) {
 
     }
 
-    else {
-
-        let
-            dx = 0,
-            dy = 0;
-
-        if (this.controller.left) {
-            dx -= this.speed * step;
-        }
-        if (this.controller.up) {
-            dy -= this.speed * step;
-        }
-        if (this.controller.right) {
-            dx += this.speed * step;
-        }
-        if (this.controller.down) {
-            dy += this.speed * step;
-        }
-
-        if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
-            //Посчитаем перемещение
-            let tx = (Math.abs(dy) > 0 ? SIN_45 : 1.0) * dx;
-            let ty = (Math.abs(dx) > 0 ? SIN_45 : 1.0) * dy;
-            this.x += tx;
-            this.y += ty;
-        }
+    //Выставим состояние
+    if(this.target){
+        this.state = 'run';
+    }
+    else{
+        this.state = 'default';
     }
 
+    //Проверка цели
 
     // Если уперлись в границу - остановимся и поправим цель
     if (this.x < 0 + room.dead_zone_left) {
         this.x = 0 + room.dead_zone_left;
-        this.controller.target && (this.controller.target.x = this.x);
+        this.target && (this.target.x = this.x);
     }
     if (this.y < 0 + room.dead_zone_top) {
         this.y = 0 + room.dead_zone_top;
-        this.controller.target && (this.controller.target.y = this.y);
+        this.target && (this.target.y = this.y);
     }
     if (this.x + this.width > (room.width - room.dead_zone_right)) {
         this.x = room.width - room.dead_zone_right - this.width;
-        this.controller.target && (this.controller.target.x = this.x);
+        this.target && (this.target.x = this.x);
     }
     if (this.y + this.height > (room.height - room.dead_zone_bottom)) {
         this.y = room.height - room.dead_zone_bottom - this.height;
-        this.controller.target && (this.controller.target.y = this.y);
+        this.target && (this.target.y = this.y);
     }
 
-    if(this.x!= oldPos.x || this.y!=oldPos.y){
+
+    if (
+        this.x !== oldPos.x || this.y !== oldPos.y ||
+        this.state !== oldState
+    ) {
         this.changed = true;
     }
+};
+
+
+//Рассчитаем цель
+Player.prototype.calculateTarget = function(){
+    // если есть клик
+    let click = this.getClick();
+
+    let target;
+
+    target = this.targetKeyboard();
+    if(target) return target;
+
+    target = this.targetMouse(click);
+    if(target) return target;
+
+    return null;
+};
+
+
+Player.prototype.targetKeyboard = function(){
+    let
+        dx = 0,
+        dy = 0;
+
+    if (this.controller.left) {
+        dx -= this.speed * STEP;
+    }
+    if (this.controller.up) {
+        dy -= this.speed * STEP;
+    }
+    if (this.controller.right) {
+        dx += this.speed * STEP;
+    }
+    if (this.controller.down) {
+        dy += this.speed * STEP;
+    }
+
+    if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+
+        //Посчитаем перемещение
+        let tx = (Math.abs(dy) > 0 ? SIN_45 : 1.0) * dx;
+        let ty = (Math.abs(dx) > 0 ? SIN_45 : 1.0) * dy;
+
+        return {
+            x: this.x + tx,
+            y: this.y + ty
+        };
+    }
+
+    return null;
+};
+
+
+Player.prototype.targetMouse = function(pos){
+
+    if (pos) {
+
+        //Отцентрировано по центру игрока
+        return {
+            x: pos.x - this.width / 2,
+            y: pos.y - this.height / 2
+        };
+
+    }
+
+    return null;
 };
 
 
