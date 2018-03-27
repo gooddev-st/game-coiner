@@ -14,7 +14,10 @@ let s_doc = document.getElementById('s_doc'),
     s_boom = document.getElementById('s_boom'),
     s_boom1 = document.getElementById('s_boom1'),
     s_boom2 = document.getElementById('s_boom2'),
-    s_barier = document.getElementById('s_barier');
+    s_barier = document.getElementById('s_barier'),
+    s_push = document.getElementById('s_push'),
+    s_crystals = document.getElementById('s_crystals'),
+    s_skeleton = document.getElementById('s_skeleton');
 
 
 /**
@@ -569,7 +572,7 @@ exports.boom2 = {
 
 
 /**
- * Взрыв1
+ * Цель телепорта
  */
 exports.barier = {
     "image": s_barier,
@@ -604,6 +607,174 @@ exports.barier = {
             {"name": "sprite23", "x": 128, "y": 256, "width": 64, "height": 64},
             {"name": "sprite24", "x": 192, "y": 256, "width": 64, "height": 64},
             {"name": "sprite25", "x": 256, "y": 256, "width": 64, "height": 64}
+        ]
+    }
+};
+
+
+/**
+ * Эффект толчок
+ */
+exports.push1 = {
+    "image": s_push,
+    "width": 512,
+    "height": 512,
+    "speed": 30,
+
+    "states": {
+        "default": [
+            {"name": "sprite1", "x": 0, "y": 0, "width": 64, "height": 64},
+            // {"name": "sprite2", "x": 0, "y": 64, "width": 64, "height": 64},
+            // {"name": "sprite3", "x": 64, "y": 0, "width": 64, "height": 64},
+            // {"name": "sprite4", "x": 64, "y": 64, "width": 64, "height": 64},
+            // {"name": "sprite5", "x": 0, "y": 128, "width": 64, "height": 64},
+            // {"name": "sprite6", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite7", "x": 128, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite8", "x": 128, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite9", "x": 128, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite10", "x": 0, "y": 192, "width": 64, "height": 64}
+        ]
+    }
+};
+exports.blue_crystal = {
+    "image": s_crystals,
+    "width": 32,
+    "height": 32,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite6", "x": 0, "y": 0, "width": 32, "height": 32},
+            {"name": "sprite7", "x": 32, "y": 0, "width": 32, "height": 32},
+            {"name": "sprite8", "x": 64, "y": 0, "width": 32, "height": 32},
+            {"name": "sprite9", "x": 96, "y": 0, "width": 32, "height": 32},
+            {"name": "sprite10", "x": 128, "y": 0, "width": 32, "height": 32},
+            {"name": "sprite11", "x": 160, "y": 0, "width": 32, "height": 32},
+            {"name": "sprite12", "x": 192, "y": 0, "width": 32, "height": 32},
+            {"name": "sprite13", "x": 224, "y": 0, "width": 32, "height": 32},
+        ]
+    }
+};
+
+exports.green_crystal = {
+    "image": s_crystals,
+    "width": 32,
+    "height": 32,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite14", "x": 0, "y": 32, "width": 32, "height": 32},
+            {"name": "sprite15", "x": 32, "y": 32, "width": 32, "height": 32},
+            {"name": "sprite16", "x": 64, "y": 32, "width": 32, "height": 32},
+            {"name": "sprite17", "x": 96, "y": 32, "width": 32, "height": 32},
+            {"name": "sprite18", "x": 128, "y": 32, "width": 32, "height": 32},
+            {"name": "sprite19", "x": 160, "y": 32, "width": 32, "height": 32},
+            {"name": "sprite20", "x": 192, "y": 32, "width": 32, "height": 32},
+            {"name": "sprite21", "x": 224, "y": 32, "width": 32, "height": 32},
+        ]
+    }
+};
+
+exports.grey_crystal = {
+    "image": s_crystals,
+    "width": 32,
+    "height": 32,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite22", "x": 0, "y": 64, "width": 32, "height": 32},
+            {"name": "sprite23", "x": 32, "y": 64, "width": 32, "height": 32},
+            {"name": "sprite24", "x": 64, "y": 64, "width": 32, "height": 32},
+            {"name": "sprite25", "x": 96, "y": 64, "width": 32, "height": 32},
+            {"name": "sprite26", "x": 128, "y": 64, "width": 32, "height": 32},
+            {"name": "sprite27", "x": 160, "y": 64, "width": 32, "height": 32},
+            {"name": "sprite28", "x": 192, "y": 64, "width": 32, "height": 32},
+            {"name": "sprite29", "x": 224, "y": 64, "width": 32, "height": 32},
+        ]
+    }
+};
+
+exports.red_crystal = {
+    "image": s_crystals,
+    "width": 32,
+    "height": 32,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite30", "x": 0, "y": 96, "width": 32, "height": 32},
+            {"name": "sprite31", "x": 32, "y": 96, "width": 32, "height": 32},
+            {"name": "sprite32", "x": 64, "y": 96, "width": 32, "height": 32},
+            {"name": "sprite33", "x": 96, "y": 96, "width": 32, "height": 32},
+            {"name": "sprite34", "x": 128, "y": 96, "width": 32, "height": 32},
+            {"name": "sprite35", "x": 160, "y": 96, "width": 32, "height": 32},
+            {"name": "sprite36", "x": 192, "y": 96, "width": 32, "height": 32},
+            {"name": "sprite37", "x": 224, "y": 96, "width": 32, "height": 32},
+        ]
+    }
+};
+
+exports.magenta_crystal = {
+    "image": s_crystals,
+    "width": 32,
+    "height": 32,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite38", "x": 0, "y": 128, "width": 32, "height": 32},
+            {"name": "sprite39", "x": 32, "y": 128, "width": 32, "height": 32},
+            {"name": "sprite40", "x": 64, "y": 128, "width": 32, "height": 32},
+            {"name": "sprite41", "x": 96, "y": 128, "width": 32, "height": 32},
+            {"name": "sprite42", "x": 128, "y": 128, "width": 32, "height": 32},
+            {"name": "sprite43", "x": 160, "y": 128, "width": 32, "height": 32},
+            {"name": "sprite44", "x": 192, "y": 128, "width": 32, "height": 32},
+            {"name": "sprite45", "x": 224, "y": 128, "width": 32, "height": 32},
+        ]
+    }
+};
+
+exports.yellow_crystal = {
+    "image": s_crystals,
+    "width": 32,
+    "height": 32,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite46", "x": 0, "y": 160, "width": 32, "height": 32},
+            {"name": "sprite47", "x": 32, "y": 160, "width": 32, "height": 32},
+            {"name": "sprite48", "x": 64, "y": 160, "width": 32, "height": 32},
+            {"name": "sprite49", "x": 96, "y": 160, "width": 32, "height": 32},
+            {"name": "sprite50", "x": 128, "y": 160, "width": 32, "height": 32},
+            {"name": "sprite51", "x": 160, "y": 160, "width": 32, "height": 32},
+            {"name": "sprite52", "x": 192, "y": 160, "width": 32, "height": 32},
+            {"name": "sprite53", "x": 224, "y": 160, "width": 32, "height": 32}
+        ]
+    }
+};
+
+exports.skeleton = {
+    "image": s_skeleton,
+    "width": 100,
+    "height": 100,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite79", "x": 0, "y": 0, "width": 64, "height": 64},
+        ],
+        "run": [
+            {"name": "sprite80", "x": 0, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite81", "x": 64, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite82", "x": 64, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite83", "x": 0, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite84", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite85", "x": 128, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite86", "x": 128, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite87", "x": 128, "y": 128, "width": 64, "height": 64}
         ]
     }
 };

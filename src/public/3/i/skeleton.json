@@ -1,0 +1,11 @@
+[
+  {"name": "sprite79", "x": 0, "y": 0, "width": 64, "height": 64},
+  {"name": "sprite80", "x": 0, "y": 64, "width": 64, "height": 64},
+  {"name": "sprite81", "x": 64, "y": 0, "width": 64, "height": 64},
+  {"name": "sprite82", "x": 64, "y": 64, "width": 64, "height": 64},
+  {"name": "sprite83", "x": 0, "y": 128, "width": 64, "height": 64},
+  {"name": "sprite84", "x": 64, "y": 128, "width": 64, "height": 64},
+  {"name": "sprite85", "x": 128, "y": 0, "width": 64, "height": 64},
+  {"name": "sprite86", "x": 128, "y": 64, "width": 64, "height": 64},
+  {"name": "sprite87", "x": 128, "y": 128, "width": 64, "height": 64}
+]

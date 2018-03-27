@@ -91,17 +91,21 @@ export default class Character{
                 sh = Math.floor(dh * scaleY);
             }
 
-            context.drawImage(
-                image,
-                sx,
-                sy,
-                sw,
-                sh,
-                dx,
-                dy,
-                dw,
-                dh
-            );
+            //Не рисуем с размером меньше или равным нулю
+            if(sw>0&&sh>0&&dw>0&&dh>0) {
+
+                context.drawImage(
+                    image,
+                    sx,
+                    sy,
+                    sw,
+                    sh,
+                    dx,
+                    dy,
+                    dw,
+                    dh
+                );
+            }
         }
     }
 

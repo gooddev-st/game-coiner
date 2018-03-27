@@ -90,9 +90,8 @@ function Player(playerID, socket, data) {
     this.health = data.health;
 
 
-    this.effects = {
-        'no-control': true
-    };
+    this.makeEffects = {};
+    this.effects = {};
 
     //Есть ли изменения для отсылки
     this.changed = true;
@@ -187,6 +186,18 @@ Player.prototype.init = function () {
             case "down":
                 this.controller.down = false;
                 break;
+            case "fire":
+                if(!this.makeEffects.push) {
+                    this.makeEffects.push = {
+                        from: {x: this.x, y: this.y},
+                        speed: 2300,
+                        duration: 0.1,
+                        distance: 100,
+                        entity: 'push-effect',
+                        sound: 'push-effect',
+                    };
+                }
+                break;
         }
     });
 
@@ -258,8 +269,8 @@ Player.prototype.eating = function (loot) {
         x = loot.x + loot.width/2,
         y = loot.y - loot.height/2;
 
-    this.coins_count++;
-    this.score++;
+    this.coins_count += loot.content;
+    this.score += loot.content;
 
     //Левелап (LevelUp)
     if(this.score >= TO_LEVELS[this.level]){
@@ -334,6 +345,68 @@ Player.prototype.teleport = function (teleport) {
 
 
 /**
+ * Применение созданных игроком эффектов (например толчок)
+ */
+Player.prototype.attachEffects = function (units){
+
+    //Для всех создаваемых эффектов
+    for(let effect_id in this.makeEffects) {
+
+        //Если для эффекта есть сущность - отправим событие
+        if(this.makeEffects[effect_id].entity) {
+            events.common('entity', this.makeEffects[effect_id].entity, {
+                room_id: this.room_id,
+                x: this.x+20,
+                y: this.y+30,
+            });
+        }
+
+        //Если для эффекта есть звук - отправим событие
+        if(this.makeEffects[effect_id].sound) {
+            sound_event.add(this.makeEffects[effect_id].sound, this.room_id, this.x, this.y);
+        }
+
+
+        for(let unit_id in units){
+
+            //Если разные комнаты, то не воздействует
+            if(this.room_id !== units[unit_id].room_id) continue;
+
+            //Пока на себя не применяем вообще
+            if(this.ID === units[unit_id].ID) continue;
+
+            //TODO: Проверка условий эффекта (например расстояние до источника)
+
+            //Если этот эффект ещё не применен
+            if (effect_id in units[unit_id].effects===false) {
+
+                //Проверим условия
+                //Расстояние до источника
+                let
+                    dx = units[unit_id].x - this.x,
+                    dy = units[unit_id].y - this.y,
+                    distance = Math.sqrt(dx*dx + dy*dy);
+
+                if(distance <= this.makeEffects[effect_id].distance) {
+
+                    //Применим
+                    //Склонируем эффект TODO: Классами чтоль эффекты сделать?!
+                    units[unit_id].effects[effect_id] = {};
+                    for (let key in this.makeEffects[effect_id]) {
+                        units[unit_id].effects[effect_id][key] = this.makeEffects[effect_id][key];
+                    }
+                }
+            }
+
+        //}
+        }
+        //После всех - удалим создаваемый эффект
+        delete this.makeEffects[effect_id];
+    }
+};
+
+
+/**
  * Движение игрока по контроллеру в комнате
  * @param room
  * @param step
@@ -360,12 +433,12 @@ Player.prototype.run = function (room) {
         //Иначе - движемся
         else {
 
-            let inctement = this.speed * STEP,
+            let increment = this.speed * STEP,
                 x = this.target.x - this.x,
                 y = this.target.y - this.y,
                 l = Math.sqrt(x * x + y * y),
-                x_increment = inctement * x / l,
-                y_increment = inctement * y / l;
+                x_increment = increment * x / l,
+                y_increment = increment * y / l;
 
             if (Math.abs(x_increment) > Math.abs(x)) x_increment = x;
             if (Math.abs(y_increment) > Math.abs(y)) y_increment = y;
@@ -420,6 +493,8 @@ Player.prototype.calculateTarget = function(){
     let click = this.getClick();
 
     let target;
+    target = this.targetEffects();
+    if(target) return target;
 
     target = this.targetKeyboard();
     if(target) return target;
@@ -474,6 +549,70 @@ Player.prototype.targetMouse = function(pos){
             x: pos.x - this.width / 2,
             y: pos.y - this.height / 2
         };
+
+    }
+
+    return null;
+};
+
+
+Player.prototype.targetEffects = function(){
+
+    if (this.effects) {
+
+        //Толчок из определенной точки с заданной скоростью и временем
+        if("push" in this.effects){
+
+            if(!this.effects.push.oldSpeed){
+                //В начале сохраним скорость цели
+                this.effects.push.oldSpeed = this.speed;
+                //И её начальную позицию
+                this.effects.push.oldX = this.x;
+                this.effects.push.oldY = this.y;
+
+                this.effects.push.faza = 0.0;
+                this.speed = this.effects.push.speed;
+            }
+
+            if (this.effects.push.faza < this.effects.push.duration) {
+
+                this.effects.push.faza += STEP;
+
+                let from = this.effects.push.from;
+
+                //Если источник под целью сдвинем цель в случайном направлении
+                if(from.x === this.x && from.y === this.y){
+                    this.x += Math.random()*10 - 5;
+                    this.y += Math.random()*10 - 5;
+                }
+
+                //Вектор перемещения
+                let increment = this.speed * STEP,
+                    x = this.x - from.x,
+                    y = this.y - from.y,
+                    l = Math.sqrt(x * x + y * y),
+                    x_increment = increment * x / l,
+                    y_increment = increment * y / l;
+
+                return {
+                    x: this.x + x_increment,
+                    y: this.y + y_increment
+                };
+            }
+
+            //По окончании восстановим скорость
+            this.speed = this.effects.push.oldSpeed;
+
+            //И выроним монету в начальной позиции
+            if(this.coins_count) {
+                this.coins_count--;
+                let room = rooms.get(this.room_id);
+                room.addCoin(this.effects.push.oldX, this.effects.push.oldY);
+            }
+
+            //Удалим эффект
+            delete this.effects.push;
+        }
 
     }
 

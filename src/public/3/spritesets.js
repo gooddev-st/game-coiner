@@ -5,8 +5,7 @@ let t_plants = document.getElementById('t_plants');
 /**
  * Пустынное
  */
-exports.desert = [
-    {"image": t_plants, "width": 27, "height": 58, "states": {"default": [{"name": "sprite7", "x": 198, "y": 201, "width": 27, "height": 58}]}},
+exports.desert = [{"image": t_plants, "width": 27, "height": 58, "states": {"default": [{"name": "sprite7", "x": 198, "y": 201, "width": 27, "height": 58}]}},
     {"image": t_plants, "width": 76, "height": 92, "states": {"default": [{"name": "sprite14", "x": 233, "y": 330, "width": 76, "height": 92}]}},
     {"image": t_plants, "width": 60, "height": 87, "states": {"default": [{"name": "sprite16", "x": 244, "y": 238, "width": 60, "height": 87}]}},
 

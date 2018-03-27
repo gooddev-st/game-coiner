@@ -6,6 +6,7 @@ module.exports = Npc;
 
 
 const events = require("./events.js");
+const rooms = require("./rooms.js");
 const npcs = require("./npcs.js");
 const players = require("./players.js");
 
@@ -35,6 +36,7 @@ function getRandomCharacter() {
         characters.CHARACTER_DOC,
         characters.CHARACTER_MAN,
         characters.CHARACTER_GOB,
+        characters.CHARACTER_SKELETON,
     ];
 
     let key = Math.floor(Math.random() * randomArray.length);
@@ -76,7 +78,9 @@ function Npc(ID, x, y, room_id, character_id, speed) {
 
     this.target = null; //Позиция куда идет
 
-    this.content = null; //Что съел последнее
+    this.content = []; //Съеденное
+
+    this.effects = {}; //Эффекты
 }
 
 
@@ -85,7 +89,9 @@ function Npc(ID, x, y, room_id, character_id, speed) {
  * @param loot
  */
 Npc.prototype.eating = function (loot) {
-    this.content = loot;
+    if(this.content.length<12) {
+        this.content.push(loot.character_id);
+    }
 
     sound_event.add('npc_eat_coin', this.room_id, this.x, this.y);
 
@@ -129,15 +135,13 @@ Npc.prototype.teleport = function (teleport) {
 Npc.prototype.run = function (room, step) {
 
     //Сохраним старую позицию, чтоб понимать - движется ли
-    let oldX = this.x, oldY = this.y;
+    let oldX = this.x, oldY = this.y, oldState = this.state;
 
     let target = this.calculateTarget(room);
     if(target) this.target = target;
 
     // если есть цель
     if (this.target) {
-        // console.log(this.x + ' ' + this.y + ' ' + this.room_id)
-        // console.log('--- '+this.target.x + ' ' + this.target.y)
 
         //Если закончили движение - сбросим цель
         if(
@@ -165,9 +169,13 @@ Npc.prototype.run = function (room, step) {
         }
 
     }
-    // Если нет цели - зададим случайную
+
+    //Выставим состояние
+    if(this.target){
+        this.state = 'run';
+    }
     else{
-        this.target = this.targetRandom(room);
+        this.state = 'default';
     }
 
 
@@ -189,7 +197,7 @@ Npc.prototype.run = function (room, step) {
         this.target && (this.target.y = this.y);
     }
 
-    if(this.x !== oldX || this.y !== oldY){
+    if(this.x !== oldX || this.y !== oldY || this.state !== oldState){
         this.changed = true;
     }
 };
@@ -198,6 +206,10 @@ Npc.prototype.run = function (room, step) {
 
 Npc.prototype.calculateTarget = function(room) {
     let target;
+
+    // Эффекты движения
+    target = this.targetEffects();
+    if(target) return target;
 
     // Идем к ближнему игроку (в поле зрения)
     target = this.targetPlayer(room);
@@ -208,9 +220,7 @@ Npc.prototype.calculateTarget = function(room) {
     if(target) return target;
 
     // Иначе - шляемся
-    // if(!this.target) return this.targetRandom(room);
-
-    // console.log("Блин!");
+    if(!this.target) return this.targetRandom(room);
 
     return null;
 
@@ -361,6 +371,8 @@ Npc.prototype.targetPlayer = function(room) {
 
         // Если в поле зрения - идем к игроку
         if(distances[min_index].distance <= VIEW_DISTANCE){
+
+            //Подошли на расстояние атаки - стоп
             if(distances[min_index].distance >= ATTACK_DISTANCE) {
                 return distances[min_index].pos;
             }
@@ -384,6 +396,97 @@ Npc.prototype.targetRandom = function (room) {
 
 
 
+
+
+Npc.prototype.targetEffects = function(){
+
+    if (this.effects) {
+
+        //Толчок из определенной точки с заданной скоростью и временем
+        if("push" in this.effects){
+
+            if(!this.effects.push.oldSpeed){
+                //В начале сохраним скорость цели
+                this.effects.push.oldSpeed = this.speed;
+                //И её начальную позицию
+                this.effects.push.oldX = this.x;
+                this.effects.push.oldY = this.y;
+
+                this.effects.push.faza = 0.0;
+                this.speed = this.effects.push.speed;
+            }
+
+            if (this.effects.push.faza < this.effects.push.duration) {
+
+                this.effects.push.faza += STEP;
+
+                let from = this.effects.push.from;
+
+                //Если источник под целью сдвинем цель в случайном направлении
+                if(from.x === this.x && from.y === this.y){
+                    this.x += Math.random()*10 - 5;
+                    this.y += Math.random()*10 - 5;
+                }
+
+                //Вектор перемещения
+                let increment = this.speed * STEP,
+                    x = this.x - from.x,
+                    y = this.y - from.y,
+                    l = Math.sqrt(x * x + y * y),
+                    x_increment = increment * x / l,
+                    y_increment = increment * y / l;
+
+                return {
+                    x: this.x + x_increment,
+                    y: this.y + y_increment
+                };
+            }
+
+            //По окончании восстановим скорость
+            this.speed = this.effects.push.oldSpeed;
+
+            //И выроним кристалл в начальной позиции
+            //со всем, что накопил
+            let content = 0;
+            this.content.forEach(character_id=> {
+                //TODO: если съеденное не монета - ронять предмет
+                let coin = this.content.shift();
+                content++;
+            });
+
+            //если что-то накопил - выроним
+            let crystal_character_id = characters.CHARACTER_CRYSTAL_BLUE;
+            if(content>0) {
+                if(content < 2){
+                    crystal_character_id = characters.CHARACTER_CRYSTAL_BLUE;
+                }
+                else if(content >= 2 && content < 4){
+                    crystal_character_id = characters.CHARACTER_CRYSTAL_GREEN;
+                }
+                else if(content >= 4 && content < 6){
+                    crystal_character_id = characters.CHARACTER_CRYSTAL_GREY;
+                }
+                else if(content >= 6 && content < 8){
+                    crystal_character_id = characters.CHARACTER_CRYSTAL_RED;
+                }
+                else if(content >= 8 && content < 10){
+                    crystal_character_id = characters.CHARACTER_CRYSTAL_MAGENTA;
+                }
+                else if(content >= 10 && content < 12){
+                    crystal_character_id = characters.CHARACTER_CRYSTAL_YELLOW;
+                }
+                let room = rooms.get(this.room_id);
+
+                room.addCoin(this.effects.push.oldX, this.effects.push.oldY, crystal_character_id, content);
+            }
+
+            delete this.effects.push;
+        }
+
+    }
+
+    return null;
+};
 
 /**
  * Возвращает информацию о мобе

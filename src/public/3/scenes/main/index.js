@@ -93,6 +93,11 @@ function start(callback) {
 
             entities.add(data.x, data.y, 'barier', 0.65);
         }
+
+        if(type==="push-effect" && data.room_id===room_id){
+
+            entities.add(data.x, data.y, 'push1', 0.15);
+        }
     });
 
     ui.top10.start();

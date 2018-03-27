@@ -7,4 +7,5 @@ export default {
     "eat_coin_silver": new Sound('sound/coin/eat2.mp3'),
     "eat_coin_copper": new Sound('sound/coin/eat1.mp3'),
     "teleport": new Sound('sound/teleport/flaunch.wav'),
+    "push-effect": new Sound('sound/hit/dropLeather.ogg'),
 }

@@ -60,6 +60,12 @@ function Room(settings) {
         characters.CHARACTER_COIN,
         characters.CHARACTER_COIN_SILVER,
         characters.CHARACTER_COIN_COPPER,
+        /*characters.CHARACTER_CRYSTAL_BLUE,
+        characters.CHARACTER_CRYSTAL_GREEN,
+        characters.CHARACTER_CRYSTAL_GREY,
+        characters.CHARACTER_CRYSTAL_RED,
+        characters.CHARACTER_CRYSTAL_MAGENTA,
+        characters.CHARACTER_CRYSTAL_YELLOW,*/
     ];
 
     this.randomLoot(this.coins_num);
@@ -150,6 +156,20 @@ Room.prototype.run = function () {
     }
     this.generation_faza += STEP
 };
+
+
+Room.prototype.addCoin = function (x, y, character_id, content){
+
+    if(!character_id) {
+        character_id = this.possible_coins_chars[Math.floor(Math.random() * this.possible_coins_chars.length)];
+    }
+
+    let coin = new Coin(this.ID, x, y, character_id, content);
+    this.loot.push(coin);
+
+    events.common("room", "loot-create", {info: coin.info()});
+};
+
 
 //Удаляем "мертвые" монеты
 Room.prototype.cleanUp = function () {

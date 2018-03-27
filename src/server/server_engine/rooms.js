@@ -23,12 +23,12 @@ const rooms = {
         dead_zone_right: 10,
         dead_zone_bottom: 0,
 
-        coins_num: 0,
-        coins_max_limit: 0,
-        coins_generate_interval: 100.3,
+        coins_num: 200,
+        coins_max_limit: 100,
+        coins_generate_interval: 0.3,
 
         teleports_num: 26,
-        cartoons_num: 0,
+        cartoons_num: 20,
     }),
 
     'paradise1': new Room({

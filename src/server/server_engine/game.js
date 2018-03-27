@@ -145,6 +145,17 @@ function start(){
             room.run();
         });
 
+        //Применим эффекты
+        players.each((playerID, player)=>{
+            player.attachEffects(
+                Object.assign( {},
+
+                    players.list(),
+                    npcs.list()
+
+                )
+            );
+        });
 
         //Движем плееров
         players.each((playerID, player)=>{

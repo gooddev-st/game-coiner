@@ -6,7 +6,7 @@ const
     COIN_WIDTH = 44,
     COIN_HEIGHT = 22;
 
-function Coin(room_id, x, y, character_id) {
+function Coin(room_id, x, y, character_id, content) {
 
     //TODO: Потенциальная проблема. Может и совпасть
     this.ID = 'loot'+Math.floor(Math.random()*65536);
@@ -20,6 +20,8 @@ function Coin(room_id, x, y, character_id) {
     this.character_id = character_id;
 
     this.changed = true;
+
+    this.content = content || 1;
 
     //Признак "удалите меня"
     this.die = false;
