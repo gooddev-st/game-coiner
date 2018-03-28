@@ -71,6 +71,8 @@ function Npc(ID, x, y, room_id, character_id, speed) {
     this.height = NPC_HEIGHT;
     this.speed = speed==undefined ? NPC_SPEED : speed;
 
+    this.health = 100;
+
     this.ID = ID;
 
     //Есть ли изменения для отсылки
@@ -81,6 +83,8 @@ function Npc(ID, x, y, room_id, character_id, speed) {
     this.content = []; //Съеденное
 
     this.effects = {}; //Эффекты
+
+    this.die = false;
 }
 
 
@@ -89,9 +93,13 @@ function Npc(ID, x, y, room_id, character_id, speed) {
  * @param loot
  */
 Npc.prototype.eating = function (loot) {
-    if(this.content.length<12) {
-        this.content.push(loot.character_id);
+    if(this.content<12) {
+        this.content++;
+        // this.content.push(loot.character_id);
     }
+
+    this.health += 10;
+    if(this.health > 100) this.health = 100;
 
     sound_event.add('npc_eat_coin', this.room_id, this.x, this.y);
 
@@ -445,39 +453,49 @@ Npc.prototype.targetEffects = function(){
             //По окончании восстановим скорость
             this.speed = this.effects.push.oldSpeed;
 
-            //И выроним кристалл в начальной позиции
-            //со всем, что накопил
-            let content = 0;
-            this.content.forEach(character_id=> {
-                //TODO: если съеденное не монета - ронять предмет
-                let coin = this.content.shift();
-                content++;
-            });
 
-            //если что-то накопил - выроним
-            let crystal_character_id = characters.CHARACTER_CRYSTAL_BLUE;
-            if(content>0) {
-                if(content < 2){
-                    crystal_character_id = characters.CHARACTER_CRYSTAL_BLUE;
-                }
-                else if(content >= 2 && content < 4){
-                    crystal_character_id = characters.CHARACTER_CRYSTAL_GREEN;
-                }
-                else if(content >= 4 && content < 6){
-                    crystal_character_id = characters.CHARACTER_CRYSTAL_GREY;
-                }
-                else if(content >= 6 && content < 8){
-                    crystal_character_id = characters.CHARACTER_CRYSTAL_RED;
-                }
-                else if(content >= 8 && content < 10){
-                    crystal_character_id = characters.CHARACTER_CRYSTAL_MAGENTA;
-                }
-                else if(content >= 10 && content < 12){
-                    crystal_character_id = characters.CHARACTER_CRYSTAL_YELLOW;
-                }
-                let room = rooms.get(this.room_id);
+            //Отнимем здоровья
+            this.health -= 50;
+            if(this.health<=0){
+                this.health=0;
+                this.die = true;
 
-                room.addCoin(this.effects.push.oldX, this.effects.push.oldY, crystal_character_id, content);
+
+
+                //И выроним кристалл в начальной позиции
+                //со всем, что накопил
+                let content = this.content;
+                this.content = 0;
+        	//если что-то накопил - выроним
+        	let crystal_character_id = characters.CHARACTER_CRYSTAL_GREY;
+
+                if(content>0) {
+
+                    if(content < 3){
+	                crystal_character_id = characters.CHARACTER_CRYSTAL_GREY;
+    	            }
+        	    else if(content > 2 && content < 5){
+    	                crystal_character_id = characters.CHARACTER_CRYSTAL_GREEN;
+        	    }
+            	    else if(content > 4 && content < 7){
+                	crystal_character_id = characters.CHARACTER_CRYSTAL_BLUE;
+            	    }
+                    else if(content > 6 && content < 9){
+	                crystal_character_id = characters.CHARACTER_CRYSTAL_MAGENTA;
+    	            }
+        	    else if(content > 8 && content < 11){
+            	        crystal_character_id = characters.CHARACTER_CRYSTAL_YELLOW;
+            	    }
+                    else if(content > 10 && content < 13){
+	                crystal_character_id = characters.CHARACTER_CRYSTAL_RED;
+    	            }
+        	    let room = rooms.get(this.room_id);
+
+            	    room.addCoin(this.effects.push.oldX, this.effects.push.oldY, crystal_character_id, content);
+//            	    room.addCoin(this.x, this.y, crystal_character_id, content);
+        	}
+
+
             }
 
             delete this.effects.push;
@@ -503,6 +521,14 @@ Npc.prototype.info = function(){
         room_id: this.room_id,
 
         width: this.width,
-        height: this.height
+        height: this.height,
+
+        content: this.content,
+
+        health: this.health,
     }
+};
+
+Npc.prototype.isDie = function() {
+    return this.die;
 };

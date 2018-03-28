@@ -1,58 +1,64 @@
 /**
  * Мобы
  */
-module.exports.get = get;
-module.exports.each = each;
-module.exports.list = list;
-module.exports.toArray = toArray;
 
-
-const NPC_COUNT = 20;
 const NPC_SPEED = 100;
 
-
-const rooms = require("./rooms.js");
 const Npc = require("./npc.js");
 
 
 const npcs = {};
 
-// Случайные мобы на случайных картах
-for(let i=0;i<NPC_COUNT;i++) {
-    let
-        roomsArray = rooms.toArray(),
-        room_id = roomsArray[Math.floor(Math.random()*roomsArray.length)].ID,
-        room = rooms.get(room_id),
-        x = room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right),
-        y = room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom),
-        character_id = null;//'gob';
 
-    npcs['npc'+i] = new Npc('npc'+i, x, y, room_id, character_id, NPC_SPEED);
+/**
+ * Генерация имени моба
+ * @type {number}
+ */
+let counter_for_naming = 0;
+
+function getName() {
+    counter_for_naming++;
+    return 'npc' + counter_for_naming;
 }
 
 
-function get(id){
-    if(id in npcs){
+module.exports.add = function (room_id, x, y, character_id) {
+    let ID = getName();
+    npcs[ID] = new Npc(ID, x, y, room_id, character_id, NPC_SPEED);
+    return npcs[ID];
+}
+
+
+module.exports.remove = function (id) {
+    if (id in npcs) {
+        delete npcs[id];
+    }
+}
+
+
+module.exports.get = function (id) {
+    if (id in npcs) {
         return npcs[id];
     }
 }
 
 
-function each(callback) {
-    for(const i in npcs){
+module.exports.each = function (callback) {
+    for (const i in npcs) {
         callback(i, npcs[i]);
     }
 }
 
 
-function toArray() {
+module.exports.toArray = function () {
     const npcsArray = [];
-    for(const i in npcs){
+    for (const i in npcs) {
         npcsArray.push(npcs[i]);
     }
     return npcsArray;
 }
 
-function list() {
+
+module.exports.list = function () {
     return npcs;
 }

@@ -12,9 +12,11 @@ const Player = require('./player.js');
 const events = require('./events.js');
 const sound_event = require('./sound_event.js');//звуковые события
 
+const world = require('./world.js');
 const rooms = require('./rooms.js');
 const npcs = require('./npcs.js');
 const players = require("./players.js");//,// игроки
+const effects = require("./effects.js");
 
 const db = require('./db.js');
 
@@ -27,6 +29,8 @@ const log = require("./log.js");
 function run(io){
 
     events.init(io);
+
+    world.setup();
 
     start();
 
@@ -139,23 +143,32 @@ function start(){
          * Основной цикл
          */
 
+        //Мир "живет"
+        world.cleanUp();
+        world.run();
+
         //Комнаты "живут"
         rooms.each((room_id, room)=>{
             room.cleanUp();
             room.run();
         });
 
-        //Применим эффекты
-        players.each((playerID, player)=>{
-            player.attachEffects(
-                Object.assign( {},
+        //Соберем цели воздействия
+        const targets = Object.assign( {},
 
-                    players.list(),
-                    npcs.list()
+            players.list(),//игроки
+            npcs.list()//мобы
 
-                )
-            );
-        });
+        );
+
+        //Применим к ним эффекты
+        for(let i=0;i<effects.size(); i++){
+
+            let effect = effects.shift();
+            if(effect!=undefined) {
+                effect.attach(targets);
+            }
+        }
 
         //Движем плееров
         players.each((playerID, player)=>{

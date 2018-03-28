@@ -8,7 +8,7 @@ exports.CHARACTER_COIN_COPPER = 'coin_copper';
 
 exports.CHARACTER_CRYSTAL_BLUE = 'blue_crystal';
 exports.CHARACTER_CRYSTAL_GREEN = 'green_crystal';
-exports.CHARACTER_CRYSTAL_GREY = 'gray_crystal';
+exports.CHARACTER_CRYSTAL_GREY = 'grey_crystal';
 exports.CHARACTER_CRYSTAL_RED = 'red_crystal';
 exports.CHARACTER_CRYSTAL_MAGENTA = 'magenta_crystal';
 exports.CHARACTER_CRYSTAL_YELLOW = 'yellow_crystal';
@@ -21,6 +21,9 @@ exports.CHARACTER_MAN = 'prof';
 exports.CHARACTER_GOB = 'gob';
 exports.CHARACTER_MAG = 'mag';
 exports.CHARACTER_SKELETON = 'skeleton';
+exports.CHARACTER_KATY = 'katy';
+exports.CHARACTER_LEVON = 'levon';
+exports.CHARACTER_LEVON = 'vitaly';
 
 
 exports.CHARACTER_TELEPORT = 'teleport';

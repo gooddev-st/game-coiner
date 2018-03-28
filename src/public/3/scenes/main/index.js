@@ -231,9 +231,8 @@ function onRoom(event, type, data) {
         try {
             if(!data.ID) throw "Ошибка получения с сервера";
 
-            if(data.room_id==room_id) {
-                units.remove(data.ID);
-            }
+            units.remove(data.ID);
+
         }
         catch (e){
             log("Ошибка удаления игрока. "+e);
@@ -407,6 +406,27 @@ function onRoom(event, type, data) {
         }
         catch (e){
             log("Ошибка обновления моба. "+e);
+            log(data);
+        }
+    }
+
+    // Удаление моба
+    if(type==="npc-remove") {
+        try {
+            if(!data.info) throw "Ошибка получения с сервера";
+
+            var info = data.info;
+
+            if (
+                info.ID == undefined ||
+                info.room_id == undefined
+            ) throw "Ошибка получения с сервера";
+
+            units.remove(info.ID);
+
+        }
+        catch (e){
+            log("Ошибка удаления моба. "+e);
             log(data);
         }
     }

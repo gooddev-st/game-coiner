@@ -28,16 +28,16 @@ function stop(){
 
 
 function onClick(e){
+
     let target = e.target || e.srcElement;
 
     if(target.id && target.id=="signout_button"){
-
-        if(confirm("Точно выйти?")){
-            events.add('signout', null);
-        }
-
         e.stopPropagation();
         e.preventDefault();
+
+        //if(confirm("Точно выйти?")){
+            events.add('signout', null);
+        //}
         return false;
     }
 }

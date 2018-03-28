@@ -17,7 +17,10 @@ let s_doc = document.getElementById('s_doc'),
     s_barier = document.getElementById('s_barier'),
     s_push = document.getElementById('s_push'),
     s_crystals = document.getElementById('s_crystals'),
-    s_skeleton = document.getElementById('s_skeleton');
+    s_skeleton = document.getElementById('s_skeleton'),
+    s_katy = document.getElementById('s_katy'),
+    s_levon = document.getElementById('s_levon'),
+    s_vitaly = document.getElementById('s_vitaly');
 
 
 /**
@@ -775,6 +778,75 @@ exports.skeleton = {
             {"name": "sprite85", "x": 128, "y": 0, "width": 64, "height": 64},
             {"name": "sprite86", "x": 128, "y": 64, "width": 64, "height": 64},
             {"name": "sprite87", "x": 128, "y": 128, "width": 64, "height": 64}
+        ]
+    }
+};
+
+exports.katy = {
+    "image": s_katy,
+    "width": 100,
+    "height": 100,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite79", "x": 0, "y": 0, "width": 64, "height": 64},
+        ],
+        "run": [
+            {"name": "sprite80", "x": 0, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite81", "x": 64, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite82", "x": 64, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite83", "x": 0, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite84", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite85", "x": 128, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite86", "x": 128, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite87", "x": 128, "y": 128, "width": 64, "height": 64}
+        ]
+    }
+};
+
+exports.levon = {
+    "image": s_levon,
+    "width": 100,
+    "height": 100,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite79", "x": 0, "y": 0, "width": 64, "height": 64},
+        ],
+        "run": [
+            {"name": "sprite80", "x": 0, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite81", "x": 64, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite82", "x": 64, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite83", "x": 0, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite84", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite85", "x": 128, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite86", "x": 128, "y": 64, "width": 64, "height": 64},
+            {"name": "sprite87", "x": 128, "y": 128, "width": 64, "height": 64}
+        ]
+    }
+};
+
+exports.vitaly = {
+    "image": s_vitaly,
+    "width": 100,
+    "height": 100,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite19", "x": 0, "y": 128, "width": 64, "height": 64},
+        ],
+        "run": [
+            {"name": "sprite20", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite21", "x": 128, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite22", "x": 192, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite23", "x": 256, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite24", "x": 320, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite25", "x": 384, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite26", "x": 448, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite27", "x": 512, "y": 128, "width": 64, "height": 64},
         ]
     }
 };
