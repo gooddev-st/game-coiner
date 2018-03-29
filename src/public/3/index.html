@@ -114,6 +114,8 @@
     <img id="s_levon" src="i/levon.png">
     <img id="s_vitaly" src="i/vitaly.png">
     <img id="s_graves" src="i/graves.png">
+    <img id="s_campfire" src="i/camp_fire.png">
+    <img id="t_andstones" src="i/andstones.png">
 </div>
 
 <script src="dist/client_build.js"></script>
@@ -143,7 +145,7 @@
         }
     }
     $(function () {
-        $('.logs-wrapper').click(function (e) {
+        $('.logs-wrapper').on('mouseup', function (e) {
             $('body').toggleClass('consoled');
             return false;
         });

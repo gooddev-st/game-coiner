@@ -1,7 +1,7 @@
 //Картинки спрайтов
 let t_plants = document.getElementById('t_plants');
 let s_graves = document.getElementById('s_graves');
-// let t_cool_plants = document.getElementById('t_cool_plants');
+let s_campfire = document.getElementById('s_campfire');
 
 
 /**
@@ -39,6 +39,19 @@ exports.bushs = [
 exports.graves = [
     {"image": s_graves, "width": 22, "height": 32, "states": {"default": [{"name": "sprite3", "x": 165, "y": 0, "width": 22, "height": 32},]}},
     {"image": s_graves, "width": 28, "height": 27, "states": {"default": [{"name": "sprite5", "x": 98, "y": 2, "width": 28, "height": 27}]}},
+];
+
+/**
+ * Костры
+ */
+exports.campfire = [
+    {"image": s_campfire, "width": 64, "height": 64, "states": {"default": [
+        {"name": "sprite1", "x": 0, "y": 0, "width": 64, "height": 64},
+        {"name": "sprite2", "x": 64, "y": 0, "width": 64, "height": 64},
+        {"name": "sprite3", "x": 128, "y": 0, "width": 64, "height": 64},
+        {"name": "sprite4", "x": 192, "y": 0, "width": 64, "height": 64},
+        {"name": "sprite5", "x": 256, "y": 0, "width": 64, "height": 64}
+    ]}},
 ];
 
 /**

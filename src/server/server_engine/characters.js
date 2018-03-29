@@ -46,3 +46,7 @@ exports.SPRITESET_GRAVES = {
     ID: 'graves',
     size: 2,
 };
+exports.SPRITESET_CAMPFIRE = {
+    ID: 'campfire',
+    size: 1,
+};

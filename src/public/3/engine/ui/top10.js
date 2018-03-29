@@ -1,9 +1,5 @@
 import events from "../events";
 
-import log from "../../logs"
-import ui from "./ui";
-
-
 let active = false;
 
 
@@ -21,7 +17,7 @@ const top10ContentElement = document.getElementById("top10-panel-content");
 
 
 function start() {
-    top10Element.addEventListener('click', onClick, false);
+    top10Element.addEventListener('mouseup', onClick, false);
 
     events.on("keyup", (eventName, keyCode)=>{
         if(keyCode==="statistic"){
@@ -38,7 +34,7 @@ function start() {
 
 }
 function stop(){
-    top10Element.removeEventListener('click', onClick, false);
+    top10Element.removeEventListener('mouseup', onClick, false);
     events.off("server", update);
 }
 
@@ -58,21 +54,17 @@ function isActive() {
 
 
 function onClick(e){
-    /*let target = e.target || e.srcElement;
 
-    if(target.id && target.id=="top10-panel"){*/
+    if (isActive()) {
+        hide();
+    }
+    else {
+        show();
+    }
 
-        if(isActive()){
-            hide();
-        }
-        else{
-            show();
-        }
-
-        e.stopPropagation();
-        e.preventDefault();
-        return false;
-    // }
+    e.stopPropagation();
+    e.preventDefault();
+    return false;
 }
 
 

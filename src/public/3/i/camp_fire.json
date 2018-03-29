@@ -1,1 +1,7 @@
-[{"name":"sprite1","x":0,"y":0,"width":64,"height":64},{"name":"sprite2","x":64,"y":0,"width":64,"height":64},{"name":"sprite3","x":128,"y":0,"width":64,"height":64},{"name":"sprite4","x":192,"y":0,"width":64,"height":64},{"name":"sprite5","x":256,"y":0,"width":64,"height":64}]
+[
+  {"name": "sprite1", "x": 0, "y": 0, "width": 64, "height": 64},
+  {"name": "sprite2", "x": 64, "y": 0, "width": 64, "height": 64},
+  {"name": "sprite3", "x": 128, "y": 0, "width": 64, "height": 64},
+  {"name": "sprite4", "x": 192, "y": 0, "width": 64, "height": 64},
+  {"name": "sprite5", "x": 256, "y": 0, "width": 64, "height": 64}
+]

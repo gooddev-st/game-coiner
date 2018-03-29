@@ -26,6 +26,9 @@ const ENVIRONMENTS = {
     4: {
         cartoonsSpriteset: characters.SPRITESET_BELWOOD,
     },
+    5: {
+        cartoonsSpriteset: characters.SPRITESET_CAMPFIRE,
+    },
 };
 
 

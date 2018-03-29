@@ -8,7 +8,7 @@ const ENVIRONMENTS = {
         g: {start: 120, rand: 16},
         b: {start: 100, rand: 5},
         // entitiesSprites: "grass",
-        entitiesSprites: "grass",
+        entitiesSprites: "andstones",
     },
     1: {
         r: {start: 239, rand: 16},
@@ -33,6 +33,12 @@ const ENVIRONMENTS = {
         g: {start: 90, rand: 20},
         b: {start: 40, rand: 12},
         entitiesSprites: "trees",
+    },
+    5: {
+        r: {start: 0, rand: 30},
+        g: {start: 0, rand: 5},
+        b: {start: 0, rand: 5},
+        entitiesSprites: "dead_plants",
     },
 };
 /**
@@ -115,25 +121,6 @@ export default class {
             }
 
         }
-
-        //Сгенерим кусты
-        /*for(let i = 0; i<trees_num; i++){
-            let id = Math.floor(Math.random()*sprites.bushs.states.default.length),
-
-                tile = sprites.bushs.states.default[id],
-
-                x = Math.random()*(this.width + tile.width) - tile.width,
-                y = Math.random()*(this.height + tile.height) - tile.height,
-                w = tile.width, h = tile.height, sx = tile.x, sy = tile.y;
-
-            if(x < 0){w += x;sx -= x;x = 0;}
-            if(y < 0){h += y;sy -= y;y = 0;}
-            if(x >= this.width - tile.width){ w = x - (this.width - tile.width);}
-            if(y >= this.height - tile.height){ h = y - (this.height - tile.height);}
-
-            ctx.drawImage(sprites.bushs.image, sx, sy, w, h, x, y, w, h);
-
-        }*/
 
         ctx.restore();
 

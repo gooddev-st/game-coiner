@@ -21,7 +21,8 @@ let s_doc = document.getElementById('s_doc'),
     s_katy = document.getElementById('s_katy'),
     s_levon = document.getElementById('s_levon'),
     s_vitaly = document.getElementById('s_vitaly'),
-    t_cool_plants = document.getElementById('t_cool_plants');
+    t_cool_plants = document.getElementById('t_cool_plants'),
+    t_andstones = document.getElementById('t_andstones');
 
 
 /**
@@ -902,6 +903,29 @@ exports.dead_plants = {
             {"name": "deadtree1_0", "x": 0, "y": 517, "width": 128, "height": 97},
             {"name": "deadtree2", "x": 258, "y": 388, "width": 128, "height": 128},
             {"name": "deadtree3", "x": 0, "y": 130, "width": 128, "height": 128},
+        ]
+    }
+};
+
+
+/**
+ * Мертвые деревья
+ */
+exports.andstones = {
+    "image": t_andstones,
+
+    "states": {
+        "default": [
+            {"name": "01", "x": 0, "y": 0, "width": 64, "height": 32},
+            {"name": "02", "x": 0, "y": 33, "width": 64, "height": 32},
+            {"name": "03", "x": 0, "y": 66, "width": 64, "height": 32},
+            {"name": "04", "x": 65, "y": 0, "width": 64, "height": 32},
+            {"name": "05", "x": 65, "y": 33, "width": 64, "height": 32},
+            {"name": "06", "x": 65, "y": 66, "width": 64, "height": 32},
+            {"name": "07", "x": 0, "y": 99, "width": 64, "height": 32},
+            {"name": "08", "x": 65, "y": 99, "width": 64, "height": 32},
+            {"name": "09", "x": 0, "y": 132, "width": 64, "height": 32},
+            {"name": "10", "x": 65, "y": 132, "width": 64, "height": 32}
         ]
     }
 };

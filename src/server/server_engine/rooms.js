@@ -31,8 +31,8 @@ const rooms = {
         cartoons_num: 20,
     }),
 
-    'paradise1': new Room({
-        ID: 'paradise1',
+    'forest': new Room({
+        ID: 'forest',
         width: 2000,
         height: 2000,
 
@@ -49,7 +49,7 @@ const rooms = {
         coins_generate_interval: 2.0,
 
         teleports_num: 10,
-        cartoons_num: 10,
+        cartoons_num: 100,
     }),
 
     'hell': new Room({
@@ -113,6 +113,27 @@ const rooms = {
 
         teleports_num: 4,
         cartoons_num: 10,
+    }),
+
+    'tartar': new Room({
+        ID: 'tartar',
+        width: 3000,
+        height: 3000,
+
+        environment_id: 5,
+        entities_num: 750,
+
+        dead_zone_left: 10,
+        dead_zone_top: 80,
+        dead_zone_right: 10,
+        dead_zone_bottom: 0,
+
+        coins_num: 0,
+        coins_max_limit: 0,
+        coins_generate_interval: 20.0,
+
+        teleports_num: 30,
+        cartoons_num: 130,
     }),
 };
 

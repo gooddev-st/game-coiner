@@ -711,7 +711,7 @@ function roomInit(settings){
 
     if('cartoons' in settings){
         for(const item of settings.cartoons){
-            entities.addFromSet(item.x, item.y, item.spriteset_id, item.sprite_id);
+            entities.addFromSet(item.x, item.y, item.spriteset_id, item.sprite_id, 0, Math.random());
         }
     }
 

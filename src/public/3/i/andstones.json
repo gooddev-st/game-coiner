@@ -1,0 +1,12 @@
+[
+  {"name": "01", "x": 0, "y": 0, "width": 64, "height": 32},
+  {"name": "02", "x": 0, "y": 33, "width": 64, "height": 32},
+  {"name": "03", "x": 0, "y": 66, "width": 64, "height": 32},
+  {"name": "04", "x": 65, "y": 0, "width": 64, "height": 32},
+  {"name": "05", "x": 65, "y": 33, "width": 64, "height": 32},
+  {"name": "06", "x": 65, "y": 66, "width": 64, "height": 32},
+  {"name": "07", "x": 0, "y": 99, "width": 64, "height": 32},
+  {"name": "08", "x": 65, "y": 99, "width": 64, "height": 32},
+  {"name": "09", "x": 0, "y": 132, "width": 64, "height": 32},
+  {"name": "10", "x": 65, "y": 132, "width": 64, "height": 32}
+]

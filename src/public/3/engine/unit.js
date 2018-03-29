@@ -109,6 +109,8 @@ export default class Unit{
             return true;
         }
 
+        this.drawShadow(camera.context, x, y);
+
         this.drawCharacter(camera.context, x, y);
 
         // Рисуем имя
@@ -221,6 +223,32 @@ export default class Unit{
         context.font = "bold 12px Arial";
         context.fillStyle = "white";
         context.fillText(level,lx,ly);
+
+        context.restore();
+    }
+
+
+    drawShadow(context, x, y){
+
+        let
+            shadowColor1 = "rgba(0,0,0,0.1)",
+            shadowColor2 = "rgba(0,0,0,0.15)",
+            shadowColor3 = "rgba(0,0,0,0.2)";
+
+        context.save();
+
+        context.beginPath();
+        context.fillStyle = shadowColor1;
+        context.ellipse(x + this.width/2, y+this.height-2, 20, 10, 0, 0, 2 * Math.PI);
+        context.fill();
+        context.beginPath();
+        context.fillStyle = shadowColor2;
+        context.ellipse(x + this.width/2, y+this.height-2, 17, 8, 0, 0, 2 * Math.PI);
+        context.fill();
+        context.beginPath();
+        context.fillStyle = shadowColor2;
+        context.ellipse(x + this.width/2, y+this.height-2, 15, 7, 0, 0, 2 * Math.PI);
+        context.fill();
 
         context.restore();
     }
