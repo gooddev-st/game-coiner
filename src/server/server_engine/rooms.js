@@ -54,8 +54,8 @@ const rooms = {
 
     'hell': new Room({
         ID: 'hell',
-        width: 600,
-        height: 600,
+        width: 800,
+        height: 800,
 
         environment_id: 2,
         entities_num: 100,
@@ -66,11 +66,11 @@ const rooms = {
         dead_zone_bottom: 0,
 
         coins_num: 25,
-        coins_max_limit: 45,
+        coins_max_limit: 145,
         coins_generate_interval: 0.4,
 
         teleports_num: 3,
-        cartoons_num: 51,
+        cartoons_num: 10,
     }),
 
     'paradise': new Room({

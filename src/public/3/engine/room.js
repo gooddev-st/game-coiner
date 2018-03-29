@@ -7,6 +7,7 @@ const ENVIRONMENTS = {
         r: {start: 120, rand: 10},
         g: {start: 120, rand: 16},
         b: {start: 100, rand: 5},
+        // entitiesSprites: "grass",
         entitiesSprites: "grass",
     },
     1: {
@@ -19,7 +20,7 @@ const ENVIRONMENTS = {
         r: {start: 210, rand: 45},
         g: {start: 30, rand: 75},
         b: {start: 30, rand: 75},
-        entitiesSprites: "desert",
+        entitiesSprites: "cool_plants",
     },
     3: {
         r: {start: 10, rand: 12},

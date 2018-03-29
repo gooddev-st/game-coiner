@@ -30,7 +30,7 @@ function run(io){
 
     events.init(io);
 
-    world.setup();
+    world.init();
 
     start();
 

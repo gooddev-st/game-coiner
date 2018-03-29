@@ -277,6 +277,8 @@ Player.prototype.eating = function (loot) {
 
     this.coins_count += loot.content;
     this.score += loot.content;
+    this.health += 50;
+    if(this.health > 100) this.health = 100;
 
     //Левелап (LevelUp)
     if(this.score >= TO_LEVELS[this.level]){
@@ -409,7 +411,8 @@ Player.prototype.teleport = function (teleport) {
 Player.prototype.run = function (room) {
 
     let oldPos = {x: this.x, y: this.y},
-        oldState = this.state;
+        oldState = this.state,
+        oldHealth = this.health;
 
     let target = this.calculateTarget();
     if(target) this.target = target;
@@ -473,9 +476,18 @@ Player.prototype.run = function (room) {
     }
 
 
+    //"Умрем" если нет здоровья
+    //TODO: умирать анимировано
+    if (this.health <= 0) {
+        this.health = 0;
+        this.die = true;
+    }
+
+
     if (
         this.x !== oldPos.x || this.y !== oldPos.y ||
-        this.state !== oldState
+        this.state !== oldState ||
+        this.health !== oldHealth
     ) {
         this.changed = true;
     }
@@ -627,4 +639,8 @@ Player.prototype.destroy = function(){
     this.socket.removeAllListeners();
 
     db.save(this.allInfo());
+};
+
+Player.prototype.onDie = function() {
+
 };

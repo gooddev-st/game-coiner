@@ -20,7 +20,8 @@ let s_doc = document.getElementById('s_doc'),
     s_skeleton = document.getElementById('s_skeleton'),
     s_katy = document.getElementById('s_katy'),
     s_levon = document.getElementById('s_levon'),
-    s_vitaly = document.getElementById('s_vitaly');
+    s_vitaly = document.getElementById('s_vitaly'),
+    t_cool_plants = document.getElementById('t_cool_plants');
 
 
 /**
@@ -847,6 +848,60 @@ exports.vitaly = {
             {"name": "sprite25", "x": 384, "y": 128, "width": 64, "height": 64},
             {"name": "sprite26", "x": 448, "y": 128, "width": 64, "height": 64},
             {"name": "sprite27", "x": 512, "y": 128, "width": 64, "height": 64},
+        ]
+    }
+};
+
+
+/**
+ * Классные деревья
+ */
+exports.cool_plants = {
+    "image": t_cool_plants,
+
+    "states": {
+        "default": [
+            {"name": "foliage1", "x": 519, "y": 517, "width": 64, "height": 64},
+            {"name": "foliage2_0", "x": 454, "y": 517, "width": 64, "height": 64},
+            {"name": "foliage3_0", "x": 389, "y": 517, "width": 64, "height": 64},
+            {"name": "foliage4", "x": 324, "y": 517, "width": 64, "height": 64},
+            {"name": "foliage5", "x": 259, "y": 517, "width": 64, "height": 64},
+            {"name": "foliage6", "x": 194, "y": 517, "width": 64, "height": 64},
+            {"name": "foliage7", "x": 129, "y": 517, "width": 64, "height": 64},
+            {"name": "foliage8", "x": 387, "y": 129, "width": 128, "height": 128},
+            {"name": "foliage9", "x": 387, "y": 258, "width": 128, "height": 128},
+            {"name": "palmtree1", "x": 0, "y": 388, "width": 128, "height": 128},
+            {"name": "palmtree2", "x": 129, "y": 388, "width": 128, "height": 128},
+            {"name": "palmtree3", "x": 129, "y": 0, "width": 128, "height": 128},
+            {"name": "palmtree4", "x": 387, "y": 388, "width": 128, "height": 128},
+            {"name": "palmtree5", "x": 516, "y": 0, "width": 128, "height": 128},
+            {"name": "tree1_4", "x": 516, "y": 129, "width": 128, "height": 128},
+            {"name": "tree2_1", "x": 516, "y": 258, "width": 128, "height": 128},
+            {"name": "tree4", "x": 387, "y": 0, "width": 128, "height": 128},
+            {"name": "tree5", "x": 258, "y": 259, "width": 128, "height": 128},
+            {"name": "tree-strange", "x": 129, "y": 259, "width": 128, "height": 128},
+            {"name": "palmtree6", "x": 0, "y": 0, "width": 128, "height": 129},
+            {"name": "tree6", "x": 258, "y": 129, "width": 128, "height": 128},
+            {"name": "tree7", "x": 258, "y": 0, "width": 128, "height": 128},
+            {"name": "tree8", "x": 129, "y": 130, "width": 128, "height": 128},
+            {"name": "tree9", "x": 516, "y": 387, "width": 128, "height": 97},
+            {"name": "tree3", "x": 0, "y": 259, "width": 128, "height": 128}
+        ]
+    }
+};
+
+
+/**
+ * Мертвые деревья
+ */
+exports.dead_plants = {
+    "image": t_cool_plants,
+
+    "states": {
+        "default": [
+            {"name": "deadtree1_0", "x": 0, "y": 517, "width": 128, "height": 97},
+            {"name": "deadtree2", "x": 258, "y": 388, "width": 128, "height": 128},
+            {"name": "deadtree3", "x": 0, "y": 130, "width": 128, "height": 128},
         ]
     }
 };

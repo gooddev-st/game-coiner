@@ -171,6 +171,22 @@ Room.prototype.addCoin = function (x, y, character_id, content){
 };
 
 
+Room.prototype.addCartoon = function (x, y, spriteset_id, sprite_id){
+
+    if(!spriteset_id) {
+        console.log('Пытаемся добавить картон с несуществующим spriteset_id')
+    }
+    if(!sprite_id) {
+        sprite_id = 0;
+    }
+
+    let cartoon = new Cartoon(this.ID, x, y, spriteset_id, sprite_id);
+    this.cartoons.push(cartoon);
+
+    events.common("room", "cartoon-create", {info: cartoon.info()});
+};
+
+
 //Удаляем "мертвые" монеты
 Room.prototype.cleanUp = function () {
     this.lootEach((i, it)=>{

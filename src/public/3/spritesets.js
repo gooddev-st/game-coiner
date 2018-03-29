@@ -1,5 +1,7 @@
 //Картинки спрайтов
 let t_plants = document.getElementById('t_plants');
+let s_graves = document.getElementById('s_graves');
+// let t_cool_plants = document.getElementById('t_cool_plants');
 
 
 /**
@@ -30,3 +32,21 @@ exports.bushs = [
     {"image": t_bushs, "width": 113, "height": 118, "states": {"default": [{"name": "sprite3", "x": 136, "y": 0, "width": 113, "height": 118}]}},
     {"image": t_bushs, "width": 102, "height": 140, "states": {"default": [{"name": "sprite4", "x": 0, "y": 0, "width": 102, "height": 140}]}},
 ];
+
+/**
+ * Надгробья
+ */
+exports.graves = [
+    {"image": s_graves, "width": 22, "height": 32, "states": {"default": [{"name": "sprite3", "x": 165, "y": 0, "width": 22, "height": 32},]}},
+    {"image": s_graves, "width": 28, "height": 27, "states": {"default": [{"name": "sprite5", "x": 98, "y": 2, "width": 28, "height": 27}]}},
+];
+
+/**
+ * Классные деревья
+ */
+/*
+exports.cool_plants = [
+    {"image": t_cool_plants, "width": 128, "height": 97, "states": {"default": [{"name": "deadtree1_0", "x": 0, "y": 517, "width": 128, "height": 97}]}},
+    {"image": t_cool_plants, "width": 128, "height": 128, "states": {"default": [{"name": "deadtree2", "x": 258, "y": 388, "width": 128, "height": 128}]}},
+    {"image": t_cool_plants, "width": 128, "height": 128, "states": {"default": [{"name": "deadtree3", "x": 0, "y": 130, "width": 128, "height": 128}]}},
+];*/

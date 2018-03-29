@@ -1,0 +1,9 @@
+[
+  {"name": "sprite1", "x": 64, "y": 0, "width": 31, "height": 32},
+  {"name": "sprite2", "x": 128, "y": 0, "width": 31, "height": 96},
+  {"name": "sprite3", "x": 165, "y": 0, "width": 22, "height": 32},
+  {"name": "sprite4", "x": 2, "y": 1, "width": 60, "height": 94},
+  {"name": "sprite5", "x": 98, "y": 2, "width": 28, "height": 27},
+  {"name": "sprite6", "x": 161, "y": 38, "width": 30, "height": 46},
+  {"name": "sprite7", "x": 74, "y": 52, "width": 45, "height": 44}
+]

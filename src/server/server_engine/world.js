@@ -42,7 +42,7 @@ function randomPlace(width, height){
 /**
  * Установки мира
  */
-module.exports.setup = function () {
+module.exports.init = function () {
 
     // Создаем несколько мобов для начала
     for(let i=0;i<NPC_COUNT;i++) {
@@ -78,6 +78,7 @@ module.exports.run = function () {
 module.exports.cleanUp = function () {
     npcs.each(function(i, it){
         if(it.isDie()){
+            it.onDie();
             npcs.remove(it.ID);
             events.common("room", "npc-remove", {info: it.info()});
         }

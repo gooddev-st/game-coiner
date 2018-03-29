@@ -273,6 +273,34 @@ function onRoom(event, type, data) {
     }
 
 
+    // Создание декорации
+    if(type==="cartoon-create") {
+        try {
+            if(!data.info) throw "Ошибка получения с сервера";
+
+            var info = data.info;
+
+            if (
+                info.ID == undefined ||
+                info.x == undefined ||
+                info.y == undefined ||
+                info.spriteset_id == undefined ||
+                info.sprite_id == undefined ||
+                info.room_id == undefined
+            ) throw "Ошибка получения с сервера";
+
+            if(info.room_id==room_id) {
+
+                entities.addFromSet(info.x, info.y, info.spriteset_id, info.sprite_id, 0, 0);
+            }
+        }
+        catch (e){
+            log("Ошибка получения декорации. "+e);
+            log(data);
+        }
+    }
+
+
     // Информация о луте
     if(type==="loot-info") {
         try {

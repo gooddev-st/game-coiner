@@ -143,7 +143,7 @@ Npc.prototype.teleport = function (teleport) {
 Npc.prototype.run = function (room, step) {
 
     //Сохраним старую позицию, чтоб понимать - движется ли
-    let oldX = this.x, oldY = this.y, oldState = this.state;
+    let oldX = this.x, oldY = this.y, oldState = this.state, oldHealth = this.health;
 
     let target = this.calculateTarget(room);
     if(target) this.target = target;
@@ -178,14 +178,6 @@ Npc.prototype.run = function (room, step) {
 
     }
 
-    //Выставим состояние
-    if(this.target){
-        this.state = 'run';
-    }
-    else{
-        this.state = 'default';
-    }
-
 
     // Если уперлись в границу - остановимся и поправим цель
     if (this.x < 0 + room.dead_zone_left) {
@@ -205,9 +197,26 @@ Npc.prototype.run = function (room, step) {
         this.target && (this.target.y = this.y);
     }
 
-    if(this.x !== oldX || this.y !== oldY || this.state !== oldState){
+    //"Умрем" если нет здоровья
+    //TODO: Умирать анимировано
+    if (this.health <= 0) {
+        this.health = 0;
+        this.die = true;
+    }
+
+    //Выставим состояние
+    if(this.target){
+        this.state = 'run';
+    }
+    else{
+        this.state = 'default';
+    }
+
+
+    if(this.x !== oldX || this.y !== oldY || this.state !== oldState || this.health !== oldHealth){
         this.changed = true;
     }
+
 };
 
 
@@ -410,95 +419,9 @@ Npc.prototype.targetEffects = function(){
 
     if (this.effects) {
 
-        //Толчок из определенной точки с заданной скоростью и временем
+        //Толчок
         if("push" in this.effects){
-
-            if(!this.effects.push.oldSpeed){
-                //В начале сохраним скорость цели
-                this.effects.push.oldSpeed = this.speed;
-                //И её начальную позицию
-                this.effects.push.oldX = this.x;
-                this.effects.push.oldY = this.y;
-
-                this.effects.push.faza = 0.0;
-                this.speed = this.effects.push.speed;
-            }
-
-            if (this.effects.push.faza < this.effects.push.duration) {
-
-                this.effects.push.faza += STEP;
-
-                let from = this.effects.push.from;
-
-                //Если источник под целью сдвинем цель в случайном направлении
-                if(from.x === this.x && from.y === this.y){
-                    this.x += Math.random()*10 - 5;
-                    this.y += Math.random()*10 - 5;
-                }
-
-                //Вектор перемещения
-                let increment = this.speed * STEP,
-                    x = this.x - from.x,
-                    y = this.y - from.y,
-                    l = Math.sqrt(x * x + y * y),
-                    x_increment = increment * x / l,
-                    y_increment = increment * y / l;
-
-                return {
-                    x: this.x + x_increment,
-                    y: this.y + y_increment
-                };
-            }
-
-            //По окончании восстановим скорость
-            this.speed = this.effects.push.oldSpeed;
-
-
-            //Отнимем здоровья
-            this.health -= 50;
-            if(this.health<=0){
-                this.health=0;
-                this.die = true;
-
-
-
-                //И выроним кристалл в начальной позиции
-                //со всем, что накопил
-                let content = this.content;
-                this.content = 0;
-        	//если что-то накопил - выроним
-        	let crystal_character_id = characters.CHARACTER_CRYSTAL_GREY;
-
-                if(content>0) {
-
-                    if(content < 3){
-	                crystal_character_id = characters.CHARACTER_CRYSTAL_GREY;
-    	            }
-        	    else if(content > 2 && content < 5){
-    	                crystal_character_id = characters.CHARACTER_CRYSTAL_GREEN;
-        	    }
-            	    else if(content > 4 && content < 7){
-                	crystal_character_id = characters.CHARACTER_CRYSTAL_BLUE;
-            	    }
-                    else if(content > 6 && content < 9){
-	                crystal_character_id = characters.CHARACTER_CRYSTAL_MAGENTA;
-    	            }
-        	    else if(content > 8 && content < 11){
-            	        crystal_character_id = characters.CHARACTER_CRYSTAL_YELLOW;
-            	    }
-                    else if(content > 10 && content < 13){
-	                crystal_character_id = characters.CHARACTER_CRYSTAL_RED;
-    	            }
-        	    let room = rooms.get(this.room_id);
-
-            	    room.addCoin(this.effects.push.oldX, this.effects.push.oldY, crystal_character_id, content);
-//            	    room.addCoin(this.x, this.y, crystal_character_id, content);
-        	}
-
-
-            }
-
-            delete this.effects.push;
+            return this.effects.push.run(this);
         }
 
     }
@@ -531,4 +454,42 @@ Npc.prototype.info = function(){
 
 Npc.prototype.isDie = function() {
     return this.die;
+};
+
+Npc.prototype.onDie = function() {
+    let room = rooms.get(this.room_id);
+
+    //Выроним кристалл
+    //со всем, что накопил
+    let content = this.content;
+    this.content = 0;
+    //если что-то накопил - выроним
+    let crystal_character_id = characters.CHARACTER_CRYSTAL_GREY;
+
+    if (content > 0) {
+
+        if (content < 3) {
+            crystal_character_id = characters.CHARACTER_CRYSTAL_GREY;
+        }
+        else if (content > 2 && content < 5) {
+            crystal_character_id = characters.CHARACTER_CRYSTAL_GREEN;
+        }
+        else if (content > 4 && content < 7) {
+            crystal_character_id = characters.CHARACTER_CRYSTAL_BLUE;
+        }
+        else if (content > 6 && content < 9) {
+            crystal_character_id = characters.CHARACTER_CRYSTAL_MAGENTA;
+        }
+        else if (content > 8 && content < 11) {
+            crystal_character_id = characters.CHARACTER_CRYSTAL_YELLOW;
+        }
+        else if (content > 10 && content < 13) {
+            crystal_character_id = characters.CHARACTER_CRYSTAL_RED;
+        }
+
+        room.addCoin(this.x, this.y+3, crystal_character_id, content);
+    }
+
+    let grave_id = Math.floor(Math.random()*characters.SPRITESET_GRAVES.size);
+    room.addCartoon(this.x+20, this.y, characters.SPRITESET_GRAVES.ID, grave_id);
 };

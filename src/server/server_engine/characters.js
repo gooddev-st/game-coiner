@@ -42,3 +42,7 @@ exports.SPRITESET_BUSHS = {
     ID: 'bushs',
     size: 2,
 };
+exports.SPRITESET_GRAVES = {
+    ID: 'graves',
+    size: 2,
+};

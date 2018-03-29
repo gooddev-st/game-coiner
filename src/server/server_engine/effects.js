@@ -141,6 +141,10 @@ Push.prototype.run = function (target) {
         room.addCoin(this.oldX, this.oldY);
     }
 
+    //Отнимем здоровья
+    //TODO: Отнимать в зависимости от защиты
+    target.health -= 50;
+
     //Удалим эффект
     delete target.effects.push;
 
