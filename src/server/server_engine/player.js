@@ -91,6 +91,10 @@ function Player(playerID, socket, data) {
     this.health = data.health;
 
 
+    this.skills = {};
+    this.currentSkill = null;
+
+
     this.makeEffects = {};
     this.effects = {};
 
@@ -109,6 +113,10 @@ function Player(playerID, socket, data) {
         mouseRight: false,
         click: null,
     };
+
+    this.skills['skill1'] = {id: 'push', icon: 'push', value: 0.0, increment: 100.0};
+    this.skills['skill2'] = {id: 'freeze', icon: 'freeze', value: 0.0, increment: 100.0};
+    this.currentSkill = 'skill1';
 
     this.init();
 }
@@ -224,20 +232,43 @@ Player.prototype.init = function () {
         this.socket.disconnect(true);
         db.save(this.allInfo());
     });
+
+    this.socket.on('skill-change',(skill_id)=>{
+        if(this.skills[skill_id]){
+            this.currentSkill = skill_id;
+        }
+    });
 };
 
 Player.prototype.fire = function () {
-    //TODO: Шарахать в зависимости от выбранного для атаки эффекта
 
-    effects.push('push', {from: {room_id: this.room_id, x: this.x, y: this.y}, author: this});
+    if(!this.currentSkill || !this.skills[this.currentSkill]) return;
 
-    events.common('entity', 'push-effect', {
-        room_id: this.room_id,
-        x: this.x + 20,
-        y: this.y + 30,
-    });
+    const skill = this.skills[this.currentSkill];
 
-    sound_event.add('push-effect', this.room_id, this.x, this.y);
+    if(skill.value === 100.0) {
+        skill.value = 0.0;
+        events.one(this.socket, "skills", "update", this.skills);
+
+
+        if(skill.id==='push') {
+            effects.push('push', {from: {room_id: this.room_id, x: this.x, y: this.y}, author: this});
+
+            events.common('entity', 'push-effect', {
+                room_id: this.room_id,
+                x: this.x + 20,
+                y: this.y + 30,
+            });
+
+            sound_event.add('push-effect', this.room_id, this.x, this.y);
+        }
+
+        if(skill.id==='freeze'){
+            console.log('Freeeeeeez!');
+        }
+
+
+    }
 };
 
 
@@ -403,12 +434,34 @@ Player.prototype.teleport = function (teleport) {
 };*/
 
 
+Player.prototype.updateSkillsValues = function () {
+    let changed = false;
+
+    for(let skill_id in this.skills){
+        let oldValue = this.skills[skill_id].value;
+
+        this.skills[skill_id].value += this.skills[skill_id].increment*STEP;
+        if(this.skills[skill_id].value > 100.0){
+            this.skills[skill_id].value = 100.0;
+        }
+
+        if(this.skills[skill_id].value != oldValue){
+            changed = true;
+        }
+    }
+
+    if(changed) events.one(this.socket, "skills", "update", this.skills);
+};
+
+
 /**
  * Движение игрока по контроллеру в комнате
  * @param room
  * @param step
  */
 Player.prototype.run = function (room) {
+
+    this.updateSkillsValues();
 
     let oldPos = {x: this.x, y: this.y},
         oldState = this.state,

@@ -284,3 +284,62 @@ h1{
 #top10-panel .value{
     float: right;
 }
+
+/* Скилы */
+
+.skills-panel{
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 40vw;
+    height: 65px;
+    min-width: 100px;
+    margin-left: -20vw;
+    overflow: hidden;
+    background: rgba(30,30,30,0.6);
+    padding: 2px 2px 0 2px;
+    border-radius: 6px 6px 0 0;
+}
+.skills-panel>div{
+    border: 1px solid #ffb800;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    overflow: hidden;
+    padding: 2px 4px 0 2px;
+
+}
+.skills-panel .skill{
+    width: 56px;
+    height: 56px;
+    border: none;
+    margin: 2px 0 2px 2px;
+    float: left;
+    background-color: #000;
+    position: relative;
+}
+
+.skills-panel .skill.active{
+    border: 2px solid rgba(255, 0, 8, 0.75);
+    border-radius: 2px;
+    margin: 0 -2px 0 0;
+}
+
+.skills-panel .veko{
+    position: absolute;
+    background: rgba(0,0,0,0.8);
+    top: 0;
+    width: 56px;
+    height: 0px;
+    transition: height .1s ease-in-out;
+}
+.skills-panel .veko.value0{height: 100%;}
+.skills-panel .veko.value10{height: 90%;}
+.skills-panel .veko.value20{height: 80%;}
+.skills-panel .veko.value30{height: 70%;}
+.skills-panel .veko.value40{height: 60%;}
+.skills-panel .veko.value50{height: 50%;}
+.skills-panel .veko.value60{height: 40%;}
+.skills-panel .veko.value70{height: 30%;}
+.skills-panel .veko.value80{height: 20%;}
+.skills-panel .veko.value90{height: 10%;}
+/* Конец Скилы */

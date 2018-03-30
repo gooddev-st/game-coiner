@@ -100,6 +100,8 @@ function start(callback) {
         }
     });
 
+    ui.skills.start();
+
     ui.top10.start();
 
 
@@ -132,6 +134,10 @@ function stop() {
 
     events.off("click");
     events.off("coin");
+
+    ui.skills.stop();
+
+    ui.top10.stop();
 
     finalCallback();
 }

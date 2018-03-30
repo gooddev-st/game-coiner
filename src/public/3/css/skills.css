@@ -1,0 +1,305 @@
+.arcane-sceptre {
+    background: url('../i/skills.png') no-repeat -0px -57px;
+    width: 56px;
+    height: 56px;
+}
+.attack_mask {
+    background: url('../i/skills.png') no-repeat -285px -0px;
+    width: 56px;
+    height: 56px;
+}
+.beam-arcane {
+    background: url('../i/skills.png') no-repeat -57px -0px;
+    width: 56px;
+    height: 56px;
+}
+.beam-cold {
+    background: url('../i/skills.png') no-repeat -57px -57px;
+    width: 56px;
+    height: 56px;
+}
+.beam-fire {
+    background: url('../i/skills.png') no-repeat -0px -114px;
+    width: 56px;
+    height: 56px;
+}
+.beam-light {
+    background: url('../i/skills.png') no-repeat -57px -114px;
+    width: 56px;
+    height: 56px;
+}
+.black-hole {
+    background: url('../i/skills.png') no-repeat -114px -0px;
+    width: 56px;
+    height: 56px;
+}
+.blizzard-1 {
+    background: url('../i/skills.png') no-repeat -114px -57px;
+    width: 56px;
+    height: 56px;
+}
+.blizzard-2 {
+    background: url('../i/skills.png') no-repeat -114px -114px;
+    width: 56px;
+    height: 56px;
+}
+.blizzard-3 {
+    background: url('../i/skills.png') no-repeat -0px -171px;
+    width: 56px;
+    height: 56px;
+}
+.book-ancient {
+    background: url('../i/skills.png') no-repeat -57px -171px;
+    width: 56px;
+    height: 56px;
+}
+.book-arcane {
+    background: url('../i/skills.png') no-repeat -114px -171px;
+    width: 56px;
+    height: 56px;
+}
+.book-magic {
+    background: url('../i/skills.png') no-repeat -171px -0px;
+    width: 56px;
+    height: 56px;
+}
+.book-secret {
+    background: url('../i/skills.png') no-repeat -171px -57px;
+    width: 56px;
+    height: 56px;
+}
+.book-spell {
+    background: url('../i/skills.png') no-repeat -171px -114px;
+    width: 56px;
+    height: 56px;
+}
+.cold-fire {
+    background: url('../i/skills.png') no-repeat -171px -171px;
+    width: 56px;
+    height: 56px;
+}
+.cure-1 {
+    background: url('../i/skills.png') no-repeat -0px -228px;
+    width: 56px;
+    height: 56px;
+}
+.cure-2 {
+    background: url('../i/skills.png') no-repeat -57px -228px;
+    width: 56px;
+    height: 56px;
+}
+.cure-3 {
+    background: url('../i/skills.png') no-repeat -114px -228px;
+    width: 56px;
+    height: 56px;
+}
+.dagger-1 {
+    background: url('../i/skills.png') no-repeat -171px -228px;
+    width: 56px;
+    height: 56px;
+}
+.dagger-2 {
+    background: url('../i/skills.png') no-repeat -228px -0px;
+    width: 56px;
+    height: 56px;
+}
+.dagger-3 {
+    background: url('../i/skills.png') no-repeat -228px -57px;
+    width: 56px;
+    height: 56px;
+}
+.dragon-blade-1 {
+    background: url('../i/skills.png') no-repeat -228px -114px;
+    width: 56px;
+    height: 56px;
+}
+.dragon-blade-2 {
+    background: url('../i/skills.png') no-repeat -228px -171px;
+    width: 56px;
+    height: 56px;
+}
+.dragon-blade-3 {
+    background: url('../i/skills.png') no-repeat -228px -228px;
+    width: 56px;
+    height: 56px;
+}
+.earth-1 {
+    background: url('../i/skills.png') no-repeat -0px -285px;
+    width: 56px;
+    height: 56px;
+}
+.earth-2 {
+    background: url('../i/skills.png') no-repeat -57px -285px;
+    width: 56px;
+    height: 56px;
+}
+.earth-3 {
+    background: url('../i/skills.png') no-repeat -114px -285px;
+    width: 56px;
+    height: 56px;
+}
+.entangle-1 {
+    background: url('../i/skills.png') no-repeat -171px -285px;
+    width: 56px;
+    height: 56px;
+}
+.entangle-2 {
+    background: url('../i/skills.png') no-repeat -228px -285px;
+    width: 56px;
+    height: 56px;
+}
+.entangle-3 {
+    background: url('../i/skills.png') no-repeat -0px -0px;
+    width: 56px;
+    height: 56px;
+}
+.explosion-1 {
+    background: url('../i/skills.png') no-repeat -285px -57px;
+    width: 56px;
+    height: 56px;
+}
+.explosion-2 {
+    background: url('../i/skills.png') no-repeat -285px -114px;
+    width: 56px;
+    height: 56px;
+}
+.explosion-3 {
+    background: url('../i/skills.png') no-repeat -285px -171px;
+    width: 56px;
+    height: 56px;
+}
+.flare {
+    background: url('../i/skills.png') no-repeat -285px -228px;
+    width: 56px;
+    height: 56px;
+}
+.meteor {
+    background: url('../i/skills.png') no-repeat -285px -285px;
+    width: 56px;
+    height: 56px;
+}
+.needles {
+    background: url('../i/skills.png') no-repeat -0px -342px;
+    width: 56px;
+    height: 56px;
+}
+.push {
+    background: url('../i/skills.png') no-repeat -57px -342px;
+    width: 56px;
+    height: 56px;
+}
+.push-mega {
+    background: url('../i/skills.png') no-repeat -114px -342px;
+    width: 56px;
+    height: 56px;
+}
+.push-super {
+    background: url('../i/skills.png') no-repeat -171px -342px;
+    width: 56px;
+    height: 56px;
+}
+.push-ultra {
+    background: url('../i/skills.png') no-repeat -228px -342px;
+    width: 56px;
+    height: 56px;
+}
+.plague {
+    background: url('../i/skills.png') no-repeat -285px -342px;
+    width: 56px;
+    height: 56px;
+}
+.freeze {
+    background: url('../i/skills.png') no-repeat -342px -0px;
+    width: 56px;
+    height: 56px;
+}
+.star-fire {
+    background: url('../i/skills.png') no-repeat -342px -57px;
+    width: 56px;
+    height: 56px;
+}
+.sun {
+    background: url('../i/skills.png') no-repeat -342px -114px;
+    width: 56px;
+    height: 56px;
+}
+.sword-arcane {
+    background: url('../i/skills.png') no-repeat -342px -171px;
+    width: 56px;
+    height: 56px;
+}
+.sword-cold {
+    background: url('../i/skills.png') no-repeat -342px -228px;
+    width: 56px;
+    height: 56px;
+}
+.sword-dark {
+    background: url('../i/skills.png') no-repeat -342px -285px;
+    width: 56px;
+    height: 56px;
+}
+.sword-fire {
+    background: url('../i/skills.png') no-repeat -342px -342px;
+    width: 56px;
+    height: 56px;
+}
+.sword-gold {
+    background: url('../i/skills.png') no-repeat -0px -399px;
+    width: 56px;
+    height: 56px;
+}
+.sword-holy {
+    background: url('../i/skills.png') no-repeat -57px -399px;
+    width: 56px;
+    height: 56px;
+}
+.terror-1 {
+    background: url('../i/skills.png') no-repeat -114px -399px;
+    width: 56px;
+    height: 56px;
+}
+.terror-2 {
+    background: url('../i/skills.png') no-repeat -171px -399px;
+    width: 56px;
+    height: 56px;
+}
+.terror-3 {
+    background: url('../i/skills.png') no-repeat -228px -399px;
+    width: 56px;
+    height: 56px;
+}
+.thunder-1 {
+    background: url('../i/skills.png') no-repeat -285px -399px;
+    width: 56px;
+    height: 56px;
+}
+.thunder-2 {
+    background: url('../i/skills.png') no-repeat -342px -399px;
+    width: 56px;
+    height: 56px;
+}
+.thunder-3 {
+    background: url('../i/skills.png') no-repeat -399px -0px;
+    width: 56px;
+    height: 56px;
+}
+.wind-1 {
+    background: url('../i/skills.png') no-repeat -399px -57px;
+    width: 56px;
+    height: 56px;
+}
+.wind-2 {
+    background: url('../i/skills.png') no-repeat -399px -114px;
+    width: 56px;
+    height: 56px;
+}
+.wind-3 {
+    background: url('../i/skills.png') no-repeat -399px -171px;
+    width: 56px;
+    height: 56px;
+}
+.wings {
+    background: url('../i/skills.png') no-repeat -399px -228px;
+    width: 56px;
+    height: 56px;
+}
