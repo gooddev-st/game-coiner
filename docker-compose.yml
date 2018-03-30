@@ -8,7 +8,8 @@ services:
         working_dir: /home/node/app/server
         container_name: game-server
         volumes:
-            - ./src:/home/node/app
+            - ./serversrc:/home/node/app/server
+            - ./static:/home/node/app/public
         environment:
             VIRTUAL_HOST: games.q-dev.ru
             TZ: Europe/Moscow
@@ -36,7 +37,6 @@ services:
             MYSQL_PASSWORD: BYYdHfX36W9yBFyM
         container_name: game-db
         volumes:
-            #- ./db/data/:/var/lib/mysql
             - /srv/db-data/games:/var/lib/mysql
         restart: always
 

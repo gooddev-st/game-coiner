@@ -1,9 +1,12 @@
+var path = require("path");
+
 module.exports = {
 
     context: __dirname,
-    entry: './client',
+    entry: './index',
     output:{
-        filename: 'client_build.js'
+        path: path.resolve(__dirname, '../public/js'),
+        filename: 'client.js'
     },
     module: {
         rules: [

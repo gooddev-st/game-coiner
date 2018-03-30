@@ -4,11 +4,11 @@ WORKDIR /home/node/app
 
 RUN npm install -g nodemon
 
-COPY src/server/package*.json ./
+COPY serversrc/package*.json ./server/
 
 RUN npm install
 
-COPY src/ /home/node/app
+COPY serversrc/ /home/node/app/server/
 
 EXPOSE 3000
 
