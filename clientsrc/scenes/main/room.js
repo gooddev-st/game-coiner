@@ -1,6 +1,6 @@
 //Настройки рандомных цветов комнаты
 
-import sprites from "../sprites.js";
+import sprites from "../../sprites";
 
 const ENVIRONMENTS = {
     0: {

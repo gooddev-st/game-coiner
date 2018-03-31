@@ -1,4 +1,9 @@
-//Картинки спрайтов
+/**
+ * Наборы спрайтов
+ */
+
+
+//Картинки
 let t_plants = document.getElementById('t_plants');
 let s_graves = document.getElementById('s_graves');
 let s_campfire = document.getElementById('s_campfire');

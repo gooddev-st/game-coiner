@@ -2,8 +2,8 @@
  * @class Unit
  *
  */
-import {STEP} from "../constants";
-import characters from "../characters";
+import {STEP} from "../../constants";
+import characters from "../../characters";
 
 const CHARACTER_DEFAULT = 'blond';
 

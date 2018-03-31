@@ -1,16 +1,16 @@
 /**
  * События игры
  */
-import account from "../account";
+import account from "./account";
 
 export default {init, add, on, off}
 
 // Серверный сокет
 import io from "socket.io-client";
 
-import log from "../logs.js";
+import log from "./logs.js";
 
-import ui from "./ui/ui.js";
+import ui from "./engine/ui/ui.js";
 
 // Подключение к серверу
 let serverSocket = null;

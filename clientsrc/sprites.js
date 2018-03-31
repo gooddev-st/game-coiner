@@ -1,4 +1,8 @@
-//Картинки спрайтов
+/**
+ * Спрайты
+ */
+
+//Картинки
 let s_doc = document.getElementById('s_doc'),
     s_prof = document.getElementById('s_prof'),
     s_gob = document.getElementById('s_gob'),

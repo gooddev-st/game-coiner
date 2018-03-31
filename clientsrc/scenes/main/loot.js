@@ -1,10 +1,10 @@
-import characters from "../characters";
+import characters from "../../characters";
 
 /**
- * @class Teleport
+ * @class Loot
  */
 export default class {
-    constructor(room_id, x, y, character_id, ID, target, state, width, height){
+    constructor(room_id, x, y, character_id, ID, width, height){
         this.ID = ID;
         this.room_id = room_id;
         this.x = x;
@@ -13,28 +13,21 @@ export default class {
         this.width = width;
         this.height = height;
 
-        this.character = characters.get(character_id) || characters.get('teleport');
+        this.character = characters.get(character_id) || characters.get('coin_gold');
 
-        this.state = state;
+        this.state = 'default';
 
         this.animateSpeed = 14;
         this.faza = 0;
         this.currentSpriteNum = 0;
-
-        this.target = {
-            room_id: target.room_id,
-            x: target.x,
-            y: target.y
-        }
     }
 
-    set(state){
-
-        if(this.state !== state){
-            this.faza = 0;
-            this.currentSpriteNum = 0;
-            this.state = state;
-        }
+    set(room_id, x, y, character_id, ID){
+        this.ID = ID;
+        this.room_id = room_id;
+        this.x = x;
+        this.y = y;
+        this.character = characters.get(character_id) || characters.get('coin_gold');
     }
 
     draw(camera){
@@ -50,6 +43,7 @@ export default class {
         let x = (this.x-(this.character.width-this.width)/2) - camera.x,
             y = (this.y-this.character.height+this.height) - camera.y;
 
+
         // не рисуем вне камеры
         if(
             x < -this.character.width ||
@@ -59,6 +53,7 @@ export default class {
         ) {
             return true;
         }
+
 
         this.character.draw(camera.context, x, y, this.state, this.currentSpriteNum, this.width, this.height);
 

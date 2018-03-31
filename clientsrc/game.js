@@ -2,7 +2,7 @@ import ui from "./engine/ui/ui.js";
 
 import account from "./account.js";
 
-import events from "./engine/events.js"
+import events from "./events.js"
 
 import signIn from "./scenes/signin";
 

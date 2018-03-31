@@ -1,11 +1,7 @@
-import characters from "./characters";
-import spritesets from "./spritesets";
+import characters from "../../characters";
+import Entity from "./entity";
 
 export default {add, addFromSet, remove, reset, size, each}
-
-import Entity from "./engine/entity";
-import Character from "./engine/character";
-import sprites from "./sprites";
 
 const entities = [];
 

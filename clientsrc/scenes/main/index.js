@@ -1,18 +1,17 @@
 import * as constants from "../../constants";
 import log from "../../logs"
-import Camera from "../../engine/camera";
-import units from "../../units";
-import events from "../../engine/events";
-import hero from '../../engine/hero';
-import Unit from "../../engine/unit";
-import Teleport from "../../engine/teleport";
-import Room from "../../engine/room";
-import Loot from "../../engine/loot";
-import ui from "../../engine/ui/ui";
-import controller from "../../engine/controller";
+import Camera from "./camera";
+import units from "./units";
+import events from "../../events";
+import hero from './hero';
+import Unit from "./unit";
+import Teleport from "./teleport";
+import Room from "./room";
+import Loot from "./loot";
+import ui from "./ui/ui";
+import controller from "./controller";
 import sounds from "../../sounds";
-import entities from "../../entities";
-import Entity from "../../engine/entity";
+import entities from "./entities";
 
 /**
  * Основная сцена - собственно игра

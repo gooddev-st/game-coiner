@@ -5,7 +5,7 @@
 
 
 // подключим события
-import events from './events.js'
+import events from '../../events.js'
 
 
 const keys = {

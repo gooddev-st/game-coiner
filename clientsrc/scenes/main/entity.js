@@ -2,7 +2,7 @@
  * @class Entity
  *
  */
-import {STEP} from "../constants";
+import {STEP} from "../../constants";
 
 export default class Entity{
 
