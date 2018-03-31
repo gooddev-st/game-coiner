@@ -21,7 +21,7 @@ let serverSocket = null;
  */
 function init() {
     if(!serverSocket) {
-        serverSocket = io();
+        serverSocket = io("http://server.games.q-dev.ru");
     }
     serverSocket.connect();
 

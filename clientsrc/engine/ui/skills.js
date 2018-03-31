@@ -34,6 +34,8 @@ function start() {
     skillsPanel.addEventListener('mouseup', onMouseUp, false);
     skillsPanel.addEventListener('mousedown', onMouseDown, false);
 
+
+    //Обновление иконок и готовности умений
     events.on('skills', (eventName, type, data)=>{
         if(type==='update'){
             for(const skill_id in data) {
@@ -63,7 +65,7 @@ function start() {
 }
 
 function stop() {
-    skillsPanel.removeEventListener('mousedown', onMouseDo, false);
+    skillsPanel.removeEventListener('mousedown', onMouseDown, false);
     skillsPanel.removeEventListener('mouseup', onMouseUp, false);
     skillsPanel.style.display = 'none';
 }

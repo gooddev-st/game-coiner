@@ -5,7 +5,7 @@ module.exports = {
     context: __dirname,
     entry: './index',
     output:{
-        path: path.resolve(__dirname, '../public/js'),
+        path: path.resolve(__dirname, '../static/js'),
         filename: 'client.js'
     },
     module: {

@@ -2,6 +2,19 @@ version: '3'
 
 services:
 
+    static-web:
+        image: nginx:alpine
+        container_name: static-web
+        volumes:
+            - ./static:/usr/share/nginx/html
+        environment:
+            VIRTUAL_HOST: games.q-dev.ru
+            TZ: Europe/Moscow
+            HTTPS_METHOD: nohttps
+        expose:
+            - "80"
+        restart: always
+
     game-server:
         build: .
         user: "node"
@@ -9,9 +22,8 @@ services:
         container_name: game-server
         volumes:
             - ./serversrc:/home/node/app/server
-            - ./static:/home/node/app/public
         environment:
-            VIRTUAL_HOST: games.q-dev.ru
+            VIRTUAL_HOST: server.games.q-dev.ru
             TZ: Europe/Moscow
             HTTPS_METHOD: nohttps
             NODE_ENV: production
