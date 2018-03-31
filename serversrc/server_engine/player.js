@@ -264,7 +264,7 @@ Player.prototype.fire = function () {
         }
 
         if(skill.id==='freeze'){
-            console.log('Freeeeeeez!');
+            effects.push('freeze', {from: {room_id: this.room_id, x: this.x, y: this.y}, author: this});
         }
 
 
@@ -623,6 +623,11 @@ Player.prototype.targetEffects = function(){
         //Толчок
         if("push" in this.effects){
             return this.effects.push.run(this);
+        }
+
+        //Заморозка
+        if("freeze" in this.effects){
+            return this.effects.freeze.run(this);
         }
 
     }

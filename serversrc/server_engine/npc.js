@@ -423,6 +423,10 @@ Npc.prototype.targetEffects = function(){
         if("push" in this.effects){
             return this.effects.push.run(this);
         }
+        //Заморозка
+        if("freeze" in this.effects){
+            return this.effects.freeze.run(this);
+        }
 
     }
 

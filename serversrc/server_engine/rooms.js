@@ -21,7 +21,7 @@ const rooms = {
         dead_zone_left: 10,
         dead_zone_top: 80,
         dead_zone_right: 10,
-        dead_zone_bottom: 0,
+        dead_zone_bottom: 60,
 
         coins_num: 200,
         coins_max_limit: 100,
@@ -42,7 +42,7 @@ const rooms = {
         dead_zone_left: 10,
         dead_zone_top: 80,
         dead_zone_right: 10,
-        dead_zone_bottom: 0,
+        dead_zone_bottom: 60,
 
         coins_num: 30,
         coins_max_limit: 30,
@@ -63,7 +63,7 @@ const rooms = {
         dead_zone_left: 10,
         dead_zone_top: 60,
         dead_zone_right: 10,
-        dead_zone_bottom: 0,
+        dead_zone_bottom: 60,
 
         coins_num: 25,
         coins_max_limit: 145,
@@ -84,7 +84,7 @@ const rooms = {
         dead_zone_left: 10,
         dead_zone_top: 80,
         dead_zone_right: 10,
-        dead_zone_bottom: 0,
+        dead_zone_bottom: 60,
 
         coins_num: 30,
         coins_max_limit: 30,
@@ -105,7 +105,7 @@ const rooms = {
         dead_zone_left: 10,
         dead_zone_top: 80,
         dead_zone_right: 10,
-        dead_zone_bottom: 0,
+        dead_zone_bottom: 60,
 
         coins_num: 30,
         coins_max_limit: 30,
@@ -126,7 +126,7 @@ const rooms = {
         dead_zone_left: 10,
         dead_zone_top: 80,
         dead_zone_right: 10,
-        dead_zone_bottom: 0,
+        dead_zone_bottom: 60,
 
         coins_num: 0,
         coins_max_limit: 0,
