@@ -12,6 +12,7 @@ import ui from "./ui/ui";
 import controller from "./controller";
 import sounds from "../../sounds";
 import entities from "./entities";
+import account from "../../account";
 
 /**
  * Основная сцена - собственно игра
@@ -59,13 +60,17 @@ function start(callback) {
     window.addEventListener('resize', () => {camera.resize();});
 
 
+    //Запросим аватара
+    events.add('need-avatar');
+
+    events.on("signout",()=>{
+        account.signout();
+        events.disconnect();
+        stop()
+    });
+
     events.on("disconnect", ()=>{
         stop();
-        units.reset();
-        loots = {};
-        hero.unit = null;
-        entities.reset();
-        ui.top10.stop();
     });
 
     events.on("reconnect", onReconnect);
@@ -107,7 +112,7 @@ function start(callback) {
     /**
      * Основной цикл
      */
-    interval = setInterval(() => {
+    interval = setInterval(_ => {
 
         // Перемещение, управляемое на клиенте
         update();
@@ -126,6 +131,7 @@ function start(callback) {
 
 function stop() {
     clearInterval(interval);
+
     events.off("reconnect", onReconnect);
     events.off("room", onRoom);
     events.off("hero");
@@ -133,6 +139,11 @@ function stop() {
 
     events.off("click");
     events.off("coin");
+
+    units.reset();
+    loots = {};
+    hero.unit = null;
+    entities.reset();
 
     ui.skills.stop();
 

@@ -32,7 +32,7 @@ export default class Unit{
 
         this.state = data.state || 'default';
 
-        this.name = data.ID;
+        this.name = data.name;
 
         this.level = data.level;
         this.coins_count = data.coins_count;
@@ -57,7 +57,7 @@ export default class Unit{
         this.y = data.y;
         this.character = characters.get(data.character_id) || characters.get(CHARACTER_DEFAULT);
 
-        this.name = data.ID;
+        this.name = data.name;
 
         if(this.state !== data.state){
             this.faza = 0;

@@ -6,6 +6,8 @@ module.exports = Player;
 
 require('./constants.js')();
 
+const log = require('./log');
+
 const events = require("./events.js");
 const players = require("./players.js");
 const rooms = require("./rooms.js");
@@ -57,14 +59,17 @@ function getRandomCharacter() {
 
 /**
  * Игрок
- * @param playerID
+ * @param id
+ * @param name
  * @param socket
- * @param data: Array
+ * @param data
  * @constructor
  */
-function Player(playerID, socket, data) {
+function Player(id, name, socket, data) {
 
-    this.ID = playerID;
+    this.db_id = id
+    this.ID = 'avatar'+id;
+    this.name = name;
     this.socket = socket;
 
     this.room_id = data.room_id;
@@ -118,15 +123,18 @@ function Player(playerID, socket, data) {
     this.skills['skill2'] = {id: 'freeze', icon: 'freeze', value: 0.0, increment: 100.0};
     this.currentSkill = 'skill1';
 
-    this.init();
+    this.alredyInit = false;
 }
 
 
 
 Player.prototype.init = function () {
 
+    if(this.alredyInit) return;
+    this.alredyInit = true;
+
     //Отправим героя
-    events.one(this.socket, "hero", "hero-create", {info: this.allInfo(), message: "Выдан герой "+this.ID});
+    events.one(this.socket, "hero", "hero-create", {info: this.allInfo(), message: "Выдан герой "+this.name});
 
     //Отправим комнату, в которой герой
     let room = rooms.get(this.room_id);
@@ -158,7 +166,7 @@ Player.prototype.init = function () {
 
 
     //Заявим, что пришел игрок
-    events.not_me(this.socket, "room", "player-create", {info: this.commonInfo(), message: "Пришел игрок[" + this.ID + "]"});
+    events.not_me(this.socket, "room", "player-create", {info: this.commonInfo(), message: "Пришел игрок[" + this.name + "]"});
 
 
     //Навесим обработчики
@@ -226,11 +234,6 @@ Player.prototype.init = function () {
         this.controller.down = false;
         this.controller.click = false;
         this.target = false;
-    });
-
-    this.socket.on('signout', (data) => {
-        this.socket.disconnect(true);
-        db.save(this.allInfo());
     });
 
     this.socket.on('skill-change',(skill_id)=>{
@@ -341,7 +344,7 @@ Player.prototype.eating = function (loot) {
 
     events.common("entity", "remove-coin", {room_id: loot.room_id, x: x, y: y});
 
-    db.save(this.allInfo());
+    db.updateAvatar(this.info());
     this.changed = true;
 }
 
@@ -378,7 +381,7 @@ Player.prototype.teleport = function (teleport) {
         y: y,
     });
 
-    db.save(this.allInfo());
+    db.updateAvatar(this.info());
     this.changed = true;
 }
 
@@ -637,12 +640,38 @@ Player.prototype.targetEffects = function(){
 
 
 /**
+ * Возвращает информацию об игроке для db
+ */
+Player.prototype.info = function(){
+    return {
+        id: this.db_id,
+        name: this.name,
+        character_id: this.character_id,
+
+        coins_count: this.coins_count,
+
+        level: this.level,
+        score: this.score,
+
+        speed: this.speed,
+
+        room_id: this.room_id,
+        x: this.x,
+        y: this.y,
+
+        health: this.health,
+    }
+};
+
+
+/**
  * Возвращает общедоступную информацию об игроке
  * @returns {{ID: *, x: *, y: *, character_id: *, state: *, level: *, room_id: *}}
  */
 Player.prototype.commonInfo = function(){
     return {
         ID: this.ID,
+        name: this.name,
 
         room_id: this.room_id,
         x: this.x,
@@ -668,6 +697,7 @@ Player.prototype.commonInfo = function(){
 Player.prototype.allInfo = function(){
     return {
         ID: this.ID,
+        name: this.name,
         x: this.x,
         y: this.y,
         character_id: this.character_id,
@@ -690,14 +720,16 @@ Player.prototype.allInfo = function(){
     }
 };
 
+
 Player.prototype.destroy = function(){
 
-    events.not_me(this.socket, "room", "player-leave", {room_id: this.room_id, ID: this.ID, message: "Игрок["+this.ID+"] покинул этот мир"});
+    events.not_me(this.socket, "room", "player-leave", {room_id: this.room_id, ID: this.ID, message: "Игрок["+this.name+"] покинул этот мир"});
 
     this.socket.removeAllListeners();
 
-    db.save(this.allInfo());
+    db.updateAvatar(this.info());
 };
+
 
 Player.prototype.onDie = function() {
 

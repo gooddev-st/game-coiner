@@ -9,7 +9,13 @@ const waitScreenElement = document.getElementById("loading");
 export default {show, hide}
 
 
-function show() {
+function show(title) {
+    if(title){
+        let titleElement = waitScreenElement.querySelector('.title');
+        if(titleElement){
+            titleElement.innerHTML = title;
+        }
+    }
     waitScreenElement.style.display = 'block';
 }
 

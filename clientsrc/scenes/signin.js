@@ -1,31 +1,44 @@
+import account from "../account";
+
 export default {start, stop};
 
 
 const login_panelElement = document.getElementById("login-panel");
 const login_formElement = document.getElementById("login-form");
 const login_inputElement = document.getElementById("login-input");
+const password_inputElement = document.getElementById("password-input");
 
 
 let finalCallback = null;
 
-let timeout = null;
+let
+    timeout = null,
+    timeout_p = null;
 
 
 // Выведем окно авторизации. Модальное
-function start(login, callback) {
+function start(callback) {
 
     finalCallback = callback;
 
-    if(login && login_inputElement){
-        login_inputElement.value = login
+    //Получим из локал стора
+    let userAccount = account.get();
+
+    //если есть - ок
+    if(userAccount) {
+        finalCallback(userAccount);
     }
+    //иначе - запросим
+    else{
 
-    document.addEventListener("click", clickHandler, false);
-    document.addEventListener("keyup", keyupHandler, false);
+        document.addEventListener("click", clickHandler, false);
+        document.addEventListener("keyup", keyupHandler, false);
 
-    show();
+        show();
 
-    login_inputElement.focus();
+        login_inputElement.focus();
+    }
+    
 }
 
 
@@ -42,12 +55,22 @@ function keyupHandler(e) {
     let obj = e.target || e.srcElement;
     let key = e.keyCode;
 
-    if(key==13 && validate(login_inputElement.value)){
+    //Если Enter и без проблем
+    if(key===13 && validate(login_inputElement.value, password_inputElement.value)){
 
         stop();
-        finalCallback(login_inputElement.value);
+        // Получив сохраним
+        const accountData = {login: login_inputElement.value, password: password_inputElement.value};
+        account.set(accountData);
+        
+        finalCallback(accountData);
 
     }
+    //Если таб - по-умолчанию
+    else if (key===9){
+
+    }
+
     else if (
         //символы разрешенные в логине
     /^[a-zA-Z0-9 +.\-_:"()]*?$/.test(obj.value) &&
@@ -62,18 +85,34 @@ function keyupHandler(e) {
 }
 
 // Проверка введенного и индикация ошибки
-function validate(login) {
+function validate(login, password) {
 
-    if(login.length>0) return true;
+    if(login.length===0) {
+        login_inputElement.focus();
+        login_inputElement.style.backgroundColor = '#ff0008';
+        clearTimeout(timeout);
+        timeout = setTimeout(function () {
+            login_inputElement.style.backgroundColor = '#f4cb4a';
+        }, 200);
+        
+        return false;
+    }
 
+    if(password.length===0) {
+        password_inputElement.focus();
+        password_inputElement.style.backgroundColor = '#ff0008';
+        clearTimeout(timeout_p);
+        timeout_p = setTimeout(function () {
+            password_inputElement.style.backgroundColor = '#f4cb4a';
+        }, 200);
 
-    login_inputElement.style.backgroundColor='#ff0008';
-    clearTimeout(timeout);
-    timeout = setTimeout(function () {
-        login_inputElement.style.backgroundColor='#f4cb4a';
-    }, 200);
+        return false;
+    }
+    
+    return true;
 
 }
+
 
 // Обработка кликов
 function clickHandler(e) {
@@ -81,14 +120,28 @@ function clickHandler(e) {
 
 
     // Если нажали "Войти" и логин норм - запустим функцию входа
-    if(target.id=='login-button' && validate(login_inputElement.value)){
+    if(target.id==='login-button' && validate(login_inputElement.value, password_inputElement.value)){
 
         stop();
 
-        finalCallback(login_inputElement.value);
+        const accountData = {login: login_inputElement.value, password: password_inputElement.value};
+        account.set(accountData);
+
+        finalCallback(accountData);
+    }
+    else if(target.id==='login-input' || target.id==='password-input'){
+
     }
     else {
-        login_inputElement.focus();
+        if(login_inputElement.value==='') {
+            login_inputElement.focus();
+        }
+        else if(password_inputElement.value===''){
+            password_inputElement.focus();
+        }
+        else {
+            login_inputElement.focus();
+        }
     }
 
     e.preventDefault();

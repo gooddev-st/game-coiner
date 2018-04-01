@@ -12,16 +12,16 @@ export default {start, stop}
 const skillsPanel = document.getElementById("skills-panel");
 
 const skillsElements = {
-    skill1: document.getElementById("skill1-veko"),
-    skill2: document.getElementById("skill2-veko"),
-    skill3: document.getElementById("skill3-veko"),
-    skill4: document.getElementById("skill4-veko"),
-    skill5: document.getElementById("skill5-veko"),
-    skill6: document.getElementById("skill6-veko"),
-    skill7: document.getElementById("skill7-veko"),
-    skill8: document.getElementById("skill8-veko"),
-    skill9: document.getElementById("skill9-veko"),
-    skill10: document.getElementById("skill10-veko"),
+    skill1: document.getElementById("skill1"),
+    skill2: document.getElementById("skill2"),
+    skill3: document.getElementById("skill3"),
+    skill4: document.getElementById("skill4"),
+    skill5: document.getElementById("skill5"),
+    skill6: document.getElementById("skill6"),
+    skill7: document.getElementById("skill7"),
+    skill8: document.getElementById("skill8"),
+    skill9: document.getElementById("skill9"),
+    skill10: document.getElementById("skill10"),
 };
 const allSkills = document.querySelectorAll(".skill");
 
@@ -34,6 +34,9 @@ function start() {
     skillsPanel.addEventListener('mouseup', onMouseUp, false);
     skillsPanel.addEventListener('mousedown', onMouseDown, false);
 
+    //Если смена умения - сменим
+    events.on('skill-change', (eventName,ID)=>selectSkill(ID));
+
 
     //Обновление иконок и готовности умений
     events.on('skills', (eventName, type, data)=>{
@@ -44,13 +47,15 @@ function start() {
                     let skill = skillsElements[skill_id];
 
                     //Иконка соответствующая умению
-                    let iconElement = skill.parentElement.querySelector('.skill-icon');
+                    let iconElement = skill.querySelector('.skill-icon');
+                    //"Веко" умения
+                    let vekoElement = skill.querySelector('.veko');
                     iconElement.className="";
                     iconElement.classList.add('skill-icon');
                     iconElement.classList.add(data[skill_id].icon);
 
 
-                    const classList = skill.classList;
+                    const classList = vekoElement.classList;
 
                     while (classList.length > 0) {
                         classList.remove(classList.item(0));
@@ -71,6 +76,15 @@ function stop() {
 }
 
 
+function selectSkill(ID) {
+    if(skillsElements[ID]){
+        allSkills.forEach(skill => skill.classList.remove("active"));
+        skillsElements[ID].classList.add("active");
+    }
+
+}
+
+
 function onMouseDown(e){
     let target = e.target || e.srcElement;
 
@@ -84,11 +98,8 @@ function onMouseDown(e){
         target.classList.contains("skill")
     ){
         if(!target.classList.contains("active")){
-            allSkills.forEach(skill => skill.classList.remove("active"));
-            target.classList.add("active");
-
-            //Запросим переключение текущего скила
             events.add('skill-change', target.id);
+
         }
         events.add("keydown", "fire");
     }

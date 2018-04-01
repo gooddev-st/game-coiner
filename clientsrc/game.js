@@ -1,10 +1,6 @@
 import ui from "./engine/ui/ui.js";
 
-import account from "./account.js";
-
-import events from "./events.js"
-
-import signIn from "./scenes/signin";
+import events from "./events.js";
 
 import sceneMain from "./scenes/main/index.js"
 
@@ -22,52 +18,26 @@ export default {run}
     function run() {
 
         // Пишем "Загрузка"
-        ui.waitScreen.show();
+        ui.waitScreen.show('Старт игры');
 
 
         // Подключаемся к серверу
-        events.init();
+        events.init(function () {
 
-        events.on("server", (event, type, data)=>{
+            //TODO: Перед стартом - выбор персонажа, если не выбран
 
-            if (type == "hello") {
+            // Стартуем основную сцену
+            sceneMain.start(_ => {
 
-                let login = account.getUser();
-
-                if(!login) {
-
-                    // запросим логин
-                    signIn.start(login, (login) => {
-
-                        // Получив сохраним
-                        account.setUser(login);
-
-                        start(login);
-
-                    });
-                }
-                else{
-                    start(login);
-                }
-            }
-
+                gameover();
+            });
         });
 
-    }
 
 
-    function start(login) {
-        // отправим логин серверу
-        events.add('login', login);
-
-        // Стартуем основную сцену
-        sceneMain.start(() => {
-
-            gameover();
-        });
     }
 
 
     function gameover(){
-        ui.waitScreen.show();
+        ui.waitScreen.show('Game Over');
     }

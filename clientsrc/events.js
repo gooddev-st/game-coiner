@@ -1,29 +1,62 @@
 /**
  * События игры
  */
-import account from "./account";
-
-export default {init, add, on, off}
-
-// Серверный сокет
-import io from "socket.io-client";
-
 import log from "./logs.js";
+
+import io from "socket.io-client";
 
 import ui from "./engine/ui/ui.js";
 
+import account from "./account";
+import signIn from "./scenes/signin";
+
+
+export default {init, add, on, off, disconnect}
+
 // Подключение к серверу
 let serverSocket = null;
+
+let logged = false;
 
 
 /**
  * Инитим игровые события
  */
-function init() {
+function init(callback) {
+
+    //Подключимся к серверу
     if(!serverSocket) {
         serverSocket = io("http://server.games.q-dev.ru");
     }
+
+    log('Подключаемся к серверу');
     serverSocket.connect();
+
+    on("server", (eventName, type)=>{
+
+        if (type === "hello") {
+            //Если ещё не вошли
+            if (!logged) {
+
+                //Получаем от пользователя аккаунт
+                signIn.start(function (account) {
+
+                    // отправим аккаунт серверу
+                    add('login', account);
+
+                    //После успешного входа (Если неуспешный - сервер опять пошлет hello)
+                    on('logged', (eventName, type, data)=>{
+                        if(type==='success') {
+                            logged = true;
+                            off('logged');
+                            callback();
+                        }
+                    });
+                });
+            }
+        }
+
+    });
 
     // Действия при серверных проблемах
     serverSocket.on('connect_error', function () {
@@ -36,10 +69,19 @@ function init() {
         log('Вы отключены от сервера');
 
         ui.waitScreen.show();
+        logged = false;
 
         setTimeout(function () {
-            init();
-        }, 500);
+            init(callback);
+        }, 1000);
+    });
+
+
+    on("another-coming", () => {
+        log('Вы отключены от сервера');
+
+        //TODO: Вместо экрана ожидания - Окно с кнопкой - подключиться - по которой init(callback);
+        ui.waitScreen.show();
     });
 
 }
@@ -105,10 +147,9 @@ function runHandlers(eventName, data) {
             h(eventName, data);
         }
     }
-
-    if(eventName==="signout"){
-        account.signout();
-    }
+}
 
 
+function disconnect() {
+    serverSocket.close();
 }

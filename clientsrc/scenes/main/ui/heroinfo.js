@@ -20,10 +20,10 @@ const healthElement = document.getElementById("hero_health");
 
 function start() {
     hero_infoElement.style.display = 'block';
-    window.addEventListener('click', onClick, false);
+    window.addEventListener('mouseup', onClick, false);
 }
 function stop(){
-    window.removeEventListener('click', onClick, false);
+    window.removeEventListener('mouseup', onClick, false);
 }
 
 
@@ -31,7 +31,7 @@ function onClick(e){
 
     let target = e.target || e.srcElement;
 
-    if(target.id && target.id=="signout_button"){
+    if(target.id && target.id==="signout_button"){
         e.stopPropagation();
         e.preventDefault();
 
@@ -49,7 +49,7 @@ function onClick(e){
  * @param login
  */
 function update(info){
-    hero_nameElement && (hero_nameElement.innerText = info.ID);
+    hero_nameElement && (hero_nameElement.innerText = info.name);
     scoreElement && (scoreElement.innerText = info.coins_count);
     levelElement && (levelElement.innerText = info.level);
     speedElement && (speedElement.innerText = info.speed);

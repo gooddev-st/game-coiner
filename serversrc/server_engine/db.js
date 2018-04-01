@@ -1,11 +1,9 @@
 const mysql = require('mysql');
-
-module.exports.save = save;
-module.exports.get = get;
-module.exports.getStatistic = getStatistic;
+const moment = require('moment');
+const log = require('./log');
 
 
-var pool = mysql.createPool({
+const pool = mysql.createPool({
     host: process.env.MYSQL_HOST,
     database: process.env.MYSQL_DATABASE,
     user: process.env.MYSQL_USER,
@@ -13,7 +11,12 @@ var pool = mysql.createPool({
     connectionLimit: 100,
 });
 
-
+/**
+ * Обвязка для удобства
+ * @param sql
+ * @param props
+ * @returns {Promise<any>}
+ */
 function query(sql, props) {
 
     return new Promise((resolve, reject)=>{
@@ -23,11 +26,9 @@ function query(sql, props) {
             connection.query(sql, props, (err, res)=>{
                 if(err){
                     reject(err);
-                    // return cb(err);
                 }
                 else{
                     resolve(res);
-                    // return cb(res);
                 }
             });
 
@@ -37,82 +38,118 @@ function query(sql, props) {
 }
 
 
-function create(data) {
+/**
+ * Создаем пользователя
+ * @param account
+ * @param avatarID
+ */
+module.exports.createUser = function (account, avatarID) {
 
-    query("INSERT INTO users SET ?", data)
+    const data = {
+        login: account.login,
+        password: account.password,
+        current_avatar: avatarID,
+        lastvisit: moment().format("YYYY-MM-DD HH:mm:ss")
+    };
+
+    query("INSERT INTO user SET ?", data)
         .then(()=>{})
         .catch((err)=>{
-            console.log("Ошибка записи игрока "+data.ID)
-            console.log(err);
+            log("Ошибка записи игрока "+data.ID);
+            log(err);
         });
-}
+};
 
-function update(data) {
 
-    query("UPDATE users SET ? WHERE ID=?", [data, data.ID])
+/**
+ * Создаем аватар, возвращаем созданный id
+ * @param data
+ * @param callback
+ */
+module.exports.createAvatar = function(data, callback) {
+
+    query("INSERT INTO avatar SET ?", data)
+        .then((res)=>{
+            callback(res.insertId);
+        })
+        .catch((err)=>{
+            log("Ошибка создания аватара "+data.ID);
+            log(err);
+        });
+};
+
+
+module.exports.updateAvatar = function (data) {
+
+    query("UPDATE avatar SET ? WHERE id=?", [data, data.id])
         .then(()=>{})
         .catch( (err)=>{
 
-        console.log("Ошибка записи игрока "+data.ID)
-        console.log(err);
+        log("Ошибка записи аватара "+data.ID);
+        log(err);
     });
-}
+};
 
-function save(data) {
 
-    get(data.ID, (res)=>{
+/**
+ * Возвращает пользователя по login/password
+ * @param account
+ * @param callback
+ */
+module.exports.getUser = function(account, callback) {
+    if(!account || !account.login || !account.password){
+        log("Нет логина/пароля");
+        log(account.login);
+        callback([]);
+    }
 
-        const d = {
-            ID: data.ID,
-
-            room_id: data.room_id,
-            x: data.x,
-            y: data.y,
-
-            score: data.score,
-            level: data.level,
-
-            character_id: data.character_id,
-
-            coins_count: data.coins_count,
-            health: data.health,
-
-            speed: data.speed,
-
-        };
-
-        if(res.length){
-            update(d);
-        }
-        else{
-            create(d);
-        }
-    });
-}
-
-//
-function get(id, callback) {
-    query("SELECT * FROM users WHERE ID=?", [id])
+    query("SELECT\
+          *\
+        FROM user\
+        WHERE login=?\
+        AND password=?", [account.login, account.password])
         .then((res)=>{
             callback(res);
         })
         .catch((err)=> {
-            console.log("Ошибка чтения игрока " + id);
-            console.log(err);
+            log("Ошибка чтения игрока " + account.login);
+            log(err);
+            callback([]);
         });
-}
+};
+
+
+/**
+ * Возвращает аватара по id
+ * @param id
+ * @param callback
+ */
+module.exports.getAvatar = function (id, callback) {
+    query("SELECT\
+          *\
+        FROM avatar\
+        WHERE id=?", [id])
+        .then((res)=>{
+            callback(res);
+        })
+        .catch((err)=> {
+            log("Ошибка чтения аватара " + id);
+            log(err);
+        });
+};
+
 
 /**
  * Статистика сервера
  * @param callback: function(info:object)
  */
-function getStatistic(callback) {
-    query("SELECT ID, level, score FROM users ORDER BY score DESC LIMIT 10")
+module.exports.getStatistic = function(callback) {
+    query("SELECT name AS ID, level, score FROM avatar ORDER BY score DESC LIMIT 10")
         .then((res)=>{
             callback(res);
         })
         .catch((err)=> {
-            console.log("Ошибка чтения статистики ");
-            console.log(err);
+            log("Ошибка чтения статистики ");
+            log(err);
         });
-}
+};

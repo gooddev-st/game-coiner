@@ -19,6 +19,17 @@ const keys = {
     D: 68, //D
     S: 83, // S
 
+    N1: 49,
+    N2: 50,
+    N3: 51,
+    N4: 52,
+    N5: 53,
+    N6: 54,
+    N7: 55,
+    N8: 56,
+    N9: 57,
+    N0: 48,
+
     SPACE: 32, //Огонь!
 
     STATISTIC: 73 // "I"
@@ -97,6 +108,36 @@ function onKeydown(e) {
         case keys.SPACE:
             events.add('keydown', 'fire');
             break;
+        case keys.N1:
+            events.add('skill-change', 'skill1');
+            break;
+        case keys.N2:
+            events.add('skill-change', 'skill2');
+            break;
+        case keys.N3:
+            events.add('skill-change', 'skill3');
+            break;
+        case keys.N4:
+            events.add('skill-change', 'skill4');
+            break;
+        case keys.N5:
+            events.add('skill-change', 'skill5');
+            break;
+        case keys.N6:
+            events.add('skill-change', 'skill6');
+            break;
+        case keys.N7:
+            events.add('skill-change', 'skill7');
+            break;
+        case keys.N8:
+            events.add('skill-change', 'skill8');
+            break;
+        case keys.N9:
+            events.add('skill-change', 'skill9');
+            break;
+        case keys.N0:
+            events.add('skill-change', 'skill10');
+            break;
     }
 }
 
@@ -129,6 +170,36 @@ function onKeyup(e) {
         case keys.STATISTIC:
             events.add('keyup', 'statistic');
             break;
+        /*case keys.N1:
+            events.add('keyup', 'skill1');
+            break;
+        case keys.N2:
+            events.add('keyup', 'skill2');
+            break;
+        case keys.N3:
+            events.add('keyup', 'skill3');
+            break;
+        case keys.N4:
+            events.add('keyup', 'skill4');
+            break;
+        case keys.N5:
+            events.add('keyup', 'skill5');
+            break;
+        case keys.N6:
+            events.add('keyup', 'skill6');
+            break;
+        case keys.N7:
+            events.add('keyup', 'skill7');
+            break;
+        case keys.N8:
+            events.add('keyup', 'skill8');
+            break;
+        case keys.N9:
+            events.add('keyup', 'skill9');
+            break;
+        case keys.N0:
+            events.add('keyup', 'skill10');
+            break;*/
     }
 }
 

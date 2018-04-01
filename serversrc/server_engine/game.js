@@ -8,13 +8,14 @@ module.exports.run = run;
 //Константы
 require('./constants.js')();
 
-const Player = require('./player.js');
+const User = require('./user');
 const events = require('./events.js');
 const sound_event = require('./sound_event.js');//звуковые события
 
 const world = require('./world.js');
 const rooms = require('./rooms.js');
 const npcs = require('./npcs.js');
+const users = require("./users"); //Пользователи
 const players = require("./players.js");//,// игроки
 const effects = require("./effects.js");
 
@@ -26,7 +27,11 @@ const log = require("./log.js");
     var mainTimer = null;
 
 
-function run(io){
+/**
+ * Старт игры
+ * @param io
+ */
+function run(io) {
 
     events.init(io);
 
@@ -34,26 +39,45 @@ function run(io){
 
     start();
 
-    //При новом подключении игрока
+    //При новом подключении
     io.on('connection', (socket) => {
 
-        let player = null;
+        let user = null;
 
-        events.one(socket, "server", "hello", {type: "hello", message: "Добро пожаловать на сервер игры в монеты"});
+        //Отправим приветствие (уведомление об ожидании логина)
+        events.one(socket, "server", "hello", {message: "Добро пожаловать на сервер игры в монеты"});
 
-        socket.on('login', (playerID) => {
+        //При получении логина
+        socket.on('login', (account) => {
+
+            login(account, socket, (addedUser, message) => {
+                user = addedUser;
+
+                events.one(socket, "logged", "success", {message: message});
+
+                //При получении запроса на аватара
+                socket.on('need-avatar', _ => {
 
 
-            login(playerID, socket, (playerID, addedPlayer) => {
-                player = addedPlayer;
+                    //"Покажем" аватара клиенту
+                    user.avatar.init();
+
+                    players.add(user.avatar.ID, user.avatar);
+                });
             });
 
         });
 
         socket.on('disconnect', () => {
-            if(player)
-            {
-                logout(player.ID);
+            if (user) {
+
+                user.avatar && user.avatar.destroy();
+
+                players.remove(user.avatar.ID);
+
+                if(users.get(user.login)){
+                    users.remove(user.login);
+                }
             }
 
         });
@@ -62,72 +86,104 @@ function run(io){
 
 
 //логин
-function login(login, socket, callback) {
-    let player;
+function login(account, socket, callback) {
 
-    // Если есть с таким логином - отдаем этого
-    if(player = players.get(login)){
 
-        //Старого дисконектим
-        events.one(player.socket, 'payer', 'disconnected', {message: "Кто-то вошел с тем же логином"});
-        player.socket.disconnect(true);
+    let user = users.get(account.login);
 
-        //Пристегиваем к плееру новый сокет
-        player.reset(socket);
+    // Если есть вошедший с таким логином и сокетом - отдаем этого
+    if(user && socket===user.socket){
 
-        callback(login, player);
+        callback(user, "пользователь уже авторизован");
+
     }
     else{
 
-        //Посмотрим в БД
-        db.get(login, (res)=>{
-            let data;
+        //Посмотрим в БД такого пользователя (типа авторизация)
+        db.getUser(account, (res)=>{
+            let userData;
 
+            //Если есть
             if(res.length>0){
-                data = res[0];
+
+                //Если уже вошли с таким акком и это не тот же
+                // - дисконнектим старого и коннектим нового
+                if(user){
+                    events.one(user.socket, 'another-coming', 'simple', {message: "Кто-то вошел с тем же логином"});
+                    user.socket.disconnect(true);
+
+                    //Пристегиваем к пользователю новый сокет
+                    user.reset(socket);
+                }
+
+                userData = {
+                    current_avatar: res[0].current_avatar
+                };
+
+                user = new User( account, socket, userData );
+
+                db.getAvatar(user.avatarID, (res)=>{
+                    user.makeAvatar(res[0]);
+
+                    users.add(account.login, user);
+
+                    callback(user, "успешный вход");
+                });
             }
+
+            //Если нет - создадим и вернем
+                //TODO: Тут можно сделать выбор аватара
             else{
-                //Для нового игрока
-                data = {
-                    x: PLAYER_START_X,
-                    y: PLAYER_START_Y,
-                    room_id: PLAYER_START_ROOM,
 
-                    score: 0,
-                    level: 1,
-
+                //Параметры нового аватара
+                const avatarData = {
+                    name: account.login,
                     character_id: false, //Выдаст случайный
-                    speed: PLAYER_START_SPEED,
 
                     coins_count: 0,
 
+                    level: 1,
+                    score: 0,
+
+                    speed: PLAYER_START_SPEED,
+
+                    room_id: PLAYER_START_ROOM,
+                    x: PLAYER_START_X,
+                    y: PLAYER_START_Y,
+
                     health: PLAYER_START_HEALTH,
+
                 };
+
+                log('Создадим аватара');
+                log(avatarData);
+
+                //Создадим аватара
+                db.createAvatar(avatarData, (avatarID) => {
+
+                    //Создадим пользователя
+                    //TODO: тут можно бы ругаться на отсутствие игрока или уже существующий логин
+                    db.createUser(account, avatarID);
+
+                    userData = {
+                        current_avatar: avatarID,
+                    };
+
+                    user = new User(account, socket, userData);
+
+                    avatarData.ID = 'avatar'+avatarID;
+                    user.makeAvatar(avatarData);
+
+                    users.add(account.login, user);
+
+                    log('создан новый пользователь: [' + account.login + ']');
+
+                    callback(user, "создан новый пользователь");
+                });
+
             }
-
-            player = new Player( login, socket, data );
-
-            players.add(login, player);
-
-            // log('создан новый ' + name + '. ' + socket.id);
-            db.save(player.allInfo());
-
-            callback(login, player);
         });
 
-    }
-}
-
-
-function logout(login) {
-    let player;
-
-
-    if(player = players.get(login)){
-
-        player.destroy();
-
-        players.remove(login);
     }
 }
 
