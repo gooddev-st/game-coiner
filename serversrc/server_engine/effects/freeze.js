@@ -2,7 +2,7 @@ const rooms = require("../rooms");
 
 module.exports = Freeze;
 /**
- * Эффект толчка
+ * Эффект Заморозки
  * @param from
  * @param author
  * @constructor
@@ -12,7 +12,7 @@ function Freeze(from, author) {
 
     this.from = from;
     this.speed = 0;
-    this.duration = 2.0;
+    this.duration = 3.0;
     this.distance = 200;
     this.entity = 'freeze-effect';
     this.sound = 'freeze-effect';
@@ -64,15 +64,6 @@ Freeze.prototype.run = function (target) {
 
     if(!this.started){
         this.started = true;
-
-        //В начале сохраним скорость цели
-        this.oldSpeed = target.speed;
-
-        //Зададим цели скорость эффекта
-        target.speed = this.speed;
-
-        //Отнимем здоровья
-        target.hit(20);
     }
 
     if (this.faza < this.duration) {
@@ -84,9 +75,6 @@ Freeze.prototype.run = function (target) {
             y: target.y
         };
     }
-
-    //По окончании восстановим скорость
-    target.speed = this.oldSpeed;
 
     //Сбросим цель движения
     target.target = false;

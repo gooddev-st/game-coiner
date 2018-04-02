@@ -9,6 +9,7 @@ const sounds = {
     "teleport": new Sound('sound/teleport/flaunch.wav'),
     "push-effect": new Sound('sound/hit/dropLeather.ogg'),
     "freeze-effect": new Sound('sound/hit/frost.wav'),
+    "holera-effect": new Sound('sound/hit/frost.wav'),
 };
 
 export default sounds;

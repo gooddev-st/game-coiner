@@ -1,4 +1,5 @@
 /**
+ *
  * Модуль игрока
  * @type {Player}
  */
@@ -123,6 +124,7 @@ function Player(id, name, socket, data) {
 
     this.skills['skill1'] = {id: 'push', icon: 'push', value: 0.0, increment: 100.0};
     this.skills['skill2'] = {id: 'freeze', icon: 'freeze', value: 0.0, increment: 100.0};
+    this.skills['skill3'] = {id: 'holera', icon: 'holera', value: 0.0, increment: 50.0};
     this.currentSkill = 'skill1';
 
     this.alredyInit = false;
@@ -272,6 +274,12 @@ Player.prototype.fire = function () {
             effects.push('freeze', {from: {room_id: this.room_id, x: this.x, y: this.y}, author: this});
 
             sound_event.add('freeze-effect', this.room_id, this.x, this.y);
+        }
+
+        if(skill.id==='holera'){
+            effects.push('holera', {from: {room_id: this.room_id, x: this.x, y: this.y}, author: this});
+
+            sound_event.add('holera-effect', this.room_id, this.x, this.y);
         }
 
 
@@ -554,7 +562,7 @@ Player.prototype.run = function (room) {
     //TODO: умирать анимировано
     if (this.health <= 0) {
         this.health = 0;
-        this.die = true;
+        this.kill();
     }
 
 
@@ -565,6 +573,11 @@ Player.prototype.run = function (room) {
     ) {
         this.changed = true;
     }
+};
+
+
+Player.prototype.kill = function(){
+    this.die = true;
 };
 
 
@@ -649,6 +662,11 @@ Player.prototype.targetEffects = function(){
         //Заморозка
         if("freeze" in this.effects){
             return this.effects.freeze.run(this);
+        }
+
+        //Холера
+        if("holera" in this.effects){
+            return this.effects.holera.run(this);
         }
 
     }

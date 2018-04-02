@@ -435,6 +435,11 @@ Npc.prototype.targetEffects = function(){
             return this.effects.freeze.run(this);
         }
 
+        //Холера
+        if("holera" in this.effects){
+            return this.effects.holera.run(this);
+        }
+
     }
 
     return null;

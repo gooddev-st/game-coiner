@@ -1,5 +1,6 @@
 const Push = require("./effects/push");
 const Freeze = require("./effects/freeze");
+const Holera = require("./effects/holera");
 
 const effects = [];
 
@@ -15,6 +16,11 @@ module.exports.push = function (name, properties) {
             new Freeze(properties.from, properties.author)
         );
     }
+    if(name==="holera"){
+        effects.push(
+            new Holera(properties.from, properties.author)
+        );
+    }
 
 };
 
@@ -25,9 +31,11 @@ module.exports.push = function (name, properties) {
 module.exports.shift = function () {
     return effects.shift();
 };
+
 module.exports.list = function () {
     return effects;
 };
+
 module.exports.size = function () {
     return effects.length;
 };

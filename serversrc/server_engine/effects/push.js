@@ -65,14 +65,14 @@ Push.prototype.run = function (target) {
         this.started = true;
 
         //В начале сохраним скорость цели
-        this.oldSpeed = target.speed;
+        // this.oldSpeed = target.speed;
 
         //И её начальную позицию
         this.oldX = target.x;
         this.oldY = target.y;
 
         //Зададим цели скорость эффекта
-        target.speed = this.speed;
+        // target.speed = this.speed;
     }
 
     if (this.faza < this.duration) {
@@ -93,14 +93,14 @@ Push.prototype.run = function (target) {
             x_increment = increment * x / l,
             y_increment = increment * y / l;
 
-        return {
-            x: target.x + x_increment,
-            y: target.y + y_increment
-        };
+        target.x += x_increment;
+        target.y += y_increment;
+        target.change = true;
+        return null;
     }
 
     //По окончании восстановим скорость
-    target.speed = this.oldSpeed;
+    // target.speed = this.oldSpeed;
 
     //Сбросим цель движения
     target.target = false;

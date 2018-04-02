@@ -373,7 +373,7 @@ function onRoom(event, type, data) {
 
 
     // Информация о телепортах
-    if(type=="teleport-info") {
+    if(type==="teleport-info") {
         try {
             if(!data.info) throw "Ошибка получения с сервера";
 
@@ -400,7 +400,7 @@ function onRoom(event, type, data) {
 
 
     // Создание нового моба
-    if(type=="npc-create") {
+    if(type==="npc-create") {
         try {
             if(!data.info) throw "Ошибка получения с сервера";
 
@@ -427,7 +427,7 @@ function onRoom(event, type, data) {
 
 
     // Информация о мобе
-    if(type=="npc-info") {
+    if(type==="npc-info") {
         try {
             if(!data.info) throw "Ошибка получения с сервера";
 
@@ -466,6 +466,8 @@ function onRoom(event, type, data) {
                 info.room_id == undefined
             ) throw "Ошибка получения с сервера";
 
+            let unit = units.item(info.ID);
+            unit.destroy();
             units.remove(info.ID);
 
         }

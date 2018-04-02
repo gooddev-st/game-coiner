@@ -88,7 +88,13 @@ export default class Unit{
             if(effects[i] in this.effects===false) {
 
                 if (effects[i] === 'freeze') {
-                    let entity = new Entity(this.x + this.width / 2, this.y + 18, characters.get('blackboom'), .5, 0.0);
+                    let entity = new Entity(this.x + this.width / 2, this.y + 18, characters.get('blackboom'), 0.0, 0.0);
+                    this.effects[effects[i]] = entity;
+                    entities.addOne(entity);
+                }
+
+                if (effects[i] === 'holera') {
+                    let entity = new Entity(this.x + this.width / 2, this.y + 18, characters.get('blackboom_big'), 0.0, 0.0);
                     this.effects[effects[i]] = entity;
                     entities.addOne(entity);
                 }
@@ -291,5 +297,13 @@ export default class Unit{
         context.fill();
 
         context.restore();
+    }
+
+
+    destroy(){
+        for(let effectID in this.effects){
+            this.effects[effectID].kill();
+            delete this.effects[effectID];
+        }
     }
 }
