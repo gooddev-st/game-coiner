@@ -268,6 +268,8 @@ Player.prototype.fire = function () {
 
         if(skill.id==='freeze'){
             effects.push('freeze', {from: {room_id: this.room_id, x: this.x, y: this.y}, author: this});
+
+            sound_event.add('freeze-effect', this.room_id, this.x, this.y);
         }
 
 

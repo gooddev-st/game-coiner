@@ -19,4 +19,12 @@ export default class {
     stop(){
         this.sound.pause();
     }
+
+    init(){
+        this.sound.volume = 0.0;
+        this.sound.play();
+        this.sound.pause();
+        this.sound.volume = 0.4;
+        this.sound.currentTime = 0;
+    }
 }
