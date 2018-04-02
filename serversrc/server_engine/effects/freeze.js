@@ -12,7 +12,7 @@ function Freeze(from, author) {
 
     this.from = from;
     this.speed = 0;
-    this.duration = 1.0;
+    this.duration = 2.0;
     this.distance = 200;
     this.entity = 'freeze-effect';
     this.sound = 'freeze-effect';
@@ -47,6 +47,7 @@ Freeze.prototype.attach = function(targets){
 
                 //Применим
                 targets[id].effects[this.name] = new Freeze(this.from, this.author);
+                targets[id].change = true;
             }
         }
     }
@@ -69,6 +70,9 @@ Freeze.prototype.run = function (target) {
 
         //Зададим цели скорость эффекта
         target.speed = this.speed;
+
+        //Отнимем здоровья
+        target.hit(20);
     }
 
     if (this.faza < this.duration) {
@@ -87,12 +91,9 @@ Freeze.prototype.run = function (target) {
     //Сбросим цель движения
     target.target = false;
 
-    //Отнимем здоровья
-    //TODO: Отнимать в зависимости от защиты
-    target.health -= 5;
-
     //Удалим эффект
     delete target.effects[this.name];
+    target.change = true;
 
     return null;
 };

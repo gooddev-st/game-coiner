@@ -26,7 +26,8 @@ let s_doc = document.getElementById('s_doc'),
     s_levon = document.getElementById('s_levon'),
     s_vitaly = document.getElementById('s_vitaly'),
     t_cool_plants = document.getElementById('t_cool_plants'),
-    t_andstones = document.getElementById('t_andstones');
+    t_andstones = document.getElementById('t_andstones'),
+    s_blackboom = document.getElementById('s_blackboom');
 
 
 /**
@@ -930,6 +931,41 @@ exports.andstones = {
             {"name": "08", "x": 65, "y": 99, "width": 64, "height": 32},
             {"name": "09", "x": 0, "y": 132, "width": 64, "height": 32},
             {"name": "10", "x": 65, "y": 132, "width": 64, "height": 32}
+        ]
+    }
+};
+
+
+/**
+ * Черный взрыв
+ */
+exports.blackboom = {
+    "image": s_blackboom,
+    "width": 50,
+    "height": 47,
+    "speed": 30,
+
+    "states": {
+        "default": [
+            {"name": "smoke_black_1_19_1", "x": 0, "y": 47, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_2", "x": 0, "y": 141, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_3", "x": 50, "y": 0, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_4", "x": 50, "y": 47, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_5", "x": 0, "y": 94, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_6", "x": 50, "y": 94, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_7", "x": 100, "y": 0, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_8", "x": 100, "y": 47, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_9", "x": 100, "y": 94, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_10", "x": 0, "y": 0, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_11", "x": 50, "y": 141, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_12", "x": 100, "y": 141, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_13", "x": 150, "y": 0, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_14", "x": 150, "y": 47, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_15", "x": 150, "y": 94, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_16", "x": 150, "y": 141, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_17", "x": 0, "y": 188, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_18", "x": 50, "y": 188, "width": 50, "height": 47},
+            {"name": "smoke_black_1_19_19", "x": 100, "y": 188, "width": 50, "height": 47}
         ]
     }
 };

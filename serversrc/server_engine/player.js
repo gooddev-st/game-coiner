@@ -103,6 +103,8 @@ function Player(id, name, socket, data) {
     this.makeEffects = {};
     this.effects = {};
 
+    this.damage = 0;
+
     //Есть ли изменения для отсылки
     this.changed = true;
 
@@ -313,8 +315,7 @@ Player.prototype.eating = function (loot) {
 
     this.coins_count += loot.content;
     this.score += loot.content;
-    this.health += 50;
-    if(this.health > 100) this.health = 100;
+    this.hit(-50);
 
     //Левелап (LevelUp)
     if(this.score >= TO_LEVELS[this.level]){
@@ -385,7 +386,7 @@ Player.prototype.teleport = function (teleport) {
 
     db.updateAvatar(this.info());
     this.changed = true;
-}
+};
 
 
 /**
@@ -456,6 +457,15 @@ Player.prototype.updateSkillsValues = function () {
     }
 
     if(changed) events.one(this.socket, "skills", "update", this.skills);
+};
+
+/**
+ * Удар по игроку
+ * @param hitPoints
+ */
+Player.prototype.hit = function (hitPoints) {
+    //TODO: Защита, щиты и пр.
+    this.damage += hitPoints;
 };
 
 
@@ -533,6 +543,12 @@ Player.prototype.run = function (room) {
         this.target && (this.target.y = this.y);
     }
 
+
+    //Применим урон (если с минусом - лечение)
+    this.health -= this.damage;
+    this.damage = 0;
+
+    if(this.health > 100) this.health = 100;
 
     //"Умрем" если нет здоровья
     //TODO: умирать анимировано
@@ -671,6 +687,12 @@ Player.prototype.info = function(){
  * @returns {{ID: *, x: *, y: *, character_id: *, state: *, level: *, room_id: *}}
  */
 Player.prototype.commonInfo = function(){
+    const effects = [];
+
+    for(let effectID in this.effects){
+        effects.push(effectID);
+    }
+
     return {
         ID: this.ID,
         name: this.name,
@@ -688,6 +710,8 @@ Player.prototype.commonInfo = function(){
         level: this.level,
 
         health: this.health,
+
+        effects: effects,
     }
 };
 
@@ -697,6 +721,12 @@ Player.prototype.commonInfo = function(){
  * @returns {{ID: *, x: *, y: *, character_id: *, state: *, coins_count: *, score: *, level: *, levelupValue: *, levelupCounter: *, speed: *, room_id: *, width: *, height: *}}
  */
 Player.prototype.allInfo = function(){
+    const effects = [];
+
+    for(let effectID in this.effects){
+        effects.push(effectID);
+    }
+
     return {
         ID: this.ID,
         name: this.name,
@@ -718,7 +748,9 @@ Player.prototype.allInfo = function(){
         room_id: this.room_id,
 
         width: this.width,
-        height: this.height
+        height: this.height,
+
+        effects: effects,
     }
 };
 

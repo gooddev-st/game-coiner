@@ -114,10 +114,11 @@ Push.prototype.run = function (target) {
 
     //Отнимем здоровья
     //TODO: Отнимать в зависимости от защиты
-    target.health -= 50;
+    target.hit(50);
 
     //Удалим эффект
     delete target.effects.push;
+    target.change = true;
 
     return null;
 };

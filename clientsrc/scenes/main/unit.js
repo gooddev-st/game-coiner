@@ -4,6 +4,8 @@
  */
 import {STEP} from "../../constants";
 import characters from "../../characters";
+import entities from "./entities";
+import Entity from "./entity";
 
 const CHARACTER_DEFAULT = 'blond';
 
@@ -41,6 +43,8 @@ export default class Unit{
 
         this.health = data.health;
 
+        this.effects = [];//TODO: Применять при создании
+
         this.animateSpeed = 14; //TODO: вынести в character
         this.faza = 0;
         this.currentSpriteNum = 0;
@@ -72,6 +76,36 @@ export default class Unit{
 
         this.health = data.health;
 
+        this.updateEffects(data.effects);
+
+    }
+
+    updateEffects(effects){
+        let existsEffect = {};
+
+        for(let i in effects){
+            //Если новый эффект - создадим
+            if(effects[i] in this.effects===false) {
+
+                if (effects[i] === 'freeze') {
+                    let entity = new Entity(this.x + this.width / 2, this.y + 18, characters.get('blackboom'), .5, 0.0);
+                    this.effects[effects[i]] = entity;
+                    entities.addOne(entity);
+                }
+
+            }
+            existsEffect[effects[i]] = true;
+        }
+
+        //По окончании эффекта - уберем
+        for(let effectID in this.effects){
+            if(effectID in existsEffect===false){
+                this.effects[effectID].kill();
+                delete this.effects[effectID];
+
+            }
+        }
+
     }
 
     animate(){
@@ -83,6 +117,12 @@ export default class Unit{
         if (this.currentSpriteNum < 0 || this.currentSpriteNum >= this.character.sprite.states[this.state].length) {
             this.faza = 0;
             this.currentSpriteNum = 0;
+        }
+
+        //Анимация эффектов
+        for(let i in this.effects){
+            this.effects[i].x = this.x+this.width/2;
+            this.effects[i].y = this.y+18;
         }
     }
 

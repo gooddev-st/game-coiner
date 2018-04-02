@@ -84,6 +84,8 @@ function Npc(ID, x, y, room_id, character_id, speed) {
 
     this.effects = {}; //Эффекты
 
+    this.damage = 0;
+
     this.die = false;
 }
 
@@ -98,8 +100,7 @@ Npc.prototype.eating = function (loot) {
         // this.content.push(loot.character_id);
     }
 
-    this.health += 10;
-    if(this.health > 100) this.health = 100;
+    this.hit(-10);
 
     sound_event.add('npc_eat_coin', this.room_id, this.x, this.y);
 
@@ -133,6 +134,16 @@ Npc.prototype.teleport = function (teleport) {
 
     this.changed = true;
 }
+
+
+
+/**
+ * Удар по мобу
+ * @param hitPoints
+ */
+Npc.prototype.hit = function (hitPoints) {
+    this.damage += hitPoints;
+};
 
 
 /**
@@ -196,6 +207,13 @@ Npc.prototype.run = function (room, step) {
         this.y = room.height - room.dead_zone_bottom - this.height;
         this.target && (this.target.y = this.y);
     }
+
+
+    //Применим урон (если с минусом - лечение)
+    this.health -= this.damage;
+    this.damage = 0;
+
+    if(this.health > 100) this.health = 100;
 
     //"Умрем" если нет здоровья
     //TODO: Умирать анимировано
@@ -321,22 +339,6 @@ Npc.prototype.targetCoin = function(room) {
         });
     }
 
-    // Добавим туда же все телепорты
-    /*for(const i in room.teleports){
-        let
-            x = room.teleports[i].x,
-            y = room.teleports[i].y,
-            xdiff = Math.abs(x - this.x),
-            ydiff = Math.abs(y - this.y);
-
-        distances.push({
-            // Расстояние до монеты
-            distance: Math.sqrt(xdiff * xdiff + ydiff * ydiff),
-            // Её расположение
-            pos: {x: x, y: y}
-        });
-    }*/
-
     // Найдем индекс минимального значения
     let min_index = distances.reduce(
         (prev, value, i, array) => {
@@ -369,6 +371,8 @@ Npc.prototype.targetPlayer = function(room) {
                 ydiff = Math.abs(y - this.y);
 
             distances.push({
+                //Игрок
+                playerID: ID,
                 // Расстояние до игрока
                 distance: Math.sqrt(xdiff * xdiff + ydiff * ydiff),
                 // Его расположение
@@ -389,12 +393,15 @@ Npc.prototype.targetPlayer = function(room) {
         // Если в поле зрения - идем к игроку
         if(distances[min_index].distance <= VIEW_DISTANCE){
 
-            //Подошли на расстояние атаки - стоп
-            if(distances[min_index].distance >= ATTACK_DISTANCE) {
-                return distances[min_index].pos;
+            //Подошли на расстояние атаки - атакуем
+            if(distances[min_index].distance <= ATTACK_DISTANCE) {
+
+                let player = players.get(distances[min_index].playerID);
+                player.hit(1);
+                return null;//{x: this.x, y: this.y};
             }
             else{
-                return {x: this.x, y: this.y};
+                return distances[min_index].pos;
             }
         }
     }
@@ -438,6 +445,12 @@ Npc.prototype.targetEffects = function(){
  * @returns {{ID: *, x: *, y: *, character_id: *, state: *, room_id: *, width: *, height: *}}
  */
 Npc.prototype.info = function(){
+    const effects = [];
+
+    for(let effectID in this.effects){
+        effects.push(effectID);
+    }
+
     return {
         ID: this.ID,
         x: this.x,
@@ -453,6 +466,8 @@ Npc.prototype.info = function(){
         content: this.content,
 
         health: this.health,
+
+        effects: effects,
     }
 };
 
