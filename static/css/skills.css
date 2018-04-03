@@ -253,7 +253,8 @@
     width: 56px;
     height: 56px;
 }
-.terror-1 {
+/*.terror-1 {*/
+.holera {
     background: url('../i/skills.png') no-repeat -114px -399px;
     width: 56px;
     height: 56px;
@@ -284,7 +285,7 @@
     height: 56px;
 }
 /*.wind-1 {*/
-.holera {
+.wind-1 {
     background: url('../i/skills.png') no-repeat -399px -57px;
     width: 56px;
     height: 56px;

@@ -7,6 +7,7 @@ module.exports.toArray = toArray;
 
 
 const Room = require("./room.js");
+require('./constants.js')();
 
 
 const rooms = {
@@ -135,10 +136,46 @@ const rooms = {
         teleports_num: 30,
         cartoons_num: 130,
     }),
+
+    'finish': new Room({
+        ID: 'finish',
+        width: 3000,
+        height: 200,
+
+        environment_id: 6,
+        entities_num: 0,
+
+        dead_zone_left: 10,
+        dead_zone_top: 10,
+        dead_zone_right: 10,
+        dead_zone_bottom: 0,
+
+        coins_num: 0,
+        coins_max_limit: 0,
+        coins_generate_interval: 20.0,
+
+        teleports_num: 1,
+        cartoons_num: 0,
+    }),
 };
 
+//Рандомные телепорты
 for(const i in rooms){
-    rooms[i].randomTeleports(rooms[i].teleports_num);
+
+    //Кроме телепорта из финишной комнаты
+    if(i==='finish'){
+        let target = {
+            room_id: PLAYER_START_ROOM,
+            x: PLAYER_START_X,
+            y: PLAYER_START_Y,
+        };
+
+        //Из финишной - один - в стартовую
+        rooms[i].addTeleport('finish', rooms[i].width - 100, 100, null, target)
+    }
+    else {
+        rooms[i].randomTeleports(rooms[i].teleports_num);
+    }
 }
 
 function get(room_id){

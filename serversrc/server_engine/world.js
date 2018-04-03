@@ -28,8 +28,14 @@ function randomPlace(width, height){
 
     let
         roomsArray = rooms.toArray(),
-        room_id = roomsArray[Math.floor(Math.random()*roomsArray.length)].ID,
-        room = rooms.get(room_id);
+        room_id = roomsArray[Math.floor(Math.random()*roomsArray.length)].ID;
+
+    //Цели в финишной комнате - в стартовую
+    if(room_id==='finish'){
+        room_id = 'start';
+    }
+
+    let room = rooms.get(room_id);
 
     return {
         room_id: room_id,

@@ -53,6 +53,8 @@ function run(io) {
             login(account, socket, (addedUser, message) => {
                 user = addedUser;
 
+                db.updateUser(user.login);
+
                 events.one(socket, "logged", "success", {message: message});
 
                 //При получении запроса на аватара
@@ -70,7 +72,7 @@ function run(io) {
 
         socket.on('disconnect', () => {
             if (user) {
-
+                db.updateUser(user.login);
                 user.avatar && user.avatar.destroy();
 
                 players.remove(user.avatar.ID);

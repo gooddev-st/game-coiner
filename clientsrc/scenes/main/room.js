@@ -40,6 +40,12 @@ const ENVIRONMENTS = {
         b: {start: 0, rand: 5},
         entitiesSprites: "dead_plants",
     },
+    6: {
+        r: {start: 230, rand: 24},
+        g: {start: 230, rand: 24},
+        b: {start: 230, rand: 24},
+        entitiesSprites: "dead_plants",
+    },
 };
 /**
  * @class Room

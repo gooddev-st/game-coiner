@@ -27,7 +27,8 @@ let s_doc = document.getElementById('s_doc'),
     s_vitaly = document.getElementById('s_vitaly'),
     t_cool_plants = document.getElementById('t_cool_plants'),
     t_andstones = document.getElementById('t_andstones'),
-    s_blackboom = document.getElementById('s_blackboom');
+    s_blackboom = document.getElementById('s_blackboom'),
+    s_freeze = document.getElementById('s_freeze');
 
 
 /**
@@ -627,8 +628,8 @@ exports.barier = {
  */
 exports.push1 = {
     "image": s_push,
-    "width": 512,
-    "height": 512,
+    "width": 256,
+    "height": 256,
     "speed": 30,
 
     "states": {
@@ -1000,6 +1001,41 @@ exports.blackboom_big = {
             {"name": "smoke_black_1_19_17", "x": 0, "y": 188, "width": 50, "height": 47},
             {"name": "smoke_black_1_19_18", "x": 50, "y": 188, "width": 50, "height": 47},
             {"name": "smoke_black_1_19_19", "x": 100, "y": 188, "width": 50, "height": 47}
+        ]
+    }
+};
+
+/**
+ * Большой черный взрыв
+ */
+exports.freeze = {
+    "image": s_freeze,
+    "width": 56,
+    "height": 65,
+    "speed": 30,
+
+    "states": {
+        "default": [
+            {"name": "lighteningball_1_20_1", "x": 56, "y": 0, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_2", "x": 168, "y": 65, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_3", "x": 0, "y": 65, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_4", "x": 56, "y": 65, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_5", "x": 112, "y": 0, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_6", "x": 112, "y": 65, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_7", "x": 0, "y": 130, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_8", "x": 56, "y": 130, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_9", "x": 112, "y": 130, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_10", "x": 168, "y": 0, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_11", "x": 0, "y": 0, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_12", "x": 168, "y": 130, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_13", "x": 0, "y": 195, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_14", "x": 56, "y": 195, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_15", "x": 112, "y": 195, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_16", "x": 168, "y": 195, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_17", "x": 224, "y": 0, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_18", "x": 224, "y": 65, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_19", "x": 224, "y": 130, "width": 56, "height": 65},
+            {"name": "lighteningball_1_20_20", "x": 224, "y": 195, "width": 56, "height": 65}
         ]
     }
 };

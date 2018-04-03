@@ -122,7 +122,7 @@ function Player(id, name, socket, data) {
         click: null,
     };
 
-    this.skills['skill1'] = {id: 'push', icon: 'push', value: 0.0, increment: 100.0};
+    this.skills['skill1'] = {id: 'push', icon: 'push', value: 0.0, increment: 150.0};
     this.skills['skill2'] = {id: 'freeze', icon: 'freeze', value: 0.0, increment: 100.0};
     this.skills['skill3'] = {id: 'holera', icon: 'holera', value: 0.0, increment: 50.0};
     this.currentSkill = 'skill1';
@@ -484,6 +484,11 @@ Player.prototype.hit = function (hitPoints) {
  */
 Player.prototype.run = function (room) {
 
+    //Умерев - умрем
+    if(this.die){
+        this.makeDie();
+    }
+
     this.updateSkillsValues();
 
     let oldPos = {x: this.x, y: this.y},
@@ -578,6 +583,44 @@ Player.prototype.run = function (room) {
 
 Player.prototype.kill = function(){
     this.die = true;
+};
+
+
+/**
+ * Умирание
+ */
+Player.prototype.makeDie = function(){
+    this.die = false;
+    this.health = 100;
+    for(let effectID in this.effects) delete this.effects[effectID];
+    this.state = 'default';
+    this.target = null;
+
+    this.onDie();
+
+    sound_event.add("hero_death", this.room_id, this.x, this.y);
+
+    this.room_id = "finish";
+    this.x = 100;
+    this.y = 100;
+
+    //Сменим комнату
+    let room = rooms.get(this.room_id);
+    events.one(this.socket, "room", "change", {room: room.info()});
+
+    sound_event.add("hero_death", this.room_id, this.x, this.y);
+
+    let
+        x = this.x + this.width/2,
+        y = this.y + 1;
+    events.common('entity', 'teleport-target', {
+        room_id: this.room_id,
+        x: x,
+        y: y,
+    });
+
+    db.updateAvatar(this.info());
+    this.changed = true;
 };
 
 
@@ -784,5 +827,9 @@ Player.prototype.destroy = function(){
 
 
 Player.prototype.onDie = function() {
+    let
+        room = rooms.get(this.room_id),
+        grave_id = Math.floor(Math.random()*characters.SPRITESET_GRAVES.size);
 
+    room.addCartoon(this.x+20, this.y, characters.SPRITESET_GRAVES.ID, grave_id);
 };

@@ -62,6 +62,23 @@ module.exports.createUser = function (account, avatarID) {
 
 
 /**
+ * Обновить время последнего визита пользователя
+ * @param login
+ */
+module.exports.updateUser = function (login) {
+
+    const lastvisit = moment().format("YYYY-MM-DD HH:mm:ss");
+
+    query("UPDATE user SET lastvisit=? WHERE login=?", [lastvisit, login])
+        .then(()=>{})
+        .catch((err)=>{
+            log("Ошибка обновления пользователя "+login);
+            log(err);
+        });
+};
+
+
+/**
  * Создаем аватар, возвращаем созданный id
  * @param data
  * @param callback

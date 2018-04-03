@@ -45,15 +45,24 @@ Teleport.prototype.run = function(step){
         if(TELEPORT_RANDOM_TARGET) {
             //По деактивации - изменим цель на случайную
             let roomsArray = rooms.toArray(),
-                room_id = roomsArray[Math.floor(Math.random() * roomsArray.length)].ID,
-                room = rooms.get(room_id),
+                room_id = roomsArray[Math.floor(Math.random() * roomsArray.length)].ID;
+
+            //Цели в финишной комнате - в стартовую
+            if(room_id==='finish'){
+                room_id = 'start';
+            }
+
+            let room = rooms.get(room_id),
                 pos = room.randomPos(this.width, this.height);
 
-            this.target = {
-                room_id: room_id,
-                x: pos.x,
-                y: pos.y,
-            };
+            if(this.room_id!=='finish') {
+
+                this.target = {
+                    room_id: room_id,
+                    x: pos.x,
+                    y: pos.y,
+                };
+            }
         }
     }
 

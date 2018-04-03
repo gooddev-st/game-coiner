@@ -46,7 +46,7 @@ Holera.prototype.attach = function(targets){
 
                 //Применим
                 targets[id].effects[this.name] = new Holera(this.from, this.author);
-                targets[id].change = true;
+                targets[id].changed = true;
             }
         }
     }
@@ -84,7 +84,7 @@ Holera.prototype.run = function (target) {
 
     //Удалим эффект
     delete target.effects[this.name];
-    target.change = true;
+    target.changed = true;
 
     return null;
 };

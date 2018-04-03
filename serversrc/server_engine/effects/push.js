@@ -95,7 +95,7 @@ Push.prototype.run = function (target) {
 
         target.x += x_increment;
         target.y += y_increment;
-        target.change = true;
+        target.changed = true;
         return null;
     }
 
@@ -118,7 +118,7 @@ Push.prototype.run = function (target) {
 
     //Удалим эффект
     delete target.effects.push;
-    target.change = true;
+    target.changed = true;
 
     return null;
 };

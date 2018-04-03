@@ -29,6 +29,9 @@ const ENVIRONMENTS = {
     5: {
         cartoonsSpriteset: characters.SPRITESET_CAMPFIRE,
     },
+    6: {
+        cartoonsSpriteset: characters.SPRITESET_CAMPFIRE,
+    },
 };
 
 
@@ -113,7 +116,14 @@ Room.prototype.randomTeleports = function(num){
             character_id = possible_chars[Math.floor(Math.random()*possible_chars.length)];
 
         let roomsArray = rooms.toArray(),
-            room_id = roomsArray[Math.floor(Math.random()*roomsArray.length)].ID,
+            room_id = roomsArray[Math.floor(Math.random()*roomsArray.length)].ID;
+
+        //Цели в финишной комнате - в стартовую
+        if(room_id==='finish'){
+            room_id = 'start';
+        }
+
+        let
             room = rooms.get(room_id),
             target = {
                 room_id: room_id,
@@ -121,9 +131,24 @@ Room.prototype.randomTeleports = function(num){
                 y: room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom),
             };
 
-        this.teleports.push(new Teleport(this.ID, pos.x, pos.y, character_id, target));
+        this.addTeleport(this.ID, pos.x, pos.y, character_id, target)
     }
 };
+
+
+/**
+ * Добавить телепорт
+ * @param room_id
+ * @param x
+ * @param y
+ * @param character_id
+ * @param target
+ */
+Room.prototype.addTeleport = function(room_id, x, y, character_id, target){
+
+    this.teleports.push(new Teleport(room_id, x, y, character_id || characters.CHARACTER_TELEPORT, target));
+};
+
 
 Room.prototype.lootEach = function(callback){
     for(const i in this.loot){

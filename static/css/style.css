@@ -332,7 +332,7 @@ h1{
     top: 0;
     width: 56px;
     height: 0px;
-    transition: height .1s ease-in-out;
+    transition: height .03s ease-in-out;
 }
 .skills-panel .veko.value0{height: 100%;}
 .skills-panel .veko.value10{height: 90%;}
