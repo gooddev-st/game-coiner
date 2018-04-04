@@ -28,15 +28,21 @@ const
 
 /**
  * Возвращает случайного персонажа
- * @returns {*} character_id
+ * @param possible_characters
+ * @returns {*}
  */
-function getRandomCharacter() {
+function getRandomCharacter(possible_characters) {
 
-    const randomArray = [
+    const randomArray = possible_characters || [
         characters.CHARACTER_DOC,
         characters.CHARACTER_MAN,
         characters.CHARACTER_GOB,
         characters.CHARACTER_SKELETON,
+        characters.CHARACTER_KROKO,
+        characters.CHARACTER_KOIL,
+        characters.CHARACTER_DEAD,
+        characters.CHARACTER_GUNNER,
+        characters.CHARACTER_JUK,
     ];
 
     let key = Math.floor(Math.random() * randomArray.length);
@@ -61,9 +67,19 @@ function Npc(ID, x, y, room_id, character_id, speed) {
     this.x = x;
     this.y = y;
 
+    if(character_id){
 
+        if(Array.isArray(character_id)){
+            this.character_id = getRandomCharacter(character_id);
+        }
+        else{
+            this.character_id = character_id;
+        }
+    }
+    else{
+        this.character_id = getRandomCharacter();
+    }
 
-    this.character_id = character_id || getRandomCharacter();
     this.room_id = room_id;
     this.state = 'run';
 
@@ -511,7 +527,7 @@ Npc.prototype.onDie = function() {
             crystal_character_id = characters.CHARACTER_CRYSTAL_RED;
         }
 
-        room.addCoin(this.x, this.y+3, crystal_character_id, content);
+        room.addCoin(this.x, this.y+3, crystal_character_id, content, 64, 64);
     }
 
     let grave_id = Math.floor(Math.random()*characters.SPRITESET_GRAVES.size);

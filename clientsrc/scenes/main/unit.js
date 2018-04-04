@@ -94,7 +94,7 @@ export default class Unit{
                 }
 
                 if (effects[i] === 'holera') {
-                    let entity = new Entity(this.x + this.width / 2, this.y + 18, characters.get('blackboom_big'), 0.0, 0.0);
+                    let entity = new Entity(this.x + this.width / 2, this.y + 18, characters.get('blackboom'), 0.0, 0.0);
                     this.effects[effects[i]] = entity;
                     entities.addOne(entity);
                 }
@@ -190,6 +190,12 @@ export default class Unit{
         context.fillRect(sx, sy, this.width, this.height);
         context.rect(x, y, this.character.width, this.character.height);
         context.stroke();
+
+        context.beginPath();
+        context.fillStyle = "rgba(255,0,0,0.8)";
+        context.arc(sx, sy, 2, 0, Math.PI*2);
+        context.fill();
+
         context.restore();*/
     }
 

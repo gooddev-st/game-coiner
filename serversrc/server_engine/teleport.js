@@ -40,9 +40,10 @@ Teleport.prototype.run = function(step){
 
     if(this.workTime <= 0){
         this.workTime = 0;
+
         this.state = 'default';
 
-        if(TELEPORT_RANDOM_TARGET) {
+        if(TELEPORT_RANDOM_TARGET && this.room_id!=='finish') {
             //По деактивации - изменим цель на случайную
             let roomsArray = rooms.toArray(),
                 room_id = roomsArray[Math.floor(Math.random() * roomsArray.length)].ID;
@@ -55,14 +56,11 @@ Teleport.prototype.run = function(step){
             let room = rooms.get(room_id),
                 pos = room.randomPos(this.width, this.height);
 
-            if(this.room_id!=='finish') {
-
-                this.target = {
-                    room_id: room_id,
-                    x: pos.x,
-                    y: pos.y,
-                };
-            }
+            this.target = {
+                room_id: room_id,
+                x: pos.x,
+                y: pos.y,
+            };
         }
     }
 
@@ -107,6 +105,9 @@ Teleport.prototype.touch = function(players, room){
 
 
         if(
+            //Если мы на том свете
+            this.room_id==='finish' ||
+
             //Если моб (нет "счета")
             (touchers[i].score ==undefined &&
                 //и телепорт никто не активировал

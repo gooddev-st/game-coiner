@@ -262,7 +262,7 @@ function start(){
                 teleport.touch( Object.assign({},
 
                     players.list(),
-                    npcs.list()
+                    // npcs.list()
 
                     ),
                     room);

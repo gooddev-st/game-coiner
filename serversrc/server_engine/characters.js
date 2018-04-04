@@ -21,9 +21,15 @@ exports.CHARACTER_MAN = 'prof';
 exports.CHARACTER_GOB = 'gob';
 exports.CHARACTER_MAG = 'mag';
 exports.CHARACTER_SKELETON = 'skeleton';
+exports.CHARACTER_KROKO = 'kroko';
+exports.CHARACTER_KOIL = 'koil';
+exports.CHARACTER_DEAD = 'dead';
+exports.CHARACTER_GUNNER = 'gunner';
+exports.CHARACTER_JUK = 'juk';
+
 exports.CHARACTER_KATY = 'katy';
 exports.CHARACTER_LEVON = 'levon';
-exports.CHARACTER_LEVON = 'vitaly';
+exports.CHARACTER_VITALY = 'vitaly';
 
 
 exports.CHARACTER_TELEPORT = 'teleport';

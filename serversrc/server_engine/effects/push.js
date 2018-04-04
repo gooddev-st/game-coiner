@@ -11,7 +11,7 @@ function Push(from, author) {
     this.from = from;
     this.speed = 2300;
     this.duration = 0.1;
-    this.distance = 100;
+    this.distance = 150;
     this.entity = 'push-effect';
     this.sound = 'push-effect';
     this.author = author;

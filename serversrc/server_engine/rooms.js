@@ -7,6 +7,7 @@ module.exports.toArray = toArray;
 
 
 const Room = require("./room.js");
+const characters = require("./characters");
 require('./constants.js')();
 
 
@@ -24,12 +25,17 @@ const rooms = {
         dead_zone_right: 10,
         dead_zone_bottom: 0,
 
-        coins_num: 200,
+        coins_num: 100,
         coins_max_limit: 100,
         coins_generate_interval: 0.3,
 
-        teleports_num: 26,
+        teleports_num: 6,
         cartoons_num: 20,
+
+        charactersNums: {
+            'gob': 6,
+            'prof': 1,
+        },
     }),
 
     'forest': new Room({
@@ -49,8 +55,14 @@ const rooms = {
         coins_max_limit: 30,
         coins_generate_interval: 2.0,
 
-        teleports_num: 10,
+        teleports_num: 4,
         cartoons_num: 100,
+
+        charactersNums: {
+            'gob': 6,
+            'skeleton': 2,
+            'doc': 1,
+        },
     }),
 
     'hell': new Room({
@@ -70,8 +82,13 @@ const rooms = {
         coins_max_limit: 145,
         coins_generate_interval: 0.4,
 
-        teleports_num: 3,
+        teleports_num: 1,
         cartoons_num: 10,
+
+        charactersNums: {
+            'kroko': 2,
+            'koil': 3,
+        },
     }),
 
     'paradise': new Room({
@@ -93,6 +110,10 @@ const rooms = {
 
         teleports_num: 4,
         cartoons_num: 10,
+
+        charactersNums: {
+            'juk': 6,
+        },
     }),
 
     'pandora': new Room({
@@ -114,6 +135,10 @@ const rooms = {
 
         teleports_num: 4,
         cartoons_num: 10,
+
+        charactersNums: {
+            'gunner': 8,
+        },
     }),
 
     'tartar': new Room({
@@ -129,12 +154,18 @@ const rooms = {
         dead_zone_right: 10,
         dead_zone_bottom: 0,
 
-        coins_num: 0,
-        coins_max_limit: 0,
-        coins_generate_interval: 20.0,
+        coins_num: 60,
+        coins_max_limit: 60,
+        coins_generate_interval: 1.0,
 
-        teleports_num: 30,
+        teleports_num: 15,
         cartoons_num: 130,
+
+        charactersNums: {
+            'skeleton': 6,
+            'dead': 6,
+            'mag': 6,
+        },
     }),
 
     'finish': new Room({

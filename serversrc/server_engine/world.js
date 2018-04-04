@@ -9,9 +9,9 @@ const events = require('./events.js');
 require('./constants')();
 
 
-let NPCS_MAX_LIMIT = 30;
+let NPCS_MAX_LIMIT = 300;
 
-const NPC_COUNT = 20;
+const NPC_COUNT = 0;
 
 let generation_faza = 0.0;
 let generation_interval = 5.0;
@@ -70,8 +70,9 @@ module.exports.run = function () {
         if(npcs.toArray().length < NPCS_MAX_LIMIT) {
 
             //Создаем моба
-            let pos = randomPlace(44, 22);
-            let npc = npcs.add(pos.room_id, pos.x, pos.y);
+            let pos = randomPlace(44, 22),
+                room = rooms.get(pos.room_id),
+                npc = npcs.add(pos.room_id, pos.x, pos.y, room.possible_npc_chars);
 
             events.common("room", "npc-create", {info: npc.info()});
         }

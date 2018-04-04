@@ -100,6 +100,21 @@ export default class Entity{
         }
 
         this.drawCharacter(camera.context, x, y);
+
+        //Рисуем пятно расположения
+        /*camera.context.save();
+        camera.context.beginPath();
+        camera.context.fillStyle = "rgba(255,255,67,0.4)";
+        camera.context.fillRect(this.x-camera.x, this.y-camera.y, this.width, this.height);
+        camera.context.rect(x, y, this.character.width, this.character.height);
+        camera.context.stroke();
+
+        camera.context.beginPath();
+        camera.context.fillStyle = "rgba(255,0,0,0.8)";
+        camera.context.arc(this.x-camera.x, this.y-camera.y, 2, 0, Math.PI*2);
+        camera.context.fill();
+
+        camera.context.restore();*/
     }
 
 

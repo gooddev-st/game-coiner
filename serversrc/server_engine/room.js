@@ -6,6 +6,7 @@ const Cartoon = require("./cartoon.js");
 const Coin = require("./loot.js");
 const Teleport = require("./teleport.js");
 const events = require('./events.js');
+const npcs = require('./npcs')
 
 require('./constants')();
 
@@ -74,9 +75,14 @@ function Room(settings) {
         characters.CHARACTER_CRYSTAL_YELLOW,*/
     ];
 
+    this.possible_npc_chars = settings.charactersNums ? Object.keys(settings.charactersNums) : [];
+
     this.randomLoot(this.coins_num);
     this.randomCartoons(this.cartoons_num);
+
+    this.generateNpcs(settings.charactersNums);
 }
+
 
 Room.prototype.randomPos = function(width, height){
     return {
@@ -84,6 +90,7 @@ Room.prototype.randomPos = function(width, height){
         y: this.dead_zone_top + Math.random() * (this.height - this.dead_zone_top - this.dead_zone_bottom - height),
     }
 };
+
 
 Room.prototype.randomCartoons = function(num){
     let spriteset = ENVIRONMENTS[this.environment_id].cartoonsSpriteset;
@@ -96,6 +103,7 @@ Room.prototype.randomCartoons = function(num){
     }
 };
 
+
 Room.prototype.randomLoot = function(num){
 
     for(let i = 0; i<num; i++){
@@ -105,6 +113,7 @@ Room.prototype.randomLoot = function(num){
         this.loot.push(new Coin(this.ID, pos.x, pos.y, character_id));
     }
 };
+
 
 Room.prototype.randomTeleports = function(num){
     let possible_chars = [
@@ -156,6 +165,7 @@ Room.prototype.lootEach = function(callback){
     }
 };
 
+
 Room.prototype.teleportsEach = function(callback){
     for(const i in this.teleports){
         callback(i, this.teleports[i]);
@@ -182,7 +192,7 @@ Room.prototype.run = function () {
             events.common("room", "loot-create", {info: coin.info()});
         }
     }
-    this.generation_faza += STEP
+    this.generation_faza += STEP;
 };
 
 
@@ -212,6 +222,20 @@ Room.prototype.addCartoon = function (x, y, spriteset_id, sprite_id){
     this.cartoons.push(cartoon);
 
     events.common("room", "cartoon-create", {info: cartoon.info()});
+};
+
+
+Room.prototype.generateNpcs = function (charactersNums){
+
+    if(!charactersNums) return;
+
+    for(let character_id in charactersNums){
+
+        for(let i=0; i<charactersNums[character_id];i++){
+            let pos = this.randomPos(100, 100);
+            npcs.add(this.ID, pos.x, pos.y, character_id);
+        }
+    }
 };
 
 

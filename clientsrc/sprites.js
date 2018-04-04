@@ -28,7 +28,12 @@ let s_doc = document.getElementById('s_doc'),
     t_cool_plants = document.getElementById('t_cool_plants'),
     t_andstones = document.getElementById('t_andstones'),
     s_blackboom = document.getElementById('s_blackboom'),
-    s_freeze = document.getElementById('s_freeze');
+    s_freeze = document.getElementById('s_freeze'),
+    s_kroko = document.getElementById('s_kroko'),
+    s_koil = document.getElementById('s_koil'),
+    s_dead = document.getElementById('s_dead'),
+    s_gunner = document.getElementById('s_gunner'),
+    s_juk = document.getElementById('s_juk');
 
 
 /**
@@ -647,10 +652,15 @@ exports.push1 = {
         ]
     }
 };
+
+
+const CRYSTAL_WIDTH = 32;
+const CRYSTAL_HEIGHT = 32;
+
 exports.blue_crystal = {
     "image": s_crystals,
-    "width": 32,
-    "height": 32,
+    "width": CRYSTAL_WIDTH,
+    "height": CRYSTAL_HEIGHT,
     "speed": 14,
 
     "states": {
@@ -669,8 +679,8 @@ exports.blue_crystal = {
 
 exports.green_crystal = {
     "image": s_crystals,
-    "width": 32,
-    "height": 32,
+    "width": CRYSTAL_WIDTH,
+    "height": CRYSTAL_HEIGHT,
     "speed": 14,
 
     "states": {
@@ -689,8 +699,8 @@ exports.green_crystal = {
 
 exports.grey_crystal = {
     "image": s_crystals,
-    "width": 32,
-    "height": 32,
+    "width": CRYSTAL_WIDTH,
+    "height": CRYSTAL_HEIGHT,
     "speed": 14,
 
     "states": {
@@ -709,8 +719,8 @@ exports.grey_crystal = {
 
 exports.red_crystal = {
     "image": s_crystals,
-    "width": 32,
-    "height": 32,
+    "width": CRYSTAL_WIDTH,
+    "height": CRYSTAL_HEIGHT,
     "speed": 14,
 
     "states": {
@@ -729,8 +739,8 @@ exports.red_crystal = {
 
 exports.magenta_crystal = {
     "image": s_crystals,
-    "width": 32,
-    "height": 32,
+    "width": CRYSTAL_WIDTH,
+    "height": CRYSTAL_HEIGHT,
     "speed": 14,
 
     "states": {
@@ -749,8 +759,8 @@ exports.magenta_crystal = {
 
 exports.yellow_crystal = {
     "image": s_crystals,
-    "width": 32,
-    "height": 32,
+    "width": CRYSTAL_WIDTH,
+    "height": CRYSTAL_HEIGHT,
     "speed": 14,
 
     "states": {
@@ -1006,7 +1016,7 @@ exports.blackboom_big = {
 };
 
 /**
- * Большой черный взрыв
+ * Заморозка
  */
 exports.freeze = {
     "image": s_freeze,
@@ -1036,6 +1046,131 @@ exports.freeze = {
             {"name": "lighteningball_1_20_18", "x": 224, "y": 65, "width": 56, "height": 65},
             {"name": "lighteningball_1_20_19", "x": 224, "y": 130, "width": 56, "height": 65},
             {"name": "lighteningball_1_20_20", "x": 224, "y": 195, "width": 56, "height": 65}
+        ]
+    }
+};
+
+/**
+ * Кроко - жен
+ */
+exports.kroko = {
+    "image": s_kroko,
+    "width": 100,
+    "height": 100,
+
+    "states": {
+        "default": [
+            {"name": "sprite79", "x": 0, "y": 640, "width": 64, "height": 64},
+            ],
+        "run":[
+            {"name": "sprite80", "x": 64, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite81", "x": 128, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite82", "x": 192, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite83", "x": 256, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite84", "x": 320, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite85", "x": 384, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite86", "x": 448, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite87", "x": 512, "y": 640, "width": 64, "height": 64},
+        ]
+    }
+};
+
+/**
+ * Кроко - муж
+ */
+exports.koil = {
+    "image": s_koil,
+    "width": 100,
+    "height": 100,
+
+    "states": {
+        "default": [
+            {"name": "sprite79", "x": 0, "y": 640, "width": 64, "height": 64},
+            ],
+        "run":[
+            {"name": "sprite80", "x": 64, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite81", "x": 128, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite82", "x": 192, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite83", "x": 256, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite84", "x": 320, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite85", "x": 384, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite86", "x": 448, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite87", "x": 512, "y": 640, "width": 64, "height": 64},
+        ]
+    }
+};
+
+/**
+ * Мертвый солдат
+ */
+exports.dead = {
+    "image": s_dead,
+    "width": 100,
+    "height": 100,
+
+    "states": {
+        "default": [
+            {"name": "sprite19", "x": 0, "y": 128, "width": 64, "height": 64},
+            ],
+        "run":[
+            {"name": "sprite20", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite21", "x": 128, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite22", "x": 192, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite23", "x": 256, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite24", "x": 320, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite25", "x": 384, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite26", "x": 448, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite27", "x": 512, "y": 128, "width": 64, "height": 64},
+        ]
+    }
+};
+
+/**
+ * Ганнер
+ */
+exports.gunner = {
+    "image": s_gunner,
+    "width": 100,
+    "height": 100,
+
+    "states": {
+        "default": [
+            {"name": "sprite19", "x": 0, "y": 128, "width": 64, "height": 64},
+            ],
+        "run":[
+            {"name": "sprite20", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite21", "x": 128, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite22", "x": 192, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite23", "x": 256, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite24", "x": 320, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite25", "x": 384, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite26", "x": 448, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite27", "x": 512, "y": 128, "width": 64, "height": 64},
+        ]
+    }
+};
+
+/**
+ * Ганнер
+ */
+exports.juk = {
+    "image": s_juk,
+    "width": 100,
+    "height": 100,
+
+    "states": {
+        "default": [
+            {"name": "sprite19", "x": 0, "y": 128, "width": 64, "height": 64},
+            ],
+        "run":[
+            {"name": "sprite20", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite21", "x": 128, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite22", "x": 192, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite23", "x": 256, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite24", "x": 320, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite25", "x": 384, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite26", "x": 448, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite27", "x": 512, "y": 128, "width": 64, "height": 64},
         ]
     }
 };
