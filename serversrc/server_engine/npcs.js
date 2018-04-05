@@ -1,14 +1,9 @@
 /**
  * Мобы
  */
-
-const NPC_SPEED = 100;
+module.exports = NpcsList;
 
 const Npc = require("./npc.js");
-
-
-const npcs = {};
-
 
 /**
  * Генерация имени моба
@@ -16,49 +11,59 @@ const npcs = {};
  */
 let counter_for_naming = 0;
 
-function getName() {
+const getName = function () {
     counter_for_naming++;
     return 'npc' + counter_for_naming;
+};
+
+
+function NpcsList() {
+    this.npcs = {};
+
 }
 
-
-module.exports.add = function (room_id, x, y, character_id) {
+NpcsList.prototype.add = function (room_id, x, y, character_id) {
     let ID = getName();
-    npcs[ID] = new Npc(ID, x, y, room_id, character_id, NPC_SPEED);
-    return npcs[ID];
-}
+    this.npcs[ID] = new Npc(ID, x, y, room_id, character_id);
+    return this.npcs[ID];
+};
 
 
-module.exports.remove = function (id) {
-    if (id in npcs) {
-        delete npcs[id];
+NpcsList.prototype.remove = function (id) {
+    if (id in this.npcs) {
+        delete this.npcs[id];
     }
-}
+};
 
 
-module.exports.get = function (id) {
-    if (id in npcs) {
-        return npcs[id];
+NpcsList.prototype.get = function (id) {
+    if (id in this.npcs) {
+        return this.npcs[id];
     }
-}
+};
 
 
-module.exports.each = function (callback) {
-    for (const i in npcs) {
-        callback(i, npcs[i]);
+NpcsList.prototype.each = function (callback) {
+    for (const i in this.npcs) {
+        callback(i, this.npcs[i]);
     }
-}
+};
 
 
-module.exports.toArray = function () {
+NpcsList.prototype.toArray = function () {
     const npcsArray = [];
-    for (const i in npcs) {
-        npcsArray.push(npcs[i]);
+    for (const i in this.npcs) {
+        npcsArray.push(this.npcs[i]);
     }
     return npcsArray;
-}
+};
 
 
-module.exports.list = function () {
-    return npcs;
-}
+NpcsList.prototype.list = function () {
+    return this.npcs;
+};
+
+
+NpcsList.prototype.size = function () {
+    return Object.keys(this.npcs).length;
+};

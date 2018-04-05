@@ -32,9 +32,9 @@ const rooms = {
         teleports_num: 6,
         cartoons_num: 20,
 
-        charactersNums: {
-            'gob': 6,
-            'prof': 1,
+        populations: {
+            'gob': {maxNum:6, interval: 1.0},
+            'prof': {maxNum:1, interval: 1.0},
         },
     }),
 
@@ -58,10 +58,10 @@ const rooms = {
         teleports_num: 4,
         cartoons_num: 100,
 
-        charactersNums: {
-            'gob': 6,
-            'skeleton': 2,
-            'doc': 1,
+        populations: {
+            'gob': {maxNum:6, interval: 10.0},
+            'skeleton': {maxNum:2, interval: 10.0},
+            'doc': {maxNum:1, interval: 30.0},
         },
     }),
 
@@ -85,9 +85,9 @@ const rooms = {
         teleports_num: 1,
         cartoons_num: 10,
 
-        charactersNums: {
-            'kroko': 2,
-            'koil': 3,
+        populations: {
+            'kroko': {maxNum:3, interval: 10.0},
+            'koil': {maxNum:3, interval: 10.0},
         },
     }),
 
@@ -111,8 +111,8 @@ const rooms = {
         teleports_num: 4,
         cartoons_num: 10,
 
-        charactersNums: {
-            'juk': 6,
+        populations: {
+            'juk': {maxNum:6, interval: 10.0},
         },
     }),
 
@@ -136,8 +136,8 @@ const rooms = {
         teleports_num: 4,
         cartoons_num: 10,
 
-        charactersNums: {
-            'gunner': 8,
+        populations: {
+            'gunner': {maxNum:8, interval: 10.0},
         },
     }),
 
@@ -154,17 +154,17 @@ const rooms = {
         dead_zone_right: 10,
         dead_zone_bottom: 0,
 
-        coins_num: 60,
-        coins_max_limit: 60,
+        coins_num: 260,
+        coins_max_limit: 260,
         coins_generate_interval: 1.0,
 
         teleports_num: 15,
         cartoons_num: 130,
 
-        charactersNums: {
-            'skeleton': 6,
-            'dead': 6,
-            'mag': 6,
+        populations: {
+            'skeleton': {maxNum:6, interval: 10.0},
+            'dead': {maxNum:60, interval: 10.0},
+            'mag': {maxNum:6, interval: 10.0},
         },
     }),
 

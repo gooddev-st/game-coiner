@@ -6,7 +6,7 @@ const Cartoon = require("./cartoon.js");
 const Coin = require("./loot.js");
 const Teleport = require("./teleport.js");
 const events = require('./events.js');
-const npcs = require('./npcs')
+const NpcsList = require('./npcs')
 
 require('./constants')();
 
@@ -54,6 +54,8 @@ function Room(settings) {
     this.loot = [];
     this.teleports = [];
 
+    this.npcs = new NpcsList();
+
     this.cartoons_num = settings.cartoons_num;
     this.teleports_num = settings.teleports_num;
 
@@ -75,12 +77,12 @@ function Room(settings) {
         characters.CHARACTER_CRYSTAL_YELLOW,*/
     ];
 
-    this.possible_npc_chars = settings.charactersNums ? Object.keys(settings.charactersNums) : [];
+    this.populations = settings.populations;
 
     this.randomLoot(this.coins_num);
     this.randomCartoons(this.cartoons_num);
 
-    this.generateNpcs(settings.charactersNums);
+    this.generateNpcs();
 }
 
 
@@ -175,7 +177,12 @@ Room.prototype.teleportsEach = function(callback){
 
 Room.prototype.run = function () {
 
-    //По игровому таймеру
+
+    //Рождаем мобов с заданным интервалом
+    this.genNpcs();
+
+
+    //Рождаем монеты
     if(this.generation_faza > this.generation_interval){
         this.generation_faza -= this.generation_interval;
 
@@ -193,6 +200,12 @@ Room.prototype.run = function () {
         }
     }
     this.generation_faza += STEP;
+
+
+    //Движем мобов
+    this.npcs.each((ID, npc)=>{
+        npc.run( this, STEP );
+    });
 };
 
 
@@ -225,26 +238,81 @@ Room.prototype.addCartoon = function (x, y, spriteset_id, sprite_id){
 };
 
 
-Room.prototype.generateNpcs = function (charactersNums){
+//Генерим мобов
+Room.prototype.generateNpcs = function (){
 
-    if(!charactersNums) return;
+    if(!this.populations) return;
 
-    for(let character_id in charactersNums){
+    //Все виды мобов
+    for(let character_id in this.populations){
 
-        for(let i=0; i<charactersNums[character_id];i++){
+        //До максимального количества
+        for(let i=0; i<this.populations[character_id].maxNum;i++){
             let pos = this.randomPos(100, 100);
-            npcs.add(this.ID, pos.x, pos.y, character_id);
+            this.npcs.add(this.ID, pos.x, pos.y, character_id);
         }
+
+        //Отметим сколько их теперь
+        this.populations[character_id].num = this.populations[character_id].maxNum;
+        //Инитим таймер рождений
+        this.populations[character_id].faza = this.populations[character_id].maxNum;
     }
 };
 
 
-//Удаляем "мертвые" монеты
+
+
+
+//Порождаем мобов с заданным интервалом
+Room.prototype.genNpcs = function () {
+    if(!this.populations) return;
+
+    if(Object.keys(this.populations).length===0) return;
+
+    //Для каждого типа
+    for(let character_id in this.populations) {
+
+        let character = this.populations[character_id];
+
+        //По игровому таймеру. Предполагается, что не больше одного за тик
+        if (character.faza > character.interval) {
+            character.faza -= character.interval;
+
+            //Если не превышен лимит
+            if (character.num < character.maxNum) {
+
+                //Создаем моба
+                let pos = this.randomPos(44, 22),
+                    npc = this.npcs.add(this.ID, pos.x, pos.y, character_id);
+                character.num++;
+
+                events.common("room", "npc-create", {info: npc.info()});
+            }
+        }
+        character.faza += STEP;
+    }
+};
+
+
+//Удаляем "мертвых"
 Room.prototype.cleanUp = function () {
+
+    //Удаляем "мертвые" монеты
     this.lootEach((i, it)=>{
         if(it.isDie()){
             this.loot.splice(i, 1);
             events.common("room", "loot-remove", {info: it.info()});
+        }
+    });
+
+    //Удаляем "мертвых" мобов
+    this.npcs.each((i, it)=>{
+        if(it.isDie()){
+            it.onDie();
+            this.npcs.remove(i);
+            this.populations[it.character_id].num--;
+
+            events.common("room", "npc-remove", {info: it.info()});
         }
     });
 };
@@ -259,6 +327,7 @@ Room.prototype.info = function(){
         entities_num: this.entities_num,
         cartoons: this.cartoons,
         loot: this.loot,
-        teleports: this.teleports
+        teleports: this.teleports,
+        npcs: this.npcs.list(),
     };
 }

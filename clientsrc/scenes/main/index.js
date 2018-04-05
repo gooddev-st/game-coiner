@@ -714,6 +714,7 @@ function roomInit(settings){
     teleports = {};
     room = null;
     entities.reset();
+    units.reset();
 
 
     room_id = settings.ID;
@@ -744,6 +745,13 @@ function roomInit(settings){
         for(const item of settings.teleports){
 
             teleports[item.ID] = new Teleport(room_id, item.x, item.y, item.character_id, item.ID, item.target, item.state, item.width, item.height);
+        }
+    }
+
+    if('npcs' in settings){
+        for(const item_id in settings.npcs){
+            let item = settings.npcs[item_id];
+            units.add(item.ID, new Unit(item));
         }
     }
 }

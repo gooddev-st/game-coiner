@@ -162,12 +162,6 @@ Player.prototype.init = function () {
     });
     events.one(this.socket, "hero", "info", {message: "Выданы игроки"});
 
-    //Отправим мобов
-    npcs.each((ID, npc)=>{
-        events.one(this.socket, "room", "npc-create", {info: npc.info()});
-    });
-    events.one(this.socket, "hero", "info", {message: "Выданы мобы"});
-
 
     //Заявим, что пришел игрок
     events.not_me(this.socket, "room", "player-create", {info: this.commonInfo(), message: "Пришел игрок[" + this.name + "]"});
@@ -782,6 +776,7 @@ Player.prototype.commonInfo = function(){
  * @returns {{ID: *, x: *, y: *, character_id: *, state: *, coins_count: *, score: *, level: *, levelupValue: *, levelupCounter: *, speed: *, room_id: *, width: *, height: *}}
  */
 Player.prototype.allInfo = function(){
+
     const effects = [];
 
     for(let effectID in this.effects){

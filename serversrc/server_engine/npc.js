@@ -7,7 +7,6 @@ module.exports = Npc;
 
 const events = require("./events.js");
 const rooms = require("./rooms.js");
-const npcs = require("./npcs.js");
 const players = require("./players.js");
 
 const sound_event = require('./sound_event.js');//звуковые события
@@ -59,7 +58,7 @@ function getRandomCharacter(possible_characters) {
  * @param x
  * @param y
  * @param room_id
- * @param character_id
+ * @param character_id - персонаж или массив возможных персонажей
  * @param speed
  * @constructor
  */
@@ -276,61 +275,6 @@ Npc.prototype.calculateTarget = function(room) {
     return null;
 
 
-};
-
-
-//Разбегание мобов (Не нужно)
-Npc.prototype.targetSplit = function(room) {
-    const MIN_DISTANCE = 44;
-
-
-    if(!room) return false;
-
-    let distances = [];
-
-    // Соберем в массив всех мобов (без этого)
-    npcs.each((i, npc)=>{
-
-        if(npc.ID!==this.ID) {
-
-            let
-                x = npc.x,
-                y = npc.y,
-                xdiff = Math.abs(x - this.x),
-                ydiff = Math.abs(y - this.y);
-
-            distances.push({
-                // Расстояние до моба
-                distance: Math.sqrt(xdiff * xdiff + ydiff * ydiff),
-                // Его расположение
-                pos: {x: x, y: y}
-            });
-        }
-    });
-
-    // Найдем индекс минимального значения
-    let min_index = distances.reduce(
-        (prev, value, i, array) => {
-            return value.distance < array[prev].distance ? i : prev;
-        }, 0
-    );
-
-    if(distances[min_index].distance < MIN_DISTANCE) {
-        let
-            xdiff = distances[min_index].pos.x - this.x,
-            ydiff = distances[min_index].pos.y - this.y;
-
-        // Если очень близко пусть разбегаются рандомно
-        if(Math.abs(xdiff) < 1 && Math.abs(ydiff) < 1){
-            xdiff = -MIN_DISTANCE + Math.random()*(MIN_DISTANCE+MIN_DISTANCE);
-        }
-        let
-            x = this.x - xdiff * MIN_DISTANCE,
-            y = this.y - ydiff * MIN_DISTANCE;
-        return {x: x, y: y};
-    }
-
-    return false;
 };
 
 Npc.prototype.targetCoin = function(room) {

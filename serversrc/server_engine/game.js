@@ -212,12 +212,13 @@ function start(){
         });
 
         //Соберем цели воздействия
-        const targets = Object.assign( {},
+        const targets = Object.assign( {}, players.list() );//игроки
 
-            players.list(),//игроки
-            npcs.list()//мобы
-
-        );
+        rooms.each((room_id, room)=>{
+            Object.assign( targets,
+                room.npcs.list() //мобы
+            );
+        });
 
         //Применим к ним эффекты
         for(let i=0;i<effects.size(); i++){
@@ -233,23 +234,13 @@ function start(){
             player.run( rooms.get(player.room_id) );
         });
 
-        //Движем мобов
-        npcs.each((ID, npc)=>{
-            npc.run( rooms.get(npc.room_id), STEP );
-        });
 
         //Проверим как там монеты
         rooms.each((room_id, room)=>{
             room.lootEach((id, loot)=>{
 
-                loot.touch(
-                    Object.assign( {},
+                loot.touch(targets, room);
 
-                        players.list(),
-                        npcs.list()
-
-                    ),
-                    room);
             });
         });
 
@@ -259,17 +250,12 @@ function start(){
 
                 teleport.run(STEP);
 
-                teleport.touch( Object.assign({},
-
-                    players.list(),
-                    // npcs.list()
-
-                    ),
-                    room);
+                teleport.touch( players.list(), room);
             });
         });
 
         //Шлем информацию о плеерах
+        //TODO: общую слать сразу обо всех измененных всем
         players.each((playerID, player)=>{
 
             if(player.changed) {
@@ -284,18 +270,22 @@ function start(){
         });
 
         //Шлем информацию о мобах
-        npcs.each((ID, npc)=>{
+        //TODO: слать сразу обо всех измененных всем
+        rooms.each((room_id, room)=>{
+            room.npcs.each((ID, npc)=>{
 
-            if(npc.changed) {
+                if(npc.changed) {
 
-                events.common("room", "npc-info", {info: npc.info()});
-                npc.changed = false;
+                    events.common("room", "npc-info", {info: npc.info()});
+                    npc.changed = false;
 
-            }
+                }
+            });
         });
 
 
         //Шлем информацию о монетах
+        //TODO: слать сразу обо всех измененных всем
         rooms.each((room_id, room)=> {
             room.lootEach((id, loot) => {
                 if (loot.changed) {
@@ -307,6 +297,7 @@ function start(){
 
 
         //Шлем информацию о телепортах
+        //TODO: слать сразу обо всех измененных всем
         rooms.each((room_id, room)=> {
             room.teleportsEach((id, teleport) => {
                 if (teleport.changed) {
@@ -317,6 +308,7 @@ function start(){
         });
 
         //Шлем информацию о звуковых событиях
+        //TODO: слать сразу обо всех всем
         let evs = sound_event.list();
         for(let i in evs){
             events.common("sound", "notice", {info: evs[i]});
