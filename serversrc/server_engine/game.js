@@ -271,40 +271,32 @@ function start(){
 
         //Шлем информацию о мобах
         //TODO: слать сразу обо всех измененных всем
+        let room_info = {npcs: {}, loot: {}, teleports: {}};
         rooms.each((room_id, room)=>{
+            //мобы
             room.npcs.each((ID, npc)=>{
 
                 if(npc.changed) {
-
-                    events.common("room", "npc-info", {info: npc.info()});
+                    room_info.npcs[npc.ID] = npc.info();
                     npc.changed = false;
 
                 }
             });
-        });
-
-
-        //Шлем информацию о монетах
-        //TODO: слать сразу обо всех измененных всем
-        rooms.each((room_id, room)=> {
+            //лут
             room.lootEach((id, loot) => {
                 if (loot.changed) {
-                    events.common("room", "loot-info", {info: loot.info()});
+                    room_info.loot[loot.ID] = loot.info();
                     loot.changed = false;
                 }
             });
-        });
-
-
-        //Шлем информацию о телепортах
-        //TODO: слать сразу обо всех измененных всем
-        rooms.each((room_id, room)=> {
+            //Телепорты
             room.teleportsEach((id, teleport) => {
                 if (teleport.changed) {
-                    events.common("room", "teleport-info", {info: teleport.info()});
+                    room_info.teleports[teleport.ID] = teleport.info();
                     teleport.changed = false;
                 }
             });
+            events.common("room", "all-info", {info: room_info});
         });
 
         //Шлем информацию о звуковых событиях

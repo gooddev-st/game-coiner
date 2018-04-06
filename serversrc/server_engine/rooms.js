@@ -33,8 +33,8 @@ const rooms = {
         cartoons_num: 20,
 
         populations: {
-            'gob': {maxNum:6, interval: 1.0},
-            'prof': {maxNum:1, interval: 1.0},
+            'gob': {maxNum:20, interval: 20.0},
+            'prof': {maxNum:5, interval: 10.0},
         },
     }),
 
@@ -59,8 +59,8 @@ const rooms = {
         cartoons_num: 100,
 
         populations: {
-            'gob': {maxNum:6, interval: 10.0},
-            'skeleton': {maxNum:2, interval: 10.0},
+            'gob': {maxNum:2, interval: 10.0},
+            'skeleton': {maxNum:12, interval: 10.0},
             'doc': {maxNum:1, interval: 30.0},
         },
     }),
@@ -87,7 +87,7 @@ const rooms = {
 
         populations: {
             'kroko': {maxNum:3, interval: 10.0},
-            'koil': {maxNum:3, interval: 10.0},
+            'koil': {maxNum:3, interval: 7.0},
         },
     }),
 
@@ -162,9 +162,9 @@ const rooms = {
         cartoons_num: 130,
 
         populations: {
-            'skeleton': {maxNum:6, interval: 10.0},
-            'dead': {maxNum:60, interval: 10.0},
-            'mag': {maxNum:6, interval: 10.0},
+            'skeleton': {maxNum:20, interval: 30.0},
+            'dead': {maxNum:20, interval: 30.0},
+            'mag': {maxNum:20, interval: 30.0},
         },
     }),
 
