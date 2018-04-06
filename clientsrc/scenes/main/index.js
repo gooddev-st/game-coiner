@@ -324,29 +324,32 @@ function onRoom(event, type, data) {
 
             var info = data.info;
 
-            if('npcs' in info) {
-                for (let id in info.npcs) {
-                    let unit = units.item(id);
-                    if(unit) {
-                        unit.set(info.npcs[id]);
+            if('room_id' in info && info.room_id===room_id) {
+
+                if ('npcs' in info) {
+                    for (let id in info.npcs) {
+                        let unit = units.item(id);
+                        if (unit) {
+                            unit.set(info.npcs[id]);
+                        }
                     }
                 }
-            }
 
-            if('loot' in info) {
-                for (let id in info.loot) {
+                if ('loot' in info) {
+                    for (let id in info.loot) {
 
-                    if (id in loots) {
-                        loots[id].set(info.loot[id].room_id, info.loot[id].x, info.loot[id].y, info.loot[id].character_id, id);
+                        if (id in loots) {
+                            loots[id].set(info.loot[id].room_id, info.loot[id].x, info.loot[id].y, info.loot[id].character_id, id);
+                        }
                     }
                 }
-            }
 
-            if('teleports' in info) {
-                for (let id in info.teleports) {
+                if ('teleports' in info) {
+                    for (let id in info.teleports) {
 
-                    if (id in teleports) {
-                        teleports[id].set(info.teleports[id].state);
+                        if (id in teleports) {
+                            teleports[id].set(info.teleports[id].state);
+                        }
                     }
                 }
             }
@@ -356,91 +359,6 @@ function onRoom(event, type, data) {
             log(data);
         }
     }
-
-
-    // Информация о мобе
-    /*if(type==="npc-info") {
-        try {
-            if(!data.info) throw "Ошибка получения с сервера";
-
-            var info = data.info;
-
-            if (
-                info.ID == undefined ||
-                info.x == undefined ||
-                info.y == undefined ||
-                info.character_id == undefined ||
-                info.room_id == undefined ||
-                info.state == undefined
-            ) throw "Ошибка получения с сервера";
-
-            let unit = units.item(info.ID);
-            if(unit) {
-
-                unit.set(info);
-            }
-        }
-        catch (e){
-            log("Ошибка обновления моба. "+e);
-            log(data);
-        }
-    }
-
-
-    // Информация о луте
-    if(type==="loot-info") {
-        try {
-            if(!data.info) throw "Ошибка получения с сервера";
-
-            var info = data.info;
-
-            if (
-                info.ID == undefined ||
-                info.x == undefined ||
-                info.y == undefined ||
-                info.character_id == undefined ||
-                info.room_id == undefined
-            ) throw "Ошибка получения с сервера";
-
-            if(info.room_id==room_id) {
-
-                if (info.ID in loots) {
-                    loots[info.ID].set(info.room_id, info.x, info.y, info.character_id, info.ID);
-                }
-            }
-        }
-        catch (e){
-            log("Ошибка получения лута. "+e);
-            log(data);
-        }
-    }
-
-
-    // Информация о телепортах
-    if(type==="teleport-info") {
-        try {
-            if(!data.info) throw "Ошибка получения с сервера";
-
-            var info = data.info;
-
-            if (
-                info.ID == undefined ||
-                info.room_id == undefined ||
-                info.state == undefined
-            ) throw "Ошибка получения с сервера";
-
-            if(info.room_id==room_id) {
-
-                if (info.ID in teleports) {
-                    teleports[info.ID].set(info.state);
-                }
-            }
-        }
-        catch (e){
-            log("Ошибка получения телепорта. "+e);
-            log(data);
-        }
-    }*/
 
 
     // Удаление лута

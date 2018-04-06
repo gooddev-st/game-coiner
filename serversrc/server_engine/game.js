@@ -271,8 +271,11 @@ function start(){
 
         //Шлем информацию о мобах
         //TODO: слать сразу обо всех измененных всем
-        let room_info = {npcs: {}, loot: {}, teleports: {}};
+
         rooms.each((room_id, room)=>{
+
+            let room_info = {room_id: room.ID, npcs: {}, loot: {}, teleports: {}};
+
             //мобы
             room.npcs.each((ID, npc)=>{
 
@@ -296,6 +299,7 @@ function start(){
                     teleport.changed = false;
                 }
             });
+
             events.common("room", "all-info", {info: room_info});
         });
 
