@@ -104,6 +104,7 @@ function Player(id, name, socket, data) {
     this.makeEffects = {};
     this.effects = {};
 
+    this.protect = 0;
     this.damage = 0;
 
     //Есть ли изменения для отсылки
@@ -125,6 +126,7 @@ function Player(id, name, socket, data) {
     this.skills['skill1'] = {id: 'push', icon: 'push', value: 0.0, increment: 150.0};
     this.skills['skill2'] = {id: 'freeze', icon: 'freeze', value: 0.0, increment: 100.0};
     this.skills['skill3'] = {id: 'holera', icon: 'holera', value: 0.0, increment: 50.0};
+    this.skills['skill4'] = {id: 'shield', icon: 'shield', value: 100.0, increment: 10.0};
     this.currentSkill = 'skill1';
 
     this.alredyInit = false;
@@ -280,6 +282,12 @@ Player.prototype.fire = function () {
             effects.push('holera', {from: {room_id: this.room_id, x: this.x, y: this.y}, author: this});
 
             sound_event.add('holera-effect', this.room_id, this.x, this.y);
+        }
+
+        if(skill.id==='shield'){
+            effects.push('shield', {author: this});
+
+            sound_event.add('shield-effect', this.room_id, this.x, this.y);
         }
 
 
@@ -562,6 +570,14 @@ Player.prototype.run = function (room) {
 
 
     //Применим урон (если с минусом - лечение)
+
+    //Защита щита
+    if(this.damage > 0) {
+        this.damage -= this.protect;
+        if(this.damage < 0) this.damage = 0;
+    }
+
+
     this.health -= this.damage;
     this.damage = 0;
 
@@ -718,6 +734,11 @@ Player.prototype.targetEffects = function(){
         //Холера
         if("holera" in this.effects){
             return this.effects.holera.run(this);
+        }
+
+        //Щит
+        if("shield" in this.effects){
+            return this.effects.shield.run(this);
         }
 
     }

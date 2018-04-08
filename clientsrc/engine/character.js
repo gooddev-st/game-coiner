@@ -30,9 +30,16 @@ export default class Character{
 
         if(!this.sprite.states[state] || !this.sprite.states[state][frameNum]) return;
 
+        let _x = x, _y = y;
+        if(this.sprite.top!=undefined){
+            _y += this.sprite.top;
+        }
+        if(this.sprite.left!=undefined){
+            _x += this.sprite.left;
+        }
 
         //Обрезка отрисовки вне канвы TODO: резать по камере
-        if(x + this.width > 0 && x < context.canvas.width && y + this.height > 0 && y < context.canvas.height) {
+        if(_x + this.width > 0 && _x < context.canvas.width && _y + this.height > 0 && _y < context.canvas.height) {
 
 
             // Рисуем кадр
@@ -40,8 +47,8 @@ export default class Character{
                 context,
                 this.sprite.image,
                 this.sprite.states[state][frameNum],
-                x,
-                y,
+                _x,
+                _y,
                 this.width,
                 this.height
             );

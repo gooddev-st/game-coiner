@@ -99,6 +99,12 @@ export default class Unit{
                     entities.addOne(entity);
                 }
 
+                if (effects[i] === 'shield') {
+                    let entity = new Entity(this.x + this.width / 2, this.y + 18, characters.get('shield'), 0.0, 0.0);
+                    this.effects[effects[i]] = entity;
+                    entities.addOne(entity);
+                }
+
             }
             existsEffect[effects[i]] = true;
         }

@@ -1,6 +1,7 @@
 const Push = require("./effects/push");
 const Freeze = require("./effects/freeze");
 const Holera = require("./effects/holera");
+const Shield = require("./effects/shield");
 
 const effects = [];
 
@@ -19,6 +20,11 @@ module.exports.push = function (name, properties) {
     if(name==="holera"){
         effects.push(
             new Holera(properties.from, properties.author)
+        );
+    }
+    if(name==="shield"){
+        effects.push(
+            new Shield(properties.author)
         );
     }
 

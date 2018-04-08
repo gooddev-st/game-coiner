@@ -19,6 +19,7 @@ let s_doc = document.getElementById('s_doc'),
     s_boom1 = document.getElementById('s_boom1'),
     s_boom2 = document.getElementById('s_boom2'),
     s_barier = document.getElementById('s_barier'),
+    s_shield = document.getElementById('s_shield'),
     s_push = document.getElementById('s_push'),
     s_crystals = document.getElementById('s_crystals'),
     s_skeleton = document.getElementById('s_skeleton'),
@@ -623,6 +624,56 @@ exports.barier = {
             {"name": "sprite23", "x": 128, "y": 256, "width": 64, "height": 64},
             {"name": "sprite24", "x": 192, "y": 256, "width": 64, "height": 64},
             {"name": "sprite25", "x": 256, "y": 256, "width": 64, "height": 64}
+        ]
+    }
+};
+
+
+/**
+ * Щит
+ */
+exports.shield = {
+    "image": s_shield,
+    "width": 90,
+    "height": 110,
+    "speed": 30,
+    "top": -25,
+    "left": 0,
+
+    "states": {
+        "default": [
+            {"name": "aura_test_1_32_1", "x": 0, "y": 68, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_2", "x": 0, "y": 272, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_3", "x": 81, "y": 0, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_4", "x": 81, "y": 68, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_5", "x": 0, "y": 136, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_6", "x": 81, "y": 136, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_7", "x": 162, "y": 0, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_8", "x": 162, "y": 68, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_9", "x": 162, "y": 136, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_10", "x": 0, "y": 204, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_11", "x": 81, "y": 204, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_12", "x": 162, "y": 204, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_13", "x": 243, "y": 0, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_14", "x": 243, "y": 68, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_15", "x": 243, "y": 136, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_16", "x": 243, "y": 204, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_17", "x": 0, "y": 0, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_18", "x": 81, "y": 272, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_19", "x": 162, "y": 272, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_20", "x": 243, "y": 272, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_21", "x": 324, "y": 0, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_22", "x": 324, "y": 68, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_23", "x": 324, "y": 136, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_24", "x": 324, "y": 204, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_25", "x": 324, "y": 272, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_26", "x": 0, "y": 340, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_27", "x": 81, "y": 340, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_28", "x": 162, "y": 340, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_29", "x": 243, "y": 340, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_30", "x": 324, "y": 340, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_32", "x": 0, "y": 408, "width": 80, "height": 67},
+            {"name": "aura_test_1_32_31", "x": 81, "y": 408, "width": 80, "height": 67}
         ]
     }
 };

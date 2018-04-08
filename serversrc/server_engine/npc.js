@@ -400,6 +400,11 @@ Npc.prototype.targetEffects = function(){
             return this.effects.holera.run(this);
         }
 
+        //Щит
+        if("shield" in this.effects){
+            return this.effects.shield.run(this);
+        }
+
     }
 
     return null;

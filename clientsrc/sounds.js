@@ -10,6 +10,7 @@ const sounds = {
     "push-effect": new Sound('sound/hit/dropLeather.ogg'),
     "freeze-effect": new Sound('sound/hit/frost.wav'),
     "holera-effect": new Sound('sound/hit/holera.wav'),
+    "shield-effect": new Sound('sound/hit/holera.wav'),
 };
 
 export default sounds;
