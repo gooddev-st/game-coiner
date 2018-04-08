@@ -176,7 +176,7 @@ function onRoom(event, type, data) {
 
             if (room.ID==undefined || !room.width || !room.height || room.environment_id==undefined) throw "Ошибка получения с сервера";
 
-            roomInit(room);
+            roomInit(room, data.players, data.hero);
         }
         catch (e){
             log("Ошибка получения Комнаты. "+e);
@@ -656,15 +656,13 @@ function draw(camera){
 }
 
 
-
 /**
  * Установка отображаемой комнаты
- * @param ID
- * @param width
- * @param height
- * @param environment_id
+ * @param settings
+ * @param players
+ * @param hero
  */
-function roomInit(settings){
+function roomInit(settings, players, heroUnit){
 
     //Зачистим если не впервой
     for(let i in loots){ delete loots[i];}
@@ -713,4 +711,17 @@ function roomInit(settings){
             units.add(item.ID, new Unit(item));
         }
     }
+
+    if(players){
+        for(const item_id in players){
+            let item = players[item_id];
+            units.add(item.ID, new Unit(item));
+        }
+    }
+
+    /*if(heroUnit && ! hero.unit){
+        let item = heroUnit;
+            hero.unit = new Unit(item);
+        units.add(item.ID, hero.unit);
+    }*/
 }

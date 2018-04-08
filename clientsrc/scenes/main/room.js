@@ -7,6 +7,8 @@ const ENVIRONMENTS = {
         r: {start: 120, rand: 10},
         g: {start: 120, rand: 16},
         b: {start: 100, rand: 5},
+        width: 1000,
+        height: 1000,
         // entitiesSprites: "grass",
         entitiesSprites: "andstones",
     },
@@ -14,36 +16,48 @@ const ENVIRONMENTS = {
         r: {start: 239, rand: 16},
         g: {start: 210, rand: 33},
         b: {start: 100, rand: 25},
+        width: 1000,
+        height: 1000,
         entitiesSprites: "desert",
     },
     2: {
         r: {start: 210, rand: 45},
         g: {start: 30, rand: 75},
         b: {start: 30, rand: 75},
+        width: 1000,
+        height: 1000,
         entitiesSprites: "cool_plants",
     },
     3: {
         r: {start: 10, rand: 12},
         g: {start: 130, rand: 20},
         b: {start: 210, rand: 45},
+        width: 1000,
+        height: 1000,
         entitiesSprites: "bushs",
     },
     4: {
         r: {start: 150, rand: 12},
         g: {start: 90, rand: 20},
         b: {start: 40, rand: 12},
+        width: 1000,
+        height: 1000,
         entitiesSprites: "trees",
     },
     5: {
         r: {start: 0, rand: 30},
         g: {start: 0, rand: 5},
         b: {start: 0, rand: 5},
+        width: 1000,
+        height: 1000,
         entitiesSprites: "dead_plants",
     },
     6: {
         r: {start: 230, rand: 24},
         g: {start: 230, rand: 24},
         b: {start: 230, rand: 24},
+        width: 1000,
+        height: 1000,
         entitiesSprites: "dead_plants",
     },
 };
@@ -58,7 +72,7 @@ export default class {
         this.entities_num = entities_num;
         this.image = null;
 
-        this.generate(this.entities_num);
+        this.generate();
     }
 
     randomCSScolor(environment_id){
@@ -69,39 +83,56 @@ export default class {
         return 'rgb('+r+','+g+','+b+')';
     }
 
-    generate(trees_num){
-        const ctx = document.createElement("canvas").getContext("2d"),
-            tileWidth = 22,
-            tileHeight = 22;
+    generate(){
+        const ctx = document.createElement("canvas").getContext("2d");
         ctx.canvas.width = this.width;
         ctx.canvas.height = this.height;
 
-        const rows = Math.floor(this.width/tileWidth) + 1;
-        const columns = Math.floor(this.height/tileHeight) + 1;
-
         ctx.save();
 
-        for (let x = 0, i = 0; i < rows; x+=tileHeight, i++) {
+        this.generateRandomBack(ctx);
+
+        this.generateCartoon(ctx);
+
+        ctx.restore();
+
+        // Сохраним картинкой
+        this.image = new Image();
+        this.image.src = ctx.canvas.toDataURL("image/png");
+
+    }
+
+    generateRandomBack(ctx){
+
+        const
+            tileWidth = 22.0,
+            tileHeight = 22.0,
+            rows = Math.floor(this.width/tileWidth) + 1,
+            columns = Math.floor(this.height/tileHeight) + 1;
+
+        for (let x = 0.0, i = 0; i < rows; x+=tileHeight, i++) {
             for (let y = 0, j=0; j < columns; y+=tileWidth, j++) {
                 ctx.beginPath();
                 ctx.fillStyle = this.randomCSScolor(this.environment_id);
                 ctx.fillRect(x, y, tileWidth, tileHeight);
-                ctx.closePath();
+                // ctx.closePath();
             }
         }
+    }
 
+    generateCartoon(ctx){
         const env = ENVIRONMENTS[this.environment_id];
 
         const spr = sprites[env.entitiesSprites];
 
         //Сгенерим деревья
-        for(let i = 0; i<trees_num; i++){
+        for(let i = 0; i<this.entities_num; i++){
 
             //Случайная плитка из набора
             let id = Math.floor(Math.random()*spr.states.default.length);
             let tile = spr.states.default[id];
 
-                //Случайные координаты
+            //Случайные координаты
             let xx = Math.floor(Math.random()*(this.width + tile.width)/10)*10 - tile.width;
             let yy = Math.floor(Math.random()*(this.height + tile.height)/10)*10 - tile.height;
             let w = tile.width, h = tile.height, sx = tile.x, sy = tile.y;
@@ -127,13 +158,6 @@ export default class {
             }
 
         }
-
-        ctx.restore();
-
-        // Сохраним картинкой
-        this.image = new Image();
-        this.image.src = ctx.canvas.toDataURL("image/png");
-
     }
 
     draw(camera){

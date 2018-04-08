@@ -33,8 +33,8 @@ const rooms = {
         cartoons_num: 20,
 
         populations: {
-            'gob': {maxNum:20, interval: 20.0},
-            'prof': {maxNum:5, interval: 10.0},
+            'gob': {maxNum:13, interval: 20.0},
+            'prof': {maxNum:2, interval: 10.0},
         },
     }),
 
@@ -60,7 +60,7 @@ const rooms = {
 
         populations: {
             'gob': {maxNum:2, interval: 10.0},
-            'skeleton': {maxNum:12, interval: 10.0},
+            'skeleton': {maxNum:6, interval: 10.0},
             'doc': {maxNum:1, interval: 30.0},
         },
     }),
@@ -156,15 +156,15 @@ const rooms = {
 
         coins_num: 260,
         coins_max_limit: 260,
-        coins_generate_interval: 1.0,
+        coins_generate_interval: 0.3,
 
         teleports_num: 15,
         cartoons_num: 130,
 
         populations: {
-            'skeleton': {maxNum:20, interval: 30.0},
-            'dead': {maxNum:20, interval: 30.0},
-            'mag': {maxNum:20, interval: 30.0},
+            'skeleton': {maxNum:5, interval: 5.0},
+            'dead': {maxNum:5, interval: 5.0},
+            'mag': {maxNum:5, interval: 5.0},
         },
     }),
 

@@ -137,6 +137,7 @@ Player.prototype.init = function () {
     if(this.alredyInit) return;
     this.alredyInit = true;
 
+
     //Отправим героя
     events.one(this.socket, "hero", "hero-create", {info: this.allInfo(), message: "Выдан герой "+this.name});
 
@@ -151,15 +152,20 @@ Player.prototype.init = function () {
         room = rooms.get(this.room_id);
     }
 
-    events.one(this.socket, "room", "change", {room: room.info(), message: "Выдана Комната"});
+    events.one(this.socket, "room", "change", {
+        room: room.info(),
+        players: players.listInRoom(room.ID, this.ID),
+        message: "Выдана Комната"
+    });
 
 
     //Отправим игроков. Кроме самого
-    players.each((playerID, player)=>{
+    /*players.each((playerID, player)=>{
         if(playerID !== this.ID) {
             events.one(this.socket, "room", "player-create", {info: player.commonInfo()});
         }
-    });
+    });*/
+
     events.one(this.socket, "hero", "info", {message: "Выданы игроки"});
 
 
@@ -369,7 +375,11 @@ Player.prototype.teleport = function (teleport) {
     if(teleport.target.room_id != teleport.room_id){
         let room = rooms.get(this.room_id);
 
-        events.one(this.socket, "room", "change", {room: room.info()});
+        events.one(this.socket, "room", "change", {
+            room: room.info(),
+            players: players.listInRoom(room.ID, this.ID),
+            message: "Выдана Комната"
+        });
 
     }
 
@@ -600,7 +610,11 @@ Player.prototype.makeDie = function(){
 
     //Сменим комнату
     let room = rooms.get(this.room_id);
-    events.one(this.socket, "room", "change", {room: room.info()});
+    events.one(this.socket, "room", "change", {
+        room: room.info(),
+        players: players.listInRoom(room.ID, this.ID),
+        message: "Выдана Комната"
+    });
 
     sound_event.add("hero_death", this.room_id, this.x, this.y);
 

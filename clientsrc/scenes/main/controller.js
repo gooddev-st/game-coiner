@@ -168,38 +168,38 @@ function onKeyup(e) {
             events.add('keyup', 'fire');
             break;
         case keys.STATISTIC:
-            events.add('keyup', 'statistic');
+            events.add('keyup', 'fire');
             break;
-        /*case keys.N1:
-            events.add('keyup', 'skill1');
+        case keys.N1:
+            events.add('keyup', 'fire');
             break;
         case keys.N2:
-            events.add('keyup', 'skill2');
+            events.add('keyup', 'fire');
             break;
         case keys.N3:
-            events.add('keyup', 'skill3');
+            events.add('keyup', 'fire');
             break;
         case keys.N4:
-            events.add('keyup', 'skill4');
+            events.add('keyup', 'fire');
             break;
         case keys.N5:
-            events.add('keyup', 'skill5');
+            events.add('keyup', 'fire');
             break;
         case keys.N6:
-            events.add('keyup', 'skill6');
+            events.add('keyup', 'fire');
             break;
         case keys.N7:
-            events.add('keyup', 'skill7');
+            events.add('keyup', 'fire');
             break;
         case keys.N8:
-            events.add('keyup', 'skill8');
+            events.add('keyup', 'fire');
             break;
         case keys.N9:
-            events.add('keyup', 'skill9');
+            events.add('keyup', 'fire');
             break;
         case keys.N0:
-            events.add('keyup', 'skill10');
-            break;*/
+            events.add('keyup', 'fire');
+            break;
     }
 }
 

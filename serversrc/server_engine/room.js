@@ -331,3 +331,36 @@ Room.prototype.info = function(){
         npcs: this.npcs.list(),
     };
 }
+
+
+/*Room.prototype.currentInfo = function(){
+    let loot = [];
+
+    this.lootEach((i, it)=>{
+        if(it.changed){
+            loot.push(it);
+        }
+    });
+
+    let teleports = [];
+    this.teleportsEach((i, it)=>{
+        if(it.changed){
+            teleports.push(it);
+        }
+    });
+
+    let npcs = {};
+    this.npcs.each((i, it)=>{
+        if(it.changed){
+            npcs[i] = it;
+        }
+    });
+
+    return {
+        ID: this.ID,
+        cartoons: this.cartoons,
+        loot: loot,
+        teleports: teleports,
+        npcs: npcs,
+    };
+}*/

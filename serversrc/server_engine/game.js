@@ -14,7 +14,6 @@ const sound_event = require('./sound_event.js');//звуковые событи�
 
 const world = require('./world.js');
 const rooms = require('./rooms.js');
-const npcs = require('./npcs.js');
 const users = require("./users"); //Пользователи
 const players = require("./players.js");//,// игроки
 const effects = require("./effects.js");
@@ -254,62 +253,8 @@ function start(){
             });
         });
 
-        //Шлем информацию о плеерах
-        //TODO: общую слать сразу обо всех измененных всем
-        players.each((playerID, player)=>{
-
-            if(player.changed) {
-                //самому
-                events.one(player.socket, "hero", "hero-info", {info: player.allInfo()});
-
-                //остальным только общую
-                events.not_me(player.socket, "room", "player-info", {info: player.commonInfo()});
-                player.changed = false;
-
-            }
-        });
-
-        //Шлем информацию о мобах
-        //TODO: слать сразу обо всех измененных всем
-
-        rooms.each((room_id, room)=>{
-
-            let room_info = {room_id: room.ID, npcs: {}, loot: {}, teleports: {}};
-
-            //мобы
-            room.npcs.each((ID, npc)=>{
-
-                if(npc.changed) {
-                    room_info.npcs[npc.ID] = npc.info();
-                    npc.changed = false;
-
-                }
-            });
-            //лут
-            room.lootEach((id, loot) => {
-                if (loot.changed) {
-                    room_info.loot[loot.ID] = loot.info();
-                    loot.changed = false;
-                }
-            });
-            //Телепорты
-            room.teleportsEach((id, teleport) => {
-                if (teleport.changed) {
-                    room_info.teleports[teleport.ID] = teleport.info();
-                    teleport.changed = false;
-                }
-            });
-
-            events.common("room", "all-info", {info: room_info});
-        });
-
-        //Шлем информацию о звуковых событиях
-        //TODO: слать сразу обо всех всем
-        let evs = sound_event.list();
-        for(let i in evs){
-            events.common("sound", "notice", {info: evs[i]});
-        }
-        sound_event.reset();
+        //Рассылаем состояние игры клиентам
+        sendGameState();
 
 
 
@@ -323,6 +268,75 @@ function start(){
         });
 
     }, 10000);
+}
+
+
+function sendGameState(){
+
+    //Шлем информацию о плеерах
+    players.each((playerID, player)=>{
+
+        if(player.changed) {
+            //самому
+            events.one(player.socket, "hero", "hero-info", {info: player.allInfo()});
+
+            //остальным в той же комнате - только общую
+            players.each((i, it)=>{
+                if(i!==playerID && player.room_id===it.room_id){
+                    events.one(it.socket, "room", "player-info", {info: player.commonInfo()});
+                }
+            });
+            // events.not_me(player.socket, "room", "player-info", {info: player.commonInfo()});
+            player.changed = false;
+
+        }
+    });
+
+    //Шлем информацию о комнатах
+    rooms.each((room_id, room)=>{
+
+        let room_info = {room_id: room.ID, npcs: {}, loot: {}, teleports: {}};
+
+        //мобы
+        room.npcs.each((ID, npc)=>{
+
+            if(npc.changed) {
+                room_info.npcs[npc.ID] = npc.info();
+                npc.changed = false;
+
+            }
+        });
+        //лут
+        room.lootEach((id, loot) => {
+            if (loot.changed) {
+                room_info.loot[loot.ID] = loot.info();
+                loot.changed = false;
+            }
+        });
+        //Телепорты
+        room.teleportsEach((id, teleport) => {
+            if (teleport.changed) {
+                room_info.teleports[teleport.ID] = teleport.info();
+                teleport.changed = false;
+            }
+        });
+
+        players.each((i, it)=>{
+            if(it.room_id===room.ID){
+                events.one(it.socket, "room", "all-info", {info: room_info})
+            }
+        });
+
+        // events.common("room", "all-info", {info: room_info});
+    });
+
+    //Шлем информацию о звуковых событиях
+    //TODO: слать сразу обо всех всем
+    let evs = sound_event.list();
+    for(let i in evs){
+        events.common("sound", "notice", {info: evs[i]});
+    }
+    sound_event.reset();
 }
 
 
