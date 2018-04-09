@@ -248,8 +248,10 @@ function onRoom(event, type, data) {
             if(!data.ID) throw "Ошибка получения с сервера";
 
             let unit = units.item(data.ID);
-            unit.destroy();
-            units.remove(data.ID);
+            if(unit) {
+                unit.destroy();
+                units.remove(data.ID);
+            }
 
         }
         catch (e){

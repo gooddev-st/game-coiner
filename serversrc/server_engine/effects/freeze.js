@@ -55,12 +55,6 @@ Freeze.prototype.attach = function(targets){
 
 
 Freeze.prototype.run = function (target) {
-    //На автора не действует
-    if(this.author.ID===target.ID){
-        delete target.effects[this.name];
-        return null;
-    }
-
 
     if(!this.started){
         this.started = true;
@@ -70,11 +64,11 @@ Freeze.prototype.run = function (target) {
 
         this.faza += STEP;
 
-        return {
-            x: target.x,
-            y: target.y
-        };
+        target.freeze = true;
+        return;
     }
+
+    target.freeze = false;
 
     //Сбросим цель движения
     target.target = false;

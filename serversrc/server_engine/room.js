@@ -7,6 +7,7 @@ const Coin = require("./loot.js");
 const Teleport = require("./teleport.js");
 const events = require('./events.js');
 const NpcsList = require('./npcs')
+const players = require('./players')
 
 require('./constants')();
 
@@ -196,7 +197,7 @@ Room.prototype.run = function () {
             let coin = new Coin(this.ID, pos.x, pos.y, character_id);
             this.loot.push(coin);
 
-            events.common("room", "loot-create", {info: coin.info()});
+            events.room(this.ID, "room", "loot-create", {info: coin.info()});
         }
     }
     this.generation_faza += STEP;
@@ -218,7 +219,7 @@ Room.prototype.addCoin = function (x, y, character_id, content){
     let coin = new Coin(this.ID, x, y, character_id, content);
     this.loot.push(coin);
 
-    events.common("room", "loot-create", {info: coin.info()});
+    events.room(this.ID, "room", "loot-create", {info: coin.info()});
 };
 
 
@@ -234,7 +235,7 @@ Room.prototype.addCartoon = function (x, y, spriteset_id, sprite_id){
     let cartoon = new Cartoon(this.ID, x, y, spriteset_id, sprite_id);
     this.cartoons.push(cartoon);
 
-    events.common("room", "cartoon-create", {info: cartoon.info()});
+    events.room(this.ID, "room", "cartoon-create", {info: cartoon.info()});
 };
 
 
@@ -286,7 +287,7 @@ Room.prototype.genNpcs = function () {
                     npc = this.npcs.add(this.ID, pos.x, pos.y, character_id);
                 character.num++;
 
-                events.common("room", "npc-create", {info: npc.info()});
+                events.room(this.ID, "room", "npc-create", {info: npc.info()});
             }
         }
         character.faza += STEP;
@@ -301,7 +302,7 @@ Room.prototype.cleanUp = function () {
     this.lootEach((i, it)=>{
         if(it.isDie()){
             this.loot.splice(i, 1);
-            events.common("room", "loot-remove", {info: it.info()});
+            events.room(this.ID, "room", "loot-remove", {info: it.info()});
         }
     });
 
@@ -312,7 +313,8 @@ Room.prototype.cleanUp = function () {
             this.npcs.remove(i);
             this.populations[it.character_id].num--;
 
-            events.common("room", "npc-remove", {info: it.info()});
+            events.room(this.ID, "room", "npc-remove", {info: it.info()});
+
         }
     });
 };

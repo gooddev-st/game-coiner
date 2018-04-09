@@ -99,7 +99,12 @@ function Npc(ID, x, y, room_id, character_id, speed) {
 
     this.effects = {}; //Эффекты
 
+
+    this.armor = 0;
+    this.protect = 0;
     this.damage = 0;
+
+    this.freeze = false;
 
     this.die = false;
 }
@@ -141,7 +146,7 @@ Npc.prototype.teleport = function (teleport) {
     let
         x = this.x + this.width/2,
         y = this.y;
-    events.common('entity', 'teleport-target', {
+    events.room(teleport.target.room_id, 'entity', 'teleport-target', {
         room_id: teleport.target.room_id,
         x: x,
         y: y,
@@ -171,8 +176,17 @@ Npc.prototype.run = function (room, step) {
     //Сохраним старую позицию, чтоб понимать - движется ли
     let oldX = this.x, oldY = this.y, oldState = this.state, oldHealth = this.health;
 
+    this.runEffects();
+
     let target = this.calculateTarget(room);
     if(target) this.target = target;
+
+    if(this.freeze){
+
+        this.target = false;
+
+        this.freeze = false;
+    }
 
     // если есть цель
     if (this.target) {
@@ -224,6 +238,13 @@ Npc.prototype.run = function (room, step) {
     }
 
 
+    if(this.damage > 0) {
+        this.damage -= this.armor;
+        this.damage -= this.protect;
+        if(this.damage < 0) this.damage = 0;
+    }
+    this.protect = 0;
+
     //Применим урон (если с минусом - лечение)
     this.health -= this.damage;
     this.damage = 0;
@@ -253,13 +274,24 @@ Npc.prototype.run = function (room, step) {
 };
 
 
+Npc.prototype.runEffects = function () {
+
+    if (this.effects) {
+
+        for(let effectID in this.effects){
+            this.effects[effectID].run(this);
+        }
+
+    }
+};
+
 
 Npc.prototype.calculateTarget = function(room) {
     let target;
 
-    // Эффекты движения
+    /*// Эффекты движения
     target = this.targetEffects();
-    if(target) return target;
+    if(target) return target;*/
 
     // Идем к ближнему игроку (в поле зрения)
     target = this.targetPlayer(room);

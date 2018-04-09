@@ -281,12 +281,8 @@ function sendGameState(){
             events.one(player.socket, "hero", "hero-info", {info: player.allInfo()});
 
             //остальным в той же комнате - только общую
-            players.each((i, it)=>{
-                if(i!==playerID && player.room_id===it.room_id){
-                    events.one(it.socket, "room", "player-info", {info: player.commonInfo()});
-                }
-            });
-            // events.not_me(player.socket, "room", "player-info", {info: player.commonInfo()});
+            events.room_not_me(player.room_id, playerID, "room", "player-info", {info: player.commonInfo()});
+
             player.changed = false;
 
         }
@@ -321,17 +317,12 @@ function sendGameState(){
             }
         });
 
-        players.each((i, it)=>{
-            if(it.room_id===room.ID){
-                events.one(it.socket, "room", "all-info", {info: room_info})
-            }
-        });
 
-        // events.common("room", "all-info", {info: room_info});
+        events.room(room.ID, "room", "all-info", {info: room_info});
     });
 
     //Шлем информацию о звуковых событиях
-    //TODO: слать сразу обо всех всем
+    //TODO: слать сразу обо всех - комнате
     let evs = sound_event.list();
     for(let i in evs){
         events.common("sound", "notice", {info: evs[i]});

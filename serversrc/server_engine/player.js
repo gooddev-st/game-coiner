@@ -84,6 +84,7 @@ function Player(id, name, socket, data) {
 
     this.width = PLAYER_WIDTH;
     this.height = PLAYER_HEIGHT;
+    this.baseSpeed = data.speed;
     this.speed = data.speed;
 
 
@@ -94,6 +95,7 @@ function Player(id, name, socket, data) {
     this.levelupCounter = this.score - TO_LEVELS[this.level - 1];
 
     this.coins_count = data.coins_count ? data.coins_count : 0;
+    this.healthMax = data.health;
     this.health = data.health;
 
 
@@ -104,8 +106,11 @@ function Player(id, name, socket, data) {
     this.makeEffects = {};
     this.effects = {};
 
+    this.armor = 0;
     this.protect = 0;
     this.damage = 0;
+
+    this.freeze = false;
 
     //Есть ли изменения для отсылки
     this.changed = true;
@@ -172,7 +177,7 @@ Player.prototype.init = function () {
 
 
     //Заявим, что пришел игрок
-    events.not_me(this.socket, "room", "player-create", {info: this.commonInfo(), message: "Пришел игрок[" + this.name + "]"});
+    events.room_not_me(this.room_id, this.ID, "room", "player-create", {info: this.commonInfo(), message: "Пришел игрок[" + this.name + "]"});
 
 
     //Навесим обработчики
@@ -261,9 +266,14 @@ Player.prototype.fire = function () {
 
 
         if(skill.id==='push') {
+
+            //Сбрасываем заморозку
+            delete this.effects['freeze'];
+
+
             effects.push('push', {from: {room_id: this.room_id, x: this.x, y: this.y}, author: this});
 
-            events.common('entity', 'push-effect', {
+            events.room(this.room_id, 'entity', 'push-effect', {
                 room_id: this.room_id,
                 x: this.x + 20,
                 y: this.y + 30,
@@ -361,7 +371,7 @@ Player.prototype.eating = function (loot) {
     this.levelupValue = TO_LEVELS[this.level] - TO_LEVELS[this.level - 1];
     this.levelupCounter = this.score - TO_LEVELS[this.level - 1];
 
-    events.common("entity", "remove-coin", {room_id: loot.room_id, x: x, y: y});
+    events.room(loot.room_id, "entity", "remove-coin", {room_id: loot.room_id, x: x, y: y});
 
     db.updateAvatar(this.info());
     this.changed = true;
@@ -424,7 +434,7 @@ Player.prototype.teleport = function (teleport) {
     let
         x = this.x + this.width/2,
         y = this.y + 1;
-    events.common('entity', 'teleport-target', {
+    events.room(teleport.target.room_id, 'entity', 'teleport-target', {
         room_id: teleport.target.room_id,
         x: x,
         y: y,
@@ -436,56 +446,8 @@ Player.prototype.teleport = function (teleport) {
 
 
 /**
- * Применение созданных игроком эффектов (например толчок)
+ * Умения восстанавливаются
  */
-/*Player.prototype.attachEffects = function (units){
-
-    //Для всех создаваемых эффектов
-    for(let effect_id in this.makeEffects) {
-
-        //Если для эффекта есть звук - отправим событие
-
-
-
-        for(let unit_id in units){
-
-            //Если разные комнаты, то не воздействует
-            if(this.room_id !== units[unit_id].room_id) continue;
-
-            //Пока на себя не применяем вообще
-            if(this.ID === units[unit_id].ID) continue;
-
-            //TODO: Проверка условий эффекта (например расстояние до источника)
-
-            //Если этот эффект ещё не применен
-            if (effect_id in units[unit_id].effects===false) {
-
-                //Проверим условия
-                //Расстояние до источника
-                let
-                    dx = units[unit_id].x - this.x,
-                    dy = units[unit_id].y - this.y,
-                    distance = Math.sqrt(dx*dx + dy*dy);
-
-                if(distance <= this.makeEffects[effect_id].distance) {
-
-                    //Применим
-                    //Склонируем эффект TODO: Классами чтоль эффекты сделать?!
-                    units[unit_id].effects[effect_id] = {};
-                    for (let key in this.makeEffects[effect_id]) {
-                        units[unit_id].effects[effect_id][key] = this.makeEffects[effect_id][key];
-                    }
-                }
-            }
-
-        //}
-        }
-        //После всех - удалим создаваемый эффект
-        delete this.makeEffects[effect_id];
-    }
-};*/
-
-
 Player.prototype.updateSkillsValues = function () {
     let changed = false;
 
@@ -529,6 +491,8 @@ Player.prototype.run = function (room) {
 
     this.updateSkillsValues();
 
+    this.runEffects();
+
     let oldPos = {x: this.x, y: this.y},
         oldState = this.state,
         oldHealth = this.health;
@@ -536,6 +500,13 @@ Player.prototype.run = function (room) {
     let target = this.calculateTarget();
     if(target) this.target = target;
 
+    //Если станилка - сбросим цель
+    if(this.freeze){
+
+        this.target = false;
+
+        this.freeze = false;
+    }
 
     //Если есть цель
     if (this.target) {
@@ -599,11 +570,11 @@ Player.prototype.run = function (room) {
 
     //Защита щита
     if(this.damage > 0) {
+        this.damage -= this.armor;
         this.damage -= this.protect;
         if(this.damage < 0) this.damage = 0;
     }
     this.protect = 0;
-
 
     this.health -= this.damage;
     this.damage = 0;
@@ -658,7 +629,7 @@ Player.prototype.makeDie = function(){
     let
         x = this.x + this.width/2,
         y = this.y + 1;
-    events.common('entity', 'teleport-target', {
+    events.room(this.room_id, 'entity', 'teleport-target', {
         room_id: this.room_id,
         x: x,
         y: y,
@@ -669,14 +640,26 @@ Player.prototype.makeDie = function(){
 };
 
 
+Player.prototype.runEffects = function () {
+
+    if (this.effects) {
+
+        for(let effectID in this.effects){
+            this.effects[effectID].run(this);
+        }
+
+    }
+};
+
+
 //Рассчитаем цель
 Player.prototype.calculateTarget = function(){
     // если есть клик
     let click = this.getClick();
 
     let target;
-    target = this.targetEffects();
-    if(target) return target;
+    /*target = this.targetEffects();
+    if(target) return target;*/
 
     target = this.targetKeyboard();
     if(target) return target;
@@ -869,7 +852,7 @@ Player.prototype.allInfo = function(){
 
 Player.prototype.destroy = function(){
 
-    events.not_me(this.socket, "room", "player-leave", {room_id: this.room_id, ID: this.ID, message: "Игрок["+this.name+"] покинул этот мир"});
+    events.room_not_me(this.room_id, this.ID, "room", "player-leave", {room_id: this.room_id, ID: this.ID, message: "Игрок["+this.name+"] покинул этот мир"});
 
     this.socket.removeAllListeners();
 
