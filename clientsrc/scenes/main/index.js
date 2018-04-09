@@ -98,10 +98,10 @@ function start(callback) {
             entities.add(data.x, data.y, 'barier', 0.65);
         }
 
-        /*if(type==="push-effect" && data.room_id===room_id){
+        if(type==="push-effect" && data.room_id===room_id){
 
             entities.add(data.x, data.y, 'push1', 0.15);
-        }*/
+        }
     });
 
     ui.skills.start();
@@ -247,6 +247,8 @@ function onRoom(event, type, data) {
         try {
             if(!data.ID) throw "Ошибка получения с сервера";
 
+            let unit = units.item(data.ID);
+            unit.destroy();
             units.remove(data.ID);
 
         }

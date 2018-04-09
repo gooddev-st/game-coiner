@@ -9,6 +9,9 @@ function Shield(author) {
     this.name = 'shield';
 
     this.duration = 10.0;//60.0*60.0*2.0;//2 часа
+
+    this.protect = 500;
+
     this.entity = 'shield-effect';
     this.sound = 'shield-effect';
     this.author = author;
@@ -52,7 +55,7 @@ Shield.prototype.run = function (target) {
 
         this.faza += STEP;
 
-        target.protect = 500;
+        target.protect = this.protect;
 
         return null;
         /*return {
@@ -63,6 +66,9 @@ Shield.prototype.run = function (target) {
 
     //Удалим эффект
     delete target.effects[this.name];
+
+    target.protect = 0;
+
     target.changed = true;
 
     return null;

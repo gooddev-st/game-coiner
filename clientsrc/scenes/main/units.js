@@ -22,7 +22,13 @@ function remove(ID) {
 
 function reset() {
     for(const i in units){
-        if(!units[i].isHero) delete units[i];
+        if(!units[i].isHero){
+            delete units[i];
+        }
+        else{
+            units[i].destroy();
+        }
+
     }
 }
 

@@ -365,7 +365,39 @@ Player.prototype.eating = function (loot) {
 
     db.updateAvatar(this.info());
     this.changed = true;
-}
+};
+
+
+/**
+ * Смена комнаты
+ * @param room_id - id новой комнаты
+ */
+Player.prototype.changeRoom = function (room_id) {
+
+    players.each((i, it)=>{
+        if(it.ID!==this.ID) {
+            //Отправим в старую комнату "уход"
+            if (it.room_id === this.room_id) {
+                events.one(it.socket, "room", "player-leave", {room_id: this.room_id, ID: this.ID, message: "Плеер "+this.name+" покинул комнату"});
+            }
+            //Отправим в новую комнату "приход"
+            if (it.room_id === room_id) {
+                events.one(it.socket, "room", "player-create", {info: this.commonInfo(), message: "В комнату вошел "+this.name});
+            }
+        }
+    });
+
+
+    let room = rooms.get(room_id);
+
+    events.one(this.socket, "room", "change", {
+        room: room.info(),
+        players: players.listInRoom(room.ID, this.ID),
+        message: "Выдана Комната"
+    });
+
+    this.room_id = room_id;
+};
 
 
 /**
@@ -373,22 +405,16 @@ Player.prototype.eating = function (loot) {
  * @param teleport
  */
 Player.prototype.teleport = function (teleport) {
-    this.room_id = teleport.target.room_id;
     this.x = teleport.target.x;
     this.y = teleport.target.y;
 
+    //Сбросим цель движения
     this.target = null;
 
     //Если перемещаемся в другую комнату - закажем смену
-    if(teleport.target.room_id != teleport.room_id){
-        let room = rooms.get(this.room_id);
+    if(this.room_id !== teleport.target.room_id){
 
-        events.one(this.socket, "room", "change", {
-            room: room.info(),
-            players: players.listInRoom(room.ID, this.ID),
-            message: "Выдана Комната"
-        });
-
+        this.changeRoom(teleport.target.room_id);
     }
 
     //sound
@@ -576,6 +602,7 @@ Player.prototype.run = function (room) {
         this.damage -= this.protect;
         if(this.damage < 0) this.damage = 0;
     }
+    this.protect = 0;
 
 
     this.health -= this.damage;
@@ -620,17 +647,11 @@ Player.prototype.makeDie = function(){
 
     sound_event.add("hero_death", this.room_id, this.x, this.y);
 
-    this.room_id = "finish";
     this.x = 100;
     this.y = 100;
 
     //Сменим комнату
-    let room = rooms.get(this.room_id);
-    events.one(this.socket, "room", "change", {
-        room: room.info(),
-        players: players.listInRoom(room.ID, this.ID),
-        message: "Выдана Комната"
-    });
+    this.changeRoom("finish");
 
     sound_event.add("hero_death", this.room_id, this.x, this.y);
 

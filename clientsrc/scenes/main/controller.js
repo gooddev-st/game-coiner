@@ -168,7 +168,7 @@ function onKeyup(e) {
             events.add('keyup', 'fire');
             break;
         case keys.STATISTIC:
-            events.add('keyup', 'fire');
+            events.add('keyup', 'statistic');
             break;
         case keys.N1:
             events.add('keyup', 'fire');
