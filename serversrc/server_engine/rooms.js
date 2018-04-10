@@ -93,7 +93,7 @@ const rooms = {
 
     'paradise': new Room({
         ID: 'paradise',
-        width: 400,
+        width: 1000,
         height: 3000,
 
         environment_id: 3,

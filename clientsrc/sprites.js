@@ -97,6 +97,7 @@ exports.gob = {
     "image": s_gob,
     "width": 100,
     "height": 100,
+    "top": 9,
 
     "states": {
         "default": [
@@ -407,13 +408,13 @@ exports.teleport = {
 
     "states": {
         "default": [
-            {"name": "idle", "x": 0, "y": 0, "width": 90, "height": 49},
-        ],
-        "run": [
             {"name": "run1", "x": 0, "y": 49, "width": 90, "height": 49},
             {"name": "run2", "x": 0, "y": 98, "width": 90, "height": 49},
             {"name": "run3", "x": 90, "y": 0, "width": 90, "height": 49},
-            {"name": "run4", "x": 90, "y": 49, "width": 90, "height": 49}
+            {"name": "run4", "x": 90, "y": 49, "width": 90, "height": 49},
+        ],
+        "run": [
+            {"name": "idle", "x": 0, "y": 0, "width": 90, "height": 49},
         ]
     }
 };

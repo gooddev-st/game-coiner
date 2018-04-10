@@ -102,7 +102,7 @@ function Npc(ID, x, y, room_id, character_id, speed) {
 
 
     this.weapons = {}; // Оружие
-    this.currentSkill = null;
+    this.currentWeapon = null;
 
 
     this.armor = 0;

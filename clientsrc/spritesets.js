@@ -12,7 +12,8 @@ let s_campfire = document.getElementById('s_campfire');
 /**
  * Пустынное
  */
-exports.desert = [{"image": t_plants, "width": 27, "height": 58, "states": {"default": [{"name": "sprite7", "x": 198, "y": 201, "width": 27, "height": 58}]}},
+exports.desert = [
+    {"image": t_plants, "width": 27, "height": 58, "top": 10, "states": {"default": [{"name": "sprite7", "x": 198, "y": 201, "width": 27, "height": 58}]}},
     {"image": t_plants, "width": 76, "height": 92, "states": {"default": [{"name": "sprite14", "x": 233, "y": 330, "width": 76, "height": 92}]}},
     {"image": t_plants, "width": 60, "height": 87, "states": {"default": [{"name": "sprite16", "x": 244, "y": 238, "width": 60, "height": 87}]}},
 
@@ -34,29 +35,33 @@ exports.belwood = [
  * Деревья
  */
 exports.bushs = [
-    {"image": t_bushs, "width": 113, "height": 118, "states": {"default": [{"name": "sprite3", "x": 136, "y": 0, "width": 113, "height": 118}]}},
-    {"image": t_bushs, "width": 102, "height": 140, "states": {"default": [{"name": "sprite4", "x": 0, "y": 0, "width": 102, "height": 140}]}},
+    {"image": t_bushs, "width": 113, "height": 118, "top": -10, "states": {"default": [{"name": "sprite3", "x": 136, "y": 0, "width": 113, "height": 118}]}},
+    {"image": t_bushs, "width": 102, "height": 140, "top": -12, "states": {"default": [{"name": "sprite4", "x": 0, "y": 0, "width": 102, "height": 140}]}},
 ];
 
 /**
  * Надгробья
  */
 exports.graves = [
-    {"image": s_graves, "width": 22, "height": 32, "states": {"default": [{"name": "sprite3", "x": 165, "y": 0, "width": 22, "height": 32},]}},
-    {"image": s_graves, "width": 28, "height": 27, "states": {"default": [{"name": "sprite5", "x": 98, "y": 2, "width": 28, "height": 27}]}},
+    {"image": s_graves, "width": 22, "height": 32, "top": 26, "states": {"default": [{"name": "sprite3", "x": 165, "y": 0, "width": 22, "height": 32},]}},
+    {"image": s_graves, "width": 28, "height": 27, "top": 28, "states": {"default": [{"name": "sprite5", "x": 98, "y": 2, "width": 28, "height": 27}]}},
 ];
 
 /**
  * Костры
  */
 exports.campfire = [
-    {"image": s_campfire, "width": 64, "height": 64, "states": {"default": [
-        {"name": "sprite1", "x": 0, "y": 0, "width": 64, "height": 64},
-        {"name": "sprite2", "x": 64, "y": 0, "width": 64, "height": 64},
-        {"name": "sprite3", "x": 128, "y": 0, "width": 64, "height": 64},
-        {"name": "sprite4", "x": 192, "y": 0, "width": 64, "height": 64},
-        {"name": "sprite5", "x": 256, "y": 0, "width": 64, "height": 64}
-    ]}},
+    {
+        "image": s_campfire, "width": 64, "height": 64, "top": 16, "states": {
+            "default": [
+                {"name": "sprite1", "x": 0, "y": 0, "width": 64, "height": 64},
+                {"name": "sprite2", "x": 64, "y": 0, "width": 64, "height": 64},
+                {"name": "sprite3", "x": 128, "y": 0, "width": 64, "height": 64},
+                {"name": "sprite4", "x": 192, "y": 0, "width": 64, "height": 64},
+                {"name": "sprite5", "x": 256, "y": 0, "width": 64, "height": 64}
+            ]
+        }
+    },
 ];
 
 /**

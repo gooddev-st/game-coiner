@@ -161,8 +161,7 @@ Player.prototype.init = function () {
 
     events.one(this.socket, "room", "change", {
         room: room.info(),
-        players: players.listInRoom(room.ID, this.ID),
-        message: "Выдана Комната"
+        players: players.listInRoom(room.ID, this.ID)
     });
 
 
@@ -173,11 +172,11 @@ Player.prototype.init = function () {
         }
     });*/
 
-    events.one(this.socket, "hero", "info", {message: "Выданы игроки"});
+    events.not_me(this.socket, "server", "info", {message: "Пришел игрок[" + this.name + "]"});
 
 
     //Заявим, что пришел игрок
-    events.room_not_me(this.room_id, this.ID, "room", "player-create", {info: this.commonInfo(), message: "Пришел игрок[" + this.name + "]"});
+    events.room_not_me(this.room_id, this.ID, "room", "player-create", {info: this.commonInfo()});
 
 
     //Навесим обработчики
@@ -217,6 +216,36 @@ Player.prototype.init = function () {
             case "fire":
                 this.fire();
                 break;
+            case "skill1":
+                this.fire("skill1");
+                break;
+            case "skill2":
+                this.fire("skill2");
+                break;
+            case "skill3":
+                this.fire("skill3");
+                break;
+            case "skill4":
+                this.fire("skill4");
+                break;
+            case "skill5":
+                this.fire("skill5");
+                break;
+            case "skill6":
+                this.fire("skill6");
+                break;
+            case "skill7":
+                this.fire("skill7");
+                break;
+            case "skill8":
+                this.fire("skill8");
+                break;
+            case "skill9":
+                this.fire("skill9");
+                break;
+            case "skill10":
+                this.fire("skill10");
+                break;
         }
     });
 
@@ -254,11 +283,19 @@ Player.prototype.init = function () {
     });
 };
 
-Player.prototype.fire = function () {
+Player.prototype.fire = function (skillID) {
+    let skill;
 
-    if(!this.currentSkill || !this.skills[this.currentSkill]) return;
+    if(!skillID) {
+        if (!this.currentSkill || !this.skills[this.currentSkill]) return;
 
-    const skill = this.skills[this.currentSkill];
+        skill = this.skills[this.currentSkill];
+    }
+    else{
+        if(!this.skills[skillID]) return;
+
+        skill = this.skills[skillID];
+    }
 
     if(skill.value === 100.0) {
         skill.value = 0.0;
@@ -402,8 +439,7 @@ Player.prototype.changeRoom = function (room_id) {
 
     events.one(this.socket, "room", "change", {
         room: room.info(),
-        players: players.listInRoom(room.ID, this.ID),
-        message: "Выдана Комната"
+        players: players.listInRoom(room.ID, this.ID)
     });
 
     this.room_id = room_id;
@@ -854,7 +890,9 @@ Player.prototype.allInfo = function(){
 
 Player.prototype.destroy = function(){
 
-    events.room_not_me(this.room_id, this.ID, "room", "player-leave", {room_id: this.room_id, ID: this.ID, message: "Игрок["+this.name+"] покинул этот мир"});
+    events.not_me(this.socket, "server", "info", {message: "Игрок["+this.name+"] покинул этот мир"});
+
+    events.room_not_me(this.room_id, this.ID, "room", "player-leave", {room_id: this.room_id, ID: this.ID});
 
     this.socket.removeAllListeners();
 

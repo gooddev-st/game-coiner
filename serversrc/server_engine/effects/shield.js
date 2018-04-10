@@ -8,7 +8,7 @@ module.exports = Shield;
 function Shield(author) {
     this.name = 'shield';
 
-    this.duration = 10.0;//60.0*60.0*2.0;//2 часа
+    this.duration = 5.0;//60.0*60.0*2.0;//2 часа
 
     this.protect = 500;
 

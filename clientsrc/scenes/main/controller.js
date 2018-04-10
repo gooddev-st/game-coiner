@@ -108,7 +108,7 @@ function onKeydown(e) {
         case keys.SPACE:
             events.add('keydown', 'fire');
             break;
-        case keys.N1:
+        /*case keys.N1:
             events.add('skill-change', 'skill1');
             break;
         case keys.N2:
@@ -137,7 +137,7 @@ function onKeydown(e) {
             break;
         case keys.N0:
             events.add('skill-change', 'skill10');
-            break;
+            break;*/
     }
 }
 
@@ -171,34 +171,34 @@ function onKeyup(e) {
             events.add('keyup', 'statistic');
             break;
         case keys.N1:
-            events.add('keyup', 'fire');
+            events.add('keyup', 'skill1');
             break;
         case keys.N2:
-            events.add('keyup', 'fire');
+            events.add('keyup', 'skill2');
             break;
         case keys.N3:
-            events.add('keyup', 'fire');
+            events.add('keyup', 'skill3');
             break;
         case keys.N4:
-            events.add('keyup', 'fire');
+            events.add('keyup', 'skill4');
             break;
         case keys.N5:
-            events.add('keyup', 'fire');
+            events.add('keyup', 'skill5');
             break;
         case keys.N6:
-            events.add('keyup', 'fire');
+            events.add('keyup', 'skill6');
             break;
         case keys.N7:
-            events.add('keyup', 'fire');
+            events.add('keyup', 'skill7');
             break;
         case keys.N8:
-            events.add('keyup', 'fire');
+            events.add('keyup', 'skill8');
             break;
         case keys.N9:
-            events.add('keyup', 'fire');
+            events.add('keyup', 'skill9');
             break;
         case keys.N0:
-            events.add('keyup', 'fire');
+            events.add('keyup', 'skill10');
             break;
     }
 }
