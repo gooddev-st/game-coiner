@@ -67,3 +67,12 @@ NpcsList.prototype.list = function () {
 NpcsList.prototype.size = function () {
     return Object.keys(this.npcs).length;
 };
+
+
+NpcsList.prototype.listInfo = function () {
+    let npcsInfo = [];
+    this.each((i, it)=>{
+        npcsInfo.push(it.info());
+    });
+    return npcsInfo;
+};

@@ -168,11 +168,27 @@ Room.prototype.lootEach = function(callback){
     }
 };
 
+Room.prototype.lootInfo = function(){
+    let lootInfo = [];
+     this.lootEach((i, it)=>{
+        lootInfo.push(it.info());
+    });
+    return lootInfo;
+};
+
 
 Room.prototype.teleportsEach = function(callback){
     for(const i in this.teleports){
         callback(i, this.teleports[i]);
     }
+};
+
+Room.prototype.teleportsInfo = function(){
+    let teleportsInfo = [];
+     this.teleportsEach((i, it)=>{
+        teleportsInfo.push(it.info());
+    });
+    return teleportsInfo;
 };
 
 
@@ -328,9 +344,9 @@ Room.prototype.info = function(){
         environment_id: this.environment_id,
         entities_num: this.entities_num,
         cartoons: this.cartoons,
-        loot: this.loot,
-        teleports: this.teleports,
-        npcs: this.npcs.list(),
+        loot: this.lootInfo(),
+        teleports: this.teleportsInfo(),
+        npcs: this.npcs.listInfo(),
     };
 }
 
@@ -360,7 +376,7 @@ Room.prototype.info = function(){
 
     return {
         ID: this.ID,
-        cartoons: this.cartoons,
+        cartoons: OHthis.cartoons,
         loot: loot,
         teleports: teleports,
         npcs: npcs,

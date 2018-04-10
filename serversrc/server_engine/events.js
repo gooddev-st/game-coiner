@@ -21,7 +21,15 @@ function init(io) {
 
 function emit(socket, eventName, type, data) {
     data.type = type;
-    let json_data = JSON.stringify(data);
+    let json_data = '';
+
+    try{
+        json_data = JSON.stringify(data);
+    }
+    catch(e){
+        log(e.message);
+        log(data);
+    }
 
     socket.emit(eventName, json_data);
 }
