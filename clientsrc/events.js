@@ -7,7 +7,6 @@ import io from "socket.io-client";
 
 import ui from "./engine/ui/ui.js";
 
-import account from "./account";
 import signIn from "./scenes/signin";
 
 
@@ -32,27 +31,34 @@ function init(callback) {
     log('Подключаемся к серверу');
     serverSocket.connect();
 
-    on("server", (eventName, type)=>{
+    on("server", (eventName, type, data)=>{
 
         if (type === "hello") {
             //Если ещё не вошли
             if (!logged) {
 
-                //Получаем от пользователя аккаунт
-                signIn.start(function (account) {
+                if(data.version && data.version <= 0.14) {
 
-                    // отправим аккаунт серверу
-                    add('login', account);
+                    //Получаем от пользователя аккаунт
+                    signIn.start(function (account) {
 
-                    //После успешного входа (Если неуспешный - сервер опять пошлет hello)
-                    on('logged', (eventName, type, data)=>{
-                        if(type==='success') {
-                            logged = true;
-                            off('logged');
-                            callback();
-                        }
+                        // отправим аккаунт серверу
+                        add('login', account);
+
+                        //После успешного входа (Если неуспешный - сервер опять пошлет hello)
+                        on('logged', (eventName, type, data) => {
+                            if (type === 'success') {
+                                logged = true;
+                                off('logged');
+                                callback();
+                            }
+                        });
                     });
-                });
+
+                }
+                else{
+                    ui.waitScreen.show('Жми Ctrl-F5');
+                }
             }
         }
 

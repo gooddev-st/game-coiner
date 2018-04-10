@@ -100,6 +100,11 @@ function Npc(ID, x, y, room_id, character_id, speed) {
     this.effects = {}; //Эффекты
 
 
+
+    this.weapons = {}; // Оружие
+    this.currentSkill = null;
+
+
     this.armor = 0;
     this.protect = 0;
     this.damage = 0;
@@ -107,7 +112,33 @@ function Npc(ID, x, y, room_id, character_id, speed) {
     this.freeze = false;
 
     this.die = false;
+
+    this.weapons['weapon1'] = {id: 'claws', hitPoints: 35, value: 0.0, increment: 200.0};
+    this.currentWeapon = 'weapon1';
 }
+
+
+Npc.prototype.bah = function (target) {
+    if(!this.currentWeapon || !this.weapons[this.currentWeapon]) return;
+
+    const weapon = this.weapons[this.currentWeapon];
+
+    if(weapon.value < 100.0) {
+
+        weapon.value += weapon.increment*STEP;
+    }
+    else{
+        weapon.value = 0.0;
+
+        if(weapon.id==='claws') {
+
+            target.hit(weapon.hitPoints);
+
+            let soundID = 'weapon-claws' + (1 + Math.floor(Math.random()*3))
+            sound_event.add(soundID, this.room_id, this.x, this.y);
+        }
+    }
+};
 
 
 /**
@@ -389,7 +420,11 @@ Npc.prototype.targetPlayer = function(room) {
             if(distances[min_index].distance <= ATTACK_DISTANCE) {
 
                 let player = players.get(distances[min_index].playerID);
-                player.hit(1);
+
+                this.freeze = true;
+
+                this.bah(player);
+
                 return null;//{x: this.x, y: this.y};
             }
             else{

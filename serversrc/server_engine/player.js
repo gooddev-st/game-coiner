@@ -106,7 +106,7 @@ function Player(id, name, socket, data) {
     this.makeEffects = {};
     this.effects = {};
 
-    this.armor = 0;
+    this.armor = 25;
     this.protect = 0;
     this.damage = 0;
 
@@ -129,7 +129,7 @@ function Player(id, name, socket, data) {
     };
 
     this.skills['skill1'] = {id: 'push', icon: 'push', value: 0.0, increment: 150.0};
-    this.skills['skill2'] = {id: 'freeze', icon: 'freeze', value: 0.0, increment: 100.0};
+    this.skills['skill2'] = {id: 'freeze', icon: 'freeze', value: 0.0, increment: 25.0};
     this.skills['skill3'] = {id: 'holera', icon: 'holera', value: 0.0, increment: 50.0};
     this.skills['skill4'] = {id: 'shield', icon: 'shield', value: 100.0, increment: 10.0};
     this.currentSkill = 'skill1';
@@ -609,6 +609,8 @@ Player.prototype.kill = function(){
  */
 Player.prototype.makeDie = function(){
     this.die = false;
+    this.damage = 0;
+    this.protect = 0;
     this.health = 100;
     for(let effectID in this.effects) delete this.effects[effectID];
     this.state = 'default';

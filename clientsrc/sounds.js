@@ -11,6 +11,9 @@ const sounds = {
     "freeze-effect": new Sound('sound/hit/frost.wav'),
     "holera-effect": new Sound('sound/hit/holera.wav'),
     "shield-effect": new Sound('sound/shield.wav'),
+    "weapon-claws1": new Sound('sound/hit/claws1.wav'),
+    "weapon-claws2": new Sound('sound/hit/claws2.wav'),
+    "weapon-claws3": new Sound('sound/hit/claws3.wav'),
 };
 
 export default sounds;
