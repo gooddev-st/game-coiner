@@ -1,21 +1,21 @@
-const events = require("./events");
-
-module.exports = Coin;
+module.exports = Loot;
 
 const
-    COIN_WIDTH = 44,
-    COIN_HEIGHT = 22;
+    DEFAULT_LOOT_WIDTH = 44,
+    DEFAULT_LOOT_HEIGHT = 22;
 
-function Coin(room_id, x, y, character_id, content) {
+function Loot(room_id, x, y, character_id, type, width, height, content) {
+
+    this.prefix = type || 'loot';
 
     //TODO: Потенциальная проблема. Может и совпасть
-    this.ID = 'loot'+Math.floor(Math.random()*65536);
+    this.ID = this.prefix + Math.floor(Math.random()*65536);
 
     this.room_id = room_id;
     this.x = x;
     this.y = y;
-    this.width = COIN_WIDTH;
-    this.height = COIN_HEIGHT;
+    this.width = width || DEFAULT_LOOT_WIDTH;
+    this.height = height || DEFAULT_LOOT_HEIGHT;
 
     this.character_id = character_id;
 
@@ -27,7 +27,7 @@ function Coin(room_id, x, y, character_id, content) {
     this.die = false;
 }
 
-Coin.prototype.info = function(){
+Loot.prototype.info = function(){
     return {
         ID: this.ID,
         room_id: this.room_id,
@@ -35,13 +35,12 @@ Coin.prototype.info = function(){
         y: this.y,
         width: this.width,
         height: this.height,
-        touched: this.changed,
         character_id: this.character_id
     }
 }
 
-//Определение соприкосновения с объектом(монетой)
-Coin.prototype.touch = function(players, room){
+//Соприкосновение с "собирателями"
+Loot.prototype.touch = function(players){
     let touchers = [];
 
     for(let i in players){
@@ -64,26 +63,27 @@ Coin.prototype.touch = function(players, room){
     touchers[winner].eating(this);
 
     //Пометим на удаление
+    this.kill();
+};
+
+
+Loot.prototype.kill = function() {
     this.die = true;
 };
 
 
-Coin.prototype.isDie = function() {
+Loot.prototype.isDie = function() {
     return this.die;
 };
 
 
 function isTouch(coin, player){
-    if (
-        coin.x < player.x + player.width
+    return coin.x < player.x + player.width
         &&
         coin.x + coin.width > player.x
         &&
         coin.y < player.y + player.height
         &&
-        coin.height + coin.y > player.y
-    ) {
-        return true;
-    }
-    return false;
+        coin.height + coin.y > player.y;
+
 }

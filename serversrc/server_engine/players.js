@@ -8,6 +8,7 @@ module.exports.each = each;
 module.exports.list = list;
 module.exports.remove = remove;
 module.exports.count = count;
+module.exports.nearest = nearest;
 
 const players = {};
 
@@ -62,4 +63,53 @@ function remove(playerID) {
 
 function count() {
     return Object.keys(players).length;
+}
+
+
+/**
+ * Игрок ближайший к позиции. Соответствующий условию
+ * @param room_id
+ * @param x
+ * @param y
+ * @param conditionFunc
+ * @returns {*}
+ */
+function nearest(room_id, x, y, conditionFunc) {
+
+    let distances = [];
+
+    // Соберем в массив всех игроков в этой комнате
+    each((ID, player)=>{
+        if(
+            player.room_id===room_id &&
+            (!conditionFunc || conditionFunc(player))
+        ) {
+            let
+                xdiff = Math.abs(player.x - x),
+                ydiff = Math.abs(player.y - y);
+
+            distances.push({
+                //Игрок
+                id: ID,
+                // Расстояние до игрока
+                distance: Math.sqrt(xdiff * xdiff + ydiff * ydiff),
+                // Его расположение
+                pos: {x: player.x, y: player.y}
+            });
+        }
+    });
+
+    if(distances.length>0){
+
+        // Найдем индекс минимального значения
+        let min_index = distances.reduce(
+            (prev, value, i, array) => {
+                return value.distance < array[prev].distance ? i : prev;
+            }, 0
+        );
+
+        return distances[min_index];
+    }
+
+    return null;
 }

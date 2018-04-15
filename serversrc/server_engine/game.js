@@ -44,7 +44,7 @@ function run(io) {
         let user = null;
 
         //Отправим приветствие (уведомление об ожидании логина)
-        events.one(socket, "server", "hello", {version: 0.14, message: "Добро пожаловать на сервер игры в монеты"});
+        events.one(socket, "server", "hello", {version: 0.15, message: "Добро пожаловать на сервер игры в монеты"});
 
         //При получении логина
         socket.on('login', (account) => {
@@ -153,6 +153,7 @@ function login(account, socket, callback) {
                     y: PLAYER_START_Y,
 
                     health: PLAYER_START_HEALTH,
+                    maxHealth: PLAYER_START_HEALTH,
 
                 };
 
@@ -235,10 +236,11 @@ function start(){
 
 
         //Проверим как там монеты
+        //TODO: Проверять только для плееров/мобов в той же комнате
         rooms.each((room_id, room)=>{
             room.lootEach((id, loot)=>{
 
-                loot.touch(targets, room);
+                loot.touch(targets);
 
             });
         });

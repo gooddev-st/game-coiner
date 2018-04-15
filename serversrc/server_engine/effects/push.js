@@ -64,15 +64,9 @@ Push.prototype.run = function (target) {
     if(!this.started){
         this.started = true;
 
-        //В начале сохраним скорость цели
-        // this.oldSpeed = target.speed;
-
         //И её начальную позицию
         this.oldX = target.x;
         this.oldY = target.y;
-
-        //Зададим цели скорость эффекта
-        // target.speed = this.speed;
     }
 
     if (this.faza < this.duration) {
@@ -99,9 +93,6 @@ Push.prototype.run = function (target) {
         return null;
     }
 
-    //По окончании восстановим скорость
-    // target.speed = this.oldSpeed;
-
     //Сбросим цель движения
     target.target = false;
 
@@ -109,7 +100,7 @@ Push.prototype.run = function (target) {
     if(target.coins_count) {
         target.coins_count--;
         let room = rooms.get(target.room_id);
-        room.addCoin(this.oldX, this.oldY);
+        room.addCoin(this.oldX, this.oldY, 1);
     }
 
     //Отнимем здоровья

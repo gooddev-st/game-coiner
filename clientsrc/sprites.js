@@ -34,7 +34,8 @@ let s_doc = document.getElementById('s_doc'),
     s_koil = document.getElementById('s_koil'),
     s_dead = document.getElementById('s_dead'),
     s_gunner = document.getElementById('s_gunner'),
-    s_juk = document.getElementById('s_juk');
+    s_juk = document.getElementById('s_juk'),
+    s_gad = document.getElementById('s_gad');
 
 
 /**
@@ -270,6 +271,47 @@ exports.coin_copper = {
 };
 
 
+/**
+ * Кактус
+ */
+exports.kaktoos = {
+    "image": t_plants,
+    "width": 31,
+    "height": 30,
+    "speed": 8,
+    "top": -24,
+
+    "states": {
+        "default": [
+            {"name": "sprite13",   "x": 198, "y": 293, "width": 31, "height": 30},
+            {"name": "sprite13",   "x": 196, "y": 293, "width": 34, "height": 30},
+            {"name": "sprite13",   "x": 194, "y": 293, "width": 38, "height": 30},
+            {"name": "sprite13",   "x": 196, "y": 293, "width": 34, "height": 30},
+        ]
+    }
+};
+
+
+/**
+ * Гад
+ */
+exports.gad = {
+    "image": s_gad,
+    "width": 32,
+    "height": 32,
+    "speed": 10,
+
+    "states": {
+        "default": [
+            {"name": "sprite1", "x": 0, "y": 0, "width": 320, "height": 320},
+            {"name": "sprite3", "x": 320, "y": 0, "width": 320, "height": 320},
+            {"name": "sprite2", "x": 0, "y": 320, "width": 320, "height": 320},
+            {"name": "sprite4", "x": 320, "y": 320, "width": 320, "height": 320}
+        ]
+    }
+};
+
+
 
 /**
  * Трава
@@ -369,6 +411,8 @@ exports.bushs = {
  */
 exports.desert = {
     "image": t_plants,
+    "width": 100,
+    "height": 100,
 
     "states": {
         "default": [

@@ -33,8 +33,8 @@ const rooms = {
         cartoons_num: 20,
 
         populations: {
-            'gob': {maxNum:13, interval: 20.0},
-            'prof': {maxNum:2, interval: 10.0},
+            'gob': {maxNum:5, interval: 20.0},
+            'prof': {maxNum:1, interval: 10.0},
         },
     }),
 

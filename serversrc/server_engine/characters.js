@@ -13,20 +13,26 @@ exports.CHARACTER_CRYSTAL_RED = 'red_crystal';
 exports.CHARACTER_CRYSTAL_MAGENTA = 'magenta_crystal';
 exports.CHARACTER_CRYSTAL_YELLOW = 'yellow_crystal';
 
-exports.CHARACTER_BLOND = 'blond';
-exports.CHARACTER_GIRL = 'girl';
+exports.CHARACTER_KAKTOOS = 'kaktoos';
+exports.CHARACTER_GAD = 'gad';
 
+//Мобы
 exports.CHARACTER_DOC = 'doc';
 exports.CHARACTER_MAN = 'prof';
 exports.CHARACTER_GOB = 'gob';
 exports.CHARACTER_MAG = 'mag';
 exports.CHARACTER_SKELETON = 'skeleton';
+exports.CHARACTER_DEAD = 'dead';
 exports.CHARACTER_KROKO = 'kroko';
 exports.CHARACTER_KOIL = 'koil';
-exports.CHARACTER_DEAD = 'dead';
 exports.CHARACTER_GUNNER = 'gunner';
 exports.CHARACTER_JUK = 'juk';
 
+//Игроки
+exports.CHARACTER_BLOND = 'blond';
+exports.CHARACTER_GIRL = 'girl';
+
+//Наши аватарки
 exports.CHARACTER_KATY = 'katy';
 exports.CHARACTER_LEVON = 'levon';
 exports.CHARACTER_VITALY = 'vitaly';

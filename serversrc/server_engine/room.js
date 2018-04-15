@@ -3,11 +3,12 @@ module.exports = Room;
 const characters = require("./characters.js");
 const rooms = require("./rooms.js");
 const Cartoon = require("./cartoon.js");
-const Coin = require("./loot.js");
+const Coin = require("./loot/coin");
+const Kaktoos = require("./loot/kaktoos");
+const Gad = require("./loot/gad");
 const Teleport = require("./teleport.js");
 const events = require('./events.js');
-const NpcsList = require('./npcs')
-const players = require('./players')
+const NpcsList = require('./npcs');
 
 require('./constants')();
 
@@ -66,17 +67,6 @@ function Room(settings) {
     //Для генерации монет
     this.generation_faza = 0.0;
     this.generation_interval = settings.coins_generate_interval || COINS_GENERATE_INTERVAL;
-    this.possible_coins_chars = [
-        characters.CHARACTER_COIN,
-        characters.CHARACTER_COIN_SILVER,
-        characters.CHARACTER_COIN_COPPER,
-        /*characters.CHARACTER_CRYSTAL_BLUE,
-        characters.CHARACTER_CRYSTAL_GREEN,
-        characters.CHARACTER_CRYSTAL_GREY,
-        characters.CHARACTER_CRYSTAL_RED,
-        characters.CHARACTER_CRYSTAL_MAGENTA,
-        characters.CHARACTER_CRYSTAL_YELLOW,*/
-    ];
 
     this.populations = settings.populations;
 
@@ -110,11 +100,18 @@ Room.prototype.randomCartoons = function(num){
 Room.prototype.randomLoot = function(num){
 
     for(let i = 0; i<num; i++){
-        let character_id = this.possible_coins_chars[Math.floor(Math.random()*this.possible_coins_chars.length)],
+        let content = 1 + Math.floor(Math.random()*5),
             pos = this.randomPos(44, 22);
 
-        this.loot.push(new Coin(this.ID, pos.x, pos.y, character_id));
+        this.loot.push(new Coin(this.ID, pos.x, pos.y, content));
     }
+
+    /*for(let i = 0; i<num; i++){
+        let content = 13,// + Math.floor(Math.random()*5),
+            pos = this.randomPos(41, 40);
+
+        this.loot.push(new Kaktoos(this.ID, pos.x, pos.y, content));
+    }*/
 };
 
 
@@ -200,23 +197,7 @@ Room.prototype.run = function () {
 
 
     //Рождаем монеты
-    if(this.generation_faza > this.generation_interval){
-        this.generation_faza -= this.generation_interval;
-
-        //Если не превышен лимит для комнаты
-        if(this.loot.length < this.coins_max_limit) {
-
-            //Создаем монету
-            let character_id = this.possible_coins_chars[Math.floor(Math.random() * this.possible_coins_chars.length)],
-                pos = this.randomPos(44, 22);
-
-            let coin = new Coin(this.ID, pos.x, pos.y, character_id);
-            this.loot.push(coin);
-
-            events.room(this.ID, "room", "loot-create", {info: coin.info()});
-        }
-    }
-    this.generation_faza += STEP;
+    this.genCoins();
 
 
     //Движем мобов
@@ -226,13 +207,9 @@ Room.prototype.run = function () {
 };
 
 
-Room.prototype.addCoin = function (x, y, character_id, content){
+Room.prototype.addCoin = function (x, y, content){
 
-    if(!character_id) {
-        character_id = this.possible_coins_chars[Math.floor(Math.random() * this.possible_coins_chars.length)];
-    }
-
-    let coin = new Coin(this.ID, x, y, character_id, content);
+    let coin = new Coin(this.ID, x, y, content);
     this.loot.push(coin);
 
     events.room(this.ID, "room", "loot-create", {info: coin.info()});
@@ -277,7 +254,27 @@ Room.prototype.generateNpcs = function (){
 };
 
 
+//Порождаем монеты с заданным интервалом
+Room.prototype.genCoins = function () {
 
+    if(this.generation_faza > this.generation_interval){
+        this.generation_faza -= this.generation_interval;
+
+        //Если не превышен лимит для комнаты
+        if(this.loot.length < this.coins_max_limit) {
+
+            //Создаем монету
+            let content = 1 + Math.floor(Math.random()*5),
+                pos = this.randomPos(44, 22);
+
+            let coin = new Coin(this.ID, pos.x, pos.y, content);
+            this.loot.push(coin);
+
+            events.room(this.ID, "room", "loot-create", {info: coin.info()});
+        }
+    }
+    this.generation_faza += STEP;
+};
 
 
 //Порождаем мобов с заданным интервалом
@@ -348,37 +345,4 @@ Room.prototype.info = function(){
         teleports: this.teleportsInfo(),
         npcs: this.npcs.listInfo(),
     };
-}
-
-
-/*Room.prototype.currentInfo = function(){
-    let loot = [];
-
-    this.lootEach((i, it)=>{
-        if(it.changed){
-            loot.push(it);
-        }
-    });
-
-    let teleports = [];
-    this.teleportsEach((i, it)=>{
-        if(it.changed){
-            teleports.push(it);
-        }
-    });
-
-    let npcs = {};
-    this.npcs.each((i, it)=>{
-        if(it.changed){
-            npcs[i] = it;
-        }
-    });
-
-    return {
-        ID: this.ID,
-        cartoons: OHthis.cartoons,
-        loot: loot,
-        teleports: teleports,
-        npcs: npcs,
-    };
-}*/
+};

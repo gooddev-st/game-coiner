@@ -41,6 +41,7 @@ export default class Unit{
         this.levelupValue = data.levelupValue;
         this.levelupCounter = data.levelupCounter;
 
+        this.maxHealth = data.maxHealth;
         this.health = data.health;
 
         this.effects = [];//TODO: Применять при создании
@@ -174,9 +175,10 @@ export default class Unit{
         // Если есть - рисуем индикатор
         if(this.health!=undefined) {
 
-            let volume;
+            let volume,
+            maxHealth = this.maxHealth || MAX_HEALTH;
 
-            volume = Math.floor(this.health*100/MAX_HEALTH);
+            volume = Math.floor(this.health*100/maxHealth);
 
             this.drawVolume(camera.context, x, y - 50, volume);
         }

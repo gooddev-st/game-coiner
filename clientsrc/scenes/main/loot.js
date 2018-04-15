@@ -17,7 +17,9 @@ export default class {
 
         this.state = 'default';
 
-        this.animateSpeed = 14;
+        this.animateSpeed = this.character.sprite.speed;
+        if(!this.animateSpeed) this.animateSpeed = 14;
+
         this.faza = 0;
         this.currentSpriteNum = 0;
     }

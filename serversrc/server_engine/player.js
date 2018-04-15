@@ -12,7 +12,6 @@ const log = require('./log');
 const events = require("./events.js");
 const players = require("./players.js");
 const rooms = require("./rooms.js");
-const npcs = require("./npcs.js");
 const effects = require("./effects.js");
 
 const db = require('./db.js');
@@ -95,7 +94,9 @@ function Player(id, name, socket, data) {
     this.levelupCounter = this.score - TO_LEVELS[this.level - 1];
 
     this.coins_count = data.coins_count ? data.coins_count : 0;
-    this.healthMax = data.health;
+
+    //TODO: maxHealth по уровню игрока
+    this.maxHealth = data.maxHealth;
     this.health = data.health;
 
 
@@ -378,6 +379,7 @@ Player.prototype.eating = function (loot) {
 
     this.coins_count += loot.content;
     this.score += loot.content;
+
     this.hit(-50);
 
     //Левелап (LevelUp)
@@ -400,7 +402,15 @@ Player.prototype.eating = function (loot) {
             "coin_copper": "eat_coin_copper",
         };
 
-        let eat_sound = eat_sounds[loot.character_id] || eat_sounds["coin_copper"]
+        const sounds = [
+            'eat_coin0',
+            'eat_coin1',
+            'eat_coin2',
+            'eat_coin3',
+            'eat_coin4',
+        ];
+
+        let eat_sound = eat_sounds[loot.character_id] || sounds[Math.floor(Math.random()*sounds.length)];
 
         sound_event.add(eat_sound, this.room_id, x, y);
     }
@@ -615,7 +625,7 @@ Player.prototype.run = function (room) {
     this.health -= this.damage;
     this.damage = 0;
 
-    if(this.health > 100) this.health = 100;
+    if(this.health > this.maxHealth) this.health = this.maxHealth;
 
     //"Умрем" если нет здоровья
     //TODO: умирать анимировано
@@ -647,7 +657,7 @@ Player.prototype.makeDie = function(){
     this.die = false;
     this.damage = 0;
     this.protect = 0;
-    this.health = 100;
+    this.health = this.maxHealth;
     for(let effectID in this.effects) delete this.effects[effectID];
     this.state = 'default';
     this.target = null;
@@ -809,6 +819,7 @@ Player.prototype.info = function(){
         x: this.x,
         y: this.y,
 
+        maxHealth: this.maxHealth,
         health: this.health,
     }
 };
@@ -841,6 +852,7 @@ Player.prototype.commonInfo = function(){
 
         level: this.level,
 
+        maxHealth: this.maxHealth,
         health: this.health,
 
         effects: effects,
@@ -874,6 +886,7 @@ Player.prototype.allInfo = function(){
         levelupValue: this.levelupValue,
         levelupCounter: this.levelupCounter,
 
+        maxHealth: this.maxHealth,
         health: this.health,
 
         speed: this.speed,
