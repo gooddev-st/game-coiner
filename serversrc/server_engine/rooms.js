@@ -25,8 +25,8 @@ const rooms = {
         dead_zone_right: 10,
         dead_zone_bottom: 0,
 
-        coins_num: 100,
-        coins_max_limit: 100,
+        coins_num: 50,
+        coins_max_limit: 50,
         coins_generate_interval: 0.3,
 
         teleports_num: 6,
@@ -86,6 +86,7 @@ const rooms = {
         cartoons_num: 10,
 
         populations: {
+            'prof': {maxNum:1, interval: 100.0},
             'kroko': {maxNum:3, interval: 10.0},
             'koil': {maxNum:3, interval: 7.0},
         },

@@ -21,6 +21,29 @@ const sounds = {
     "weapon-claws1": new Sound('sound/hit/claws1.wav'),
     "weapon-claws2": new Sound('sound/hit/claws2.wav'),
     "weapon-claws3": new Sound('sound/hit/claws3.wav'),
+
+    "weapon-chewing1": new Sound('sound/hit/bite-small.wav'),
+    "weapon-chewing2": new Sound('sound/hit/bite-small2.wav'),
+    "weapon-chewing3": new Sound('sound/hit/bite-small3.wav'),
+
+    "weapon-paw1": new Sound('sound/hit/mnstr6.wav'),
+    "weapon-paw2": new Sound('sound/hit/mnstr10.wav'),
+    "weapon-paw3": new Sound('sound/hit/mnstr12.wav'),
+    "weapon-paw4": new Sound('sound/hit/mnstr15.wav'),
+
+    "weapon-slime1": new Sound('sound/hit/slime1.wav'),
+    "weapon-slime2": new Sound('sound/hit/slime2.wav'),
+    "weapon-slime3": new Sound('sound/hit/slime3.wav'),
+    "weapon-slime4": new Sound('sound/hit/slime4.wav'),
+
+    "weapon-sword1": new Sound('sound/hit/sword1.wav'),
+    "weapon-sword2": new Sound('sound/hit/sword2.wav'),
+    "weapon-sword3": new Sound('sound/hit/sword3.wav'),
+
+    "weapon-pistol1": new Sound('sound/hit/pistol.wav'),
+
+    "weapon-shotgun1": new Sound('sound/hit/shotgun.wav'),
+
     "heal-up": new Sound('sound/hit/insect.ogg', 1.0),
 };
 

@@ -6,7 +6,8 @@ import {STEP} from "../../constants";
 
 export default class Entity{
 
-    constructor(x, y, character, lifetime, faza){
+    constructor(ID, x, y, character, lifetime, faza){
+        this.ID = ID;
 
         this.x = x;
         this.y = y;

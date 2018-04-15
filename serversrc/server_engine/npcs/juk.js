@@ -5,7 +5,7 @@ module.exports = Juk;
 
 
 const Npc = require("./npc");
-const Claws = require("../weapons").Claws;
+const Weapon = require("../weapons").Sword;
 const characters = require('../characters.js');
 
 const
@@ -35,7 +35,7 @@ function Juk(ID, x, y, room_id) {
     this.viewDistance = VIEW_DISTANCE;
     this.attackDistance = ATTACK_DISTANCE;
 
-    this.weapons['weapon1'] = new Claws(40);
+    this.weapons['weapon1'] = new Weapon(32, 200);
 }
 
 Juk.prototype = Object.create(Npc.prototype);

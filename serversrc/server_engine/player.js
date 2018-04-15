@@ -69,6 +69,10 @@ function Player(id, name, socket, data) {
 
     this.db_id = id
     this.ID = 'avatar'+id;
+
+    //Для определения "свой-чужой"
+    this.fraction = 'human';
+
     this.name = name;
     this.socket = socket;
 
@@ -380,7 +384,7 @@ Player.prototype.eating = function (loot) {
     this.coins_count += loot.content;
     this.score += loot.content;
 
-    this.hit(-50);
+    this.hit(-20);
 
     //Левелап (LevelUp)
     if(this.score >= TO_LEVELS[this.level]){
@@ -918,5 +922,5 @@ Player.prototype.onDie = function() {
         room = rooms.get(this.room_id),
         grave_id = Math.floor(Math.random()*characters.SPRITESET_GRAVES.size);
 
-    room.addCartoon(this.x+20, this.y, characters.SPRITESET_GRAVES.ID, grave_id);
+    room.addCartoon(this.x+20, this.y, characters.SPRITESET_GRAVES.ID, grave_id, 60.0);
 };

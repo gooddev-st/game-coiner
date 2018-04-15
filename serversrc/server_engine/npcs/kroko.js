@@ -5,7 +5,8 @@ module.exports = Kroko;
 
 
 const Npc = require("./npc");
-const Claws = require("../weapons").Claws;
+// const Weapon = require("../weapons").Claws;
+const Weapon = require("../weapons").Chewing;
 const characters = require('../characters.js');
 
 const
@@ -34,7 +35,7 @@ function Kroko(ID, x, y, room_id) {
     this.viewDistance = VIEW_DISTANCE;
     this.attackDistance = ATTACK_DISTANCE;
 
-    this.weapons['weapon1'] = new Claws();
+    this.weapons['weapon1'] = new Weapon();
 }
 
 Kroko.prototype = Object.create(Npc.prototype);

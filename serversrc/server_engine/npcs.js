@@ -135,17 +135,18 @@ NpcsList.prototype.listInfo = function () {
  * @param x
  * @param y
  * @param conditionFunc
+ * @param self
  * @returns {*}
  */
-NpcsList.prototype.nearest = function(room_id, x, y, conditionFunc) {
+NpcsList.prototype.nearest = function(room_id, x, y, conditionFunc, self) {
 
     let distances = [];
 
-    // Соберем в массив всех мобов в этой комнате
+    // Соберем в массив всех подходящих мобов в этой комнате
     this.each((ID, npc)=>{
         if(
             npc.room_id===room_id &&
-            (!conditionFunc || conditionFunc(npc))
+            (!conditionFunc || conditionFunc(npc, self))
         ) {
             let
                 xdiff = Math.abs(npc.x - x),

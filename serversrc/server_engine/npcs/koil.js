@@ -5,13 +5,15 @@ module.exports = Koil;
 
 
 const Npc = require("./npc");
-const Claws = require("../weapons").Claws;
+const Weapon = require("../weapons").Claws;
+// const Weapon = require("../weapons").Chewing;
 const characters = require('../characters.js');
 
 const
     WIDTH = 44.0,
     HEIGHT = 44.0,
     SPEED = 100,
+    ATTACK_SPEED = 200,
     VIEW_DISTANCE = 250,
     ATTACK_DISTANCE = 50;
 
@@ -29,12 +31,12 @@ function Koil(ID, x, y, room_id) {
 
     this.width = WIDTH;
     this.height = HEIGHT;
-    this.speed = SPEED;
+    this.initSpeed(SPEED, ATTACK_SPEED);
 
     this.viewDistance = VIEW_DISTANCE;
     this.attackDistance = ATTACK_DISTANCE;
 
-    this.weapons['weapon1'] = new Claws();
+    this.weapons['weapon1'] = new Weapon();
 }
 
 Koil.prototype = Object.create(Npc.prototype);

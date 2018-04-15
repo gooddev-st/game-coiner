@@ -1,20 +1,21 @@
 import characters from "../../characters";
 import Entity from "./entity";
+import log from "../../logs";
 
-export default {add, addFromSet, addOne, remove, reset, size, each}
+export default {add, addFromSet, addOne, remove, reset, size, each, removeByID}
 
 const entities = [];
 
 //Создает
-function add(x, y, ID, lifetime, faza) {
+function add(ID, x, y, character_id, lifetime, faza) {
     entities.push(
-        new Entity(x, y, characters.get(ID), lifetime, faza)
+        new Entity(ID, x, y, characters.get(character_id), lifetime, faza)
     );
 }
 
-function addFromSet(x, y, setID, ID, lifetime, faza) {
+function addFromSet(ID, x, y, setID, sprite_id, lifetime, faza) {
     entities.push(
-        new Entity(x, y, characters.getFromSet(setID, ID), lifetime, faza)
+        new Entity(ID, x, y, characters.getFromSet(setID, sprite_id), lifetime, faza)
     );
 }
 
@@ -24,7 +25,16 @@ function addOne(entity) {
 }
 
 function remove(index) {
-    entities.splice(index, 1);
+    if(index in entities) {
+        entities.splice(index, 1);
+    }
+}
+
+function removeByID(ID) {
+    let index = entities.findIndex(it=>{return it.ID===ID});
+    if(index!==-1 && index in entities) {
+        entities.splice(index, 1);
+    }
 }
 
 function reset() {

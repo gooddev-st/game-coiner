@@ -5,7 +5,7 @@ module.exports = Skeleton;
 
 
 const Npc = require("./npc");
-const Claws = require("../weapons").Claws;
+const Weapon = require("../weapons").Slime;
 const characters = require('../characters.js');
 
 const
@@ -35,7 +35,7 @@ function Skeleton(ID, x, y, room_id) {
     this.viewDistance = VIEW_DISTANCE;
     this.attackDistance = ATTACK_DISTANCE;
 
-    this.weapons['weapon1'] = new Claws();
+    this.weapons['weapon1'] = new Weapon();
 }
 
 Skeleton.prototype = Object.create(Npc.prototype);

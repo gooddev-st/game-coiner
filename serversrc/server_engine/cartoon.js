@@ -2,7 +2,7 @@
 
 module.exports = Cartoon;
 
-function Cartoon(room_id, x, y, spriteset_id, sprite_id) {
+function Cartoon(room_id, x, y, spriteset_id, sprite_id, lifeTime) {
 
     //TODO: Потенциальная проблема. Может и совпасть
     this.ID = 'cartoon'+Math.floor(Math.random()*65536);
@@ -13,6 +13,10 @@ function Cartoon(room_id, x, y, spriteset_id, sprite_id) {
 
     this.spriteset_id = spriteset_id;
     this.sprite_id = sprite_id;
+
+    if(lifeTime) {
+        this.deathDateTime = (new Date()).getTime() + lifeTime*1000;
+    }
 }
 
 Cartoon.prototype.info = function(){

@@ -4,8 +4,8 @@
 module.exports = Doc;
 
 
-const Npc = require("./npc");
-const Curezzler = require("../weapons").Curezzler;
+const Heal = require("./heal");
+const Weapon = require("../weapons").Shotgun;
 const characters = require('../characters.js');
 
 const
@@ -13,7 +13,7 @@ const
     HEIGHT = 44.0,
     SPEED = 100,
     VIEW_DISTANCE = 250,
-    ATTACK_DISTANCE = 50;
+    ATTACK_DISTANCE = 100;
 
 /**
  * Доктор
@@ -25,7 +25,9 @@ const
  */
 function Doc(ID, x, y, room_id) {
 
-    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_DOC);
+    Heal.call(this, ID, x, y, room_id, characters.CHARACTER_DOC);
+
+    this.fraction = 'human';
 
     this.width = WIDTH;
     this.height = HEIGHT;
@@ -34,22 +36,7 @@ function Doc(ID, x, y, room_id) {
     this.viewDistance = VIEW_DISTANCE;
     this.attackDistance = ATTACK_DISTANCE;
 
-    this.health = 1000;
-    this.maxHealth = 1000;
-
-    this.armor = 0;
-
-    this.weapons['weapon1'] = new Curezzler();
+    this.weapons['weapon1'] = new Weapon();
 }
 
-Doc.prototype = Object.create(Npc.prototype);
-
-/**
- * Условие пригодности плеера как цели
- * @param target
- * @returns {boolean}
- */
-Doc.prototype.targetPlayerCondition = function(target) {
-    //Будем идти только к нездоровым игрокам
-    return target.health < target.maxHealth;
-};
+Doc.prototype = Object.create(Heal.prototype);

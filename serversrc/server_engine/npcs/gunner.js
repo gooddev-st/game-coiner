@@ -5,7 +5,7 @@ module.exports = Gunner;
 
 
 const Npc = require("./npc");
-const Claws = require("../weapons").Claws;
+const Weapon = require("../weapons").Pistol;
 const characters = require('../characters.js');
 
 const
@@ -13,7 +13,7 @@ const
     HEIGHT = 44.0,
     SPEED = 100,
     VIEW_DISTANCE = 250,
-    ATTACK_DISTANCE = 50;
+    ATTACK_DISTANCE = 100;
 
 /**
  * Стрелок
@@ -29,12 +29,12 @@ function Gunner(ID, x, y, room_id) {
 
     this.width = WIDTH;
     this.height = HEIGHT;
-    this.speed = SPEED;
+    this.initSpeed(SPEED);
 
     this.viewDistance = VIEW_DISTANCE;
     this.attackDistance = ATTACK_DISTANCE;
 
-    this.weapons['weapon1'] = new Claws();
+    this.weapons['weapon1'] = new Weapon(28, 300);
 }
 
 Gunner.prototype = Object.create(Npc.prototype);

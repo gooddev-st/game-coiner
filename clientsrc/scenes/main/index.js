@@ -80,27 +80,25 @@ function start(callback) {
 
     events.on("click", (eventName, pos)=>{
         if(pos) {
-            entities.add(pos.x, pos.y+1, 'pointer', .35);
+            entities.add(null, pos.x, pos.y+1, 'pointer', .35);
         }
     });
 
     events.on("entity", (eventName, type, data)=>{
         if(type==="remove-coin" && data.room_id===room_id){
 
-            entities.add(data.x, data.y, 'boom1', .65);
-
-            // entities.add(data.x, data.y, 'boom2', .55);
+            entities.add(null, data.x, data.y, 'boom1', .65);
 
         }
 
         if(type==="teleport-target" && data.room_id===room_id){
 
-            entities.add(data.x, data.y, 'barier', 0.65);
+            entities.add(null, data.x, data.y, 'barier', 0.65);
         }
 
         if(type==="push-effect" && data.room_id===room_id){
 
-            entities.add(data.x, data.y, 'push1', 0.15);
+            entities.add(null, data.x, data.y, 'push1', 0.15);
         }
     });
 
@@ -311,7 +309,7 @@ function onRoom(event, type, data) {
 
             if(info.room_id==room_id) {
 
-                entities.addFromSet(info.x, info.y, info.spriteset_id, info.sprite_id, 0, 0);
+                entities.addFromSet(info.ID, info.x, info.y, info.spriteset_id, info.sprite_id, 0, 0);
             }
         }
         catch (e){
@@ -385,7 +383,31 @@ function onRoom(event, type, data) {
             }
         }
         catch (e){
-            log("Ошибка получения лута. "+e);
+            log("Ошибка удаления лута. "+e);
+            log(data);
+        }
+    }
+
+
+    // Удаление картонок
+    if(type==="cartoon-remove") {
+        try {
+            if(!data.info) throw "Ошибка получения с сервера";
+
+            var info = data.info;
+
+            if (
+                info.ID == undefined ||
+                info.room_id == undefined
+            ) throw "Ошибка получения с сервера";
+
+            if(info.room_id===room_id) {
+
+                entities.removeByID(info.ID);
+            }
+        }
+        catch (e){
+            log("Ошибка удаления картонки. "+e);
             log(data);
         }
     }
@@ -691,7 +713,7 @@ function roomInit(settings, players, heroUnit){
 
     if('cartoons' in settings){
         for(const item of settings.cartoons){
-            entities.addFromSet(item.x, item.y, item.spriteset_id, item.sprite_id, 0, Math.random());
+            entities.addFromSet(item.ID, item.x, item.y, item.spriteset_id, item.sprite_id, 0, Math.random());
         }
     }
 

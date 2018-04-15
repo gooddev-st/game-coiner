@@ -5,13 +5,14 @@ module.exports = Dead;
 
 
 const Npc = require("./npc");
-const Claws = require("../weapons").Claws;
+const Weapon = require("../weapons").Paw;
 const characters = require('../characters.js');
 
 const
     WIDTH = 44.0,
     HEIGHT = 44.0,
-    SPEED = 80,
+    SPEED = 50,
+    ATTACK_SPEED = 100,
     VIEW_DISTANCE = 250,
     ATTACK_DISTANCE = 50;
 
@@ -31,7 +32,7 @@ function Dead(ID, x, y, room_id) {
 
     this.width = WIDTH;
     this.height = HEIGHT;
-    this.speed = SPEED;
+    this.initSpeed(SPEED, ATTACK_SPEED);
 
     this.viewDistance = VIEW_DISTANCE;
     this.attackDistance = ATTACK_DISTANCE;
@@ -41,7 +42,7 @@ function Dead(ID, x, y, room_id) {
 
     this.armor = 0;
 
-    this.weapons['weapon1'] = new Claws(75, 100);
+    this.weapons['weapon1'] = new Weapon(75, 100);
     this.currentWeapon = 'weapon1';
 }
 

@@ -5,7 +5,7 @@ module.exports = Gob;
 
 
 const Npc = require("./npc");
-const Claws = require("../weapons").Claws;
+const Weapon = require("../weapons").Claws;
 const characters = require('../characters.js');
 
 const
@@ -35,7 +35,7 @@ function Gob(ID, x, y, room_id) {
 
     this.initSpeed(SPEED);
 
-    this.weapons['weapon1'] = new Claws(30);
+    this.weapons['weapon1'] = new Weapon(30);
 }
 
 Gob.prototype = Object.create(Npc.prototype);

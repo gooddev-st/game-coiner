@@ -74,7 +74,7 @@ function count() {
  * @param conditionFunc
  * @returns {*}
  */
-function nearest(room_id, x, y, conditionFunc) {
+function nearest(room_id, x, y, conditionFunc, self) {
 
     let distances = [];
 
@@ -82,7 +82,7 @@ function nearest(room_id, x, y, conditionFunc) {
     each((ID, player)=>{
         if(
             player.room_id===room_id &&
-            (!conditionFunc || conditionFunc(player))
+            (!conditionFunc || conditionFunc(player, self))
         ) {
             let
                 xdiff = Math.abs(player.x - x),

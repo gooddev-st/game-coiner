@@ -45,14 +45,14 @@ Loot.prototype.touch = function(players){
 
     for(let i in players){
         //Если разные комнаты, то не касаются
-        if(this.room_id != players[i].room_id) continue;
+        if(this.room_id !== players[i].room_id) continue;
 
         if(isTouch(this, players[i])){
             touchers.push(players[i]);
         }
     }
 
-    if(touchers.length==0) return;
+    if(touchers.length===0) return;
 
     //Если коснулись - засчитаем монету
     let winner = 0;

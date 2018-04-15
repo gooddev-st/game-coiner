@@ -165,6 +165,13 @@ Room.prototype.lootEach = function(callback){
     }
 };
 
+
+Room.prototype.cartoonsEach = function(callback){
+    for(const i in this.cartoons){
+        callback(i, this.cartoons[i]);
+    }
+};
+
 Room.prototype.lootInfo = function(){
     let lootInfo = [];
      this.lootEach((i, it)=>{
@@ -216,7 +223,7 @@ Room.prototype.addCoin = function (x, y, content){
 };
 
 
-Room.prototype.addCartoon = function (x, y, spriteset_id, sprite_id){
+Room.prototype.addCartoon = function (x, y, spriteset_id, sprite_id, lifeTime){
 
     if(!spriteset_id) {
         console.log('Пытаемся добавить картон с несуществующим spriteset_id')
@@ -225,7 +232,7 @@ Room.prototype.addCartoon = function (x, y, spriteset_id, sprite_id){
         sprite_id = 0;
     }
 
-    let cartoon = new Cartoon(this.ID, x, y, spriteset_id, sprite_id);
+    let cartoon = new Cartoon(this.ID, x, y, spriteset_id, sprite_id, lifeTime);
     this.cartoons.push(cartoon);
 
     events.room(this.ID, "room", "cartoon-create", {info: cartoon.info()});
@@ -310,6 +317,17 @@ Room.prototype.genNpcs = function () {
 
 //Удаляем "мертвых"
 Room.prototype.cleanUp = function () {
+
+    //TODO: Удалаять одним событием всё
+
+    let now = (new Date()).getTime();
+    //Удаляем "мертвые" картонки
+    this.cartoonsEach((i, it)=>{
+        if(it.deathDateTime && it.deathDateTime <= now){
+            this.cartoons.splice(i, 1);
+            events.room(this.ID, "room", "cartoon-remove", {info: it.info()});
+        }
+    });
 
     //Удаляем "мертвые" монеты
     this.lootEach((i, it)=>{

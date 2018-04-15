@@ -4,16 +4,16 @@
 module.exports = Prof;
 
 
-const Npc = require("./npc");
-const Curezzler = require("../weapons").Curezzler;
+const Heal = require("./heal");
+const Weapon = require("../weapons").Pistol;
 const characters = require('../characters.js');
 
 const
     WIDTH = 44.0,
     HEIGHT = 44.0,
     SPEED = 100,
-    VIEW_DISTANCE = 250,
-    ATTACK_DISTANCE = 50;
+    VIEW_DISTANCE = 350,
+    ATTACK_DISTANCE = 150;
 
 /**
  * Npc
@@ -27,7 +27,9 @@ const
  */
 function Prof(ID, x, y, room_id) {
 
-    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_MAN);
+    Heal.call(this, ID, x, y, room_id, characters.CHARACTER_MAN);
+
+    this.fraction = 'human';
 
     this.width = WIDTH;
     this.height = HEIGHT;
@@ -36,22 +38,8 @@ function Prof(ID, x, y, room_id) {
     this.viewDistance = VIEW_DISTANCE;
     this.attackDistance = ATTACK_DISTANCE;
 
-    this.health = 1000;
-    this.maxHealth = 1000;
+    this.weapons['weapon1'] = new Weapon();
 
-    this.armor = 0;
-
-    this.weapons['weapon1'] = new Curezzler();
 }
 
-Prof.prototype = Object.create(Npc.prototype);
-
-/**
- * Условие пригодности плеера как цели
- * @param target
- * @returns {boolean}
- */
-Prof.prototype.targetPlayerCondition = function(target) {
-    //Будем идти только к нездоровым игрокам
-    return target.health < target.maxHealth;
-};
+Prof.prototype = Object.create(Heal.prototype);

@@ -1,5 +1,5 @@
 /**
- * Модуль Npc (NotPlayerCharacter)
+ * Модуль Npc (NotPlayerCharacter) - базовый Npc
  * @type {Npc}
  */
 module.exports = Npc;
@@ -8,6 +8,7 @@ module.exports = Npc;
 const events = require("../events.js");
 const rooms = require("../rooms.js");
 const players = require("../players.js");
+const log = require("../log");
 
 const sound_event = require('../sound_event.js');//звуковые события
 
@@ -94,6 +95,9 @@ function Npc(ID, x, y, room_id, character_id) {
     this.health = 100;
 
     this.ID = ID;
+
+    //Для определения "свой-чужой"
+    this.fraction = 'monsters';
 
     //Есть ли изменения для отсылки
     this.changed = true;
@@ -326,8 +330,12 @@ Npc.prototype.calculateTarget = function(room) {
     target = this.targetEffects();
     if(target) return target;*/
 
-    // Идем к ближнему игроку (в поле зрения)
+    // Идем к ближнему подходящему игроку (в поле зрения)
     target = this.targetPlayer();
+    if(target) return target;
+
+    // Идем к ближнему подходящему мобу (в поле зрения)
+    target = this.targetNpc();
     if(target) return target;
 
     // Иначе пойдем за ближайшей монетой
@@ -385,7 +393,7 @@ Npc.prototype.targetCoin = function(room) {
  * @param target
  * @returns {boolean}
  */
-Npc.prototype.targetPlayerCondition = function(target) {
+Npc.prototype.targetPlayerCondition = function(target, self) {
     //По умолчанию - годятся все
     return true;
 };
@@ -396,7 +404,7 @@ Npc.prototype.targetPlayerCondition = function(target) {
  */
 Npc.prototype.targetPlayer = function() {
 
-    let nearest = players.nearest(this.room_id, this.x, this.y, this.targetPlayerCondition);
+    let nearest = players.nearest(this.room_id, this.x, this.y, this.targetPlayerCondition, this);
 
     if(!nearest) return null;
 
@@ -416,6 +424,60 @@ Npc.prototype.targetPlayer = function() {
             this.bah(player);
 
             return null;//{x: this.x, y: this.y};
+        }
+        else{
+            return nearest.pos;
+        }
+    }
+
+    //Включаем нормальную скорость
+    this.speed = this.normalSpeed;
+
+    return null;
+
+};
+
+
+/**
+ * Условие пригодности моба как цели
+ * @param target
+ * @param self - сам моб
+ * @returns {boolean}
+ */
+Npc.prototype.targetNpcCondition = function(target, self) {
+    //По умолчанию - годятся все которые не он же и из другой фракции
+    return (target.ID!==self.ID && target.fraction!==self.fraction);
+};
+
+/**
+ * Если поблизости подходящий моб - идем к нему
+ * @returns {*}
+ */
+Npc.prototype.targetNpc = function() {
+
+    let room = rooms.get(this.room_id),
+        npcs = room.npcs;
+
+    let nearest = npcs.nearest(this.room_id, this.x, this.y, this.targetNpcCondition, this);
+
+    if(!nearest) return null;
+
+    // Если в поле зрения - идем к
+    if(nearest.distance <= this.viewDistance){
+
+        //Включаем атакующую скорость
+        this.speed = this.attackSpeed;
+
+        //Подошли на расстояние атаки - атакуем
+        if(nearest.distance <= this.attackDistance) {
+
+            let npc = npcs.get(nearest.id);
+
+            this.freeze = true;
+
+            this.bah(npc);
+
+            return null;
         }
         else{
             return nearest.pos;
@@ -525,5 +587,5 @@ Npc.prototype.onDie = function() {
 
     //Поставим могилку
     let grave_id = Math.floor(Math.random()*characters.SPRITESET_GRAVES.size);
-    room.addCartoon(this.x+20, this.y, characters.SPRITESET_GRAVES.ID, grave_id);
+    room.addCartoon(this.x+20, this.y, characters.SPRITESET_GRAVES.ID, grave_id, 60.0);
 };
