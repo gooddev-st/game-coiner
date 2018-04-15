@@ -169,6 +169,35 @@ const rooms = {
         },
     }),
 
+    'sea': new Room({
+        ID: 'sea',
+        width: 3000,
+        height: 3000,
+
+        environment_id: 7,
+        entities_num: 140,
+
+        dead_zone_left: 10,
+        dead_zone_top: 80,
+        dead_zone_right: 10,
+        dead_zone_bottom: 0,
+
+        coins_num: 60,
+        coins_max_limit: 60,
+        coins_generate_interval: 0.3,
+
+        teleports_num: 15,
+        cartoons_num: 0,
+
+        populations: {
+            'darka': {maxNum: 15, interval: 5.0},
+            'ork': {maxNum: 5, interval: 5.0},
+            'elf': {maxNum: 5, interval: 5.0},
+            'pirat': {maxNum: 5, interval: 5.0},
+            // 'doc': {maxNum: 1, interval: 5.0},
+        },
+    }),
+
     'finish': new Room({
         ID: 'finish',
         width: 3000,

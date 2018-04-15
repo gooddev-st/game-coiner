@@ -28,13 +28,19 @@ export default class {
         }
     }
 
-    set(state){
+    set(info){
 
-        if(this.state !== state){
+        if(this.state !== info.state){
             this.faza = 0;
             this.currentSpriteNum = 0;
-            this.state = state;
+            this.state = info.state;
         }
+
+        this.target = {
+            room_id: info.target.room_id,
+            x: info.target.x,
+            y: info.target.y
+        };
     }
 
     draw(camera){
@@ -70,6 +76,7 @@ export default class {
             'paradise': 'rgba(0, 150, 255, 0.8)',
             'pandora': 'rgba(0, 150, 0, 0.8)',
             'tartar': 'rgba(55, 55, 0, 0.8)',
+            'sea': 'rgba(170, 45, 210, 0.8)',
         };
 
 
@@ -94,7 +101,7 @@ export default class {
     }
 
     drawSpot(){
-        
+
     }
 
     animate(step){

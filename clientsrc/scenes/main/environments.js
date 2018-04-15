@@ -58,4 +58,12 @@ export default {
         height: 1000,
         entitiesSprites: "dead_plants",
     },
+    7: {
+        r: {start: 100, rand: 24},
+        g: {start: 100, rand: 24},
+        b: {start: 230, rand: 24},
+        width: 1000,
+        height: 1000,
+        entitiesSprites: "coral",
+    },
 }

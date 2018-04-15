@@ -37,7 +37,7 @@ function init(callback) {
             //Если ещё не вошли
             if (!logged) {
 
-                if(data.version && data.version <= 0.15) {
+                if(data.version && data.version <= 0.16) {
 
                     //Получаем от пользователя аккаунт
                     signIn.start(function (account) {

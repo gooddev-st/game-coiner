@@ -14,6 +14,10 @@ const Kroko = require("./npcs/kroko");
 const Koil = require("./npcs/koil");
 const Gunner = require("./npcs/gunner");
 const Juk = require("./npcs/juk");
+const Darka = require("./npcs/darka");
+const Ork = require("./npcs/ork");
+const Elf = require("./npcs/elf");
+const Pirat = require("./npcs/pirat");
 
 /**
  * Генерация имени моба
@@ -39,6 +43,18 @@ NpcsList.prototype.add = function (room_id, x, y, npc_id) {
     let ID = getName();
 
     switch(npc_id){
+        case "pirat":
+            this.npcs[ID] = new Pirat(ID, x, y, room_id);
+            break;
+        case "elf":
+            this.npcs[ID] = new Elf(ID, x, y, room_id);
+            break;
+        case "ork":
+            this.npcs[ID] = new Ork(ID, x, y, room_id);
+            break;
+        case "darka":
+            this.npcs[ID] = new Darka(ID, x, y, room_id);
+            break;
         case "juk":
             this.npcs[ID] = new Juk(ID, x, y, room_id);
             break;

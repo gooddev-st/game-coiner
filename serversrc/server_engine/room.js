@@ -35,6 +35,9 @@ const ENVIRONMENTS = {
     6: {
         cartoonsSpriteset: characters.SPRITESET_CAMPFIRE,
     },
+    7: {
+        cartoonsSpriteset: characters.SPRITESET_BUSHS,
+    },
 };
 
 

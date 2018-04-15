@@ -350,14 +350,14 @@ function onRoom(event, type, data) {
                     for (let id in info.teleports) {
 
                         if (id in teleports) {
-                            teleports[id].set(info.teleports[id].state);
+                            teleports[id].set(info.teleports[id]);
                         }
                     }
                 }
             }
         }
         catch (e){
-            log("Ошибка обновления моба. "+e);
+            log("Ошибка обновления комнаты. "+e);
             log(data);
         }
     }

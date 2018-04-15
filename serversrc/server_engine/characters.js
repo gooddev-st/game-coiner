@@ -27,6 +27,10 @@ exports.CHARACTER_KROKO = 'kroko';
 exports.CHARACTER_KOIL = 'koil';
 exports.CHARACTER_GUNNER = 'gunner';
 exports.CHARACTER_JUK = 'juk';
+exports.CHARACTER_DARKA = 'darka';
+exports.CHARACTER_ORK = 'ork';
+exports.CHARACTER_ELF = 'elf';
+exports.CHARACTER_PIRAT = 'pirat';
 
 //Игроки
 exports.CHARACTER_BLOND = 'blond';

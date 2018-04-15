@@ -35,7 +35,12 @@ let s_doc = document.getElementById('s_doc'),
     s_dead = document.getElementById('s_dead'),
     s_gunner = document.getElementById('s_gunner'),
     s_juk = document.getElementById('s_juk'),
-    s_gad = document.getElementById('s_gad');
+    s_gad = document.getElementById('s_gad'),
+    s_darka = document.getElementById('s_darka'),
+    s_ork = document.getElementById('s_ork'),
+    s_elf = document.getElementById('s_elf'),
+    s_pirat = document.getElementById('s_pirat'),
+    t_coral = document.getElementById('t_coral');
 
 
 /**
@@ -881,17 +886,17 @@ exports.skeleton = {
 
     "states": {
         "default": [
-            {"name": "sprite79", "x": 0, "y": 0, "width": 64, "height": 64},
+            {"name": "sprite79", "x": 0, "y": 640, "width": 64, "height": 64},
         ],
         "run": [
-            {"name": "sprite80", "x": 0, "y": 64, "width": 64, "height": 64},
-            {"name": "sprite81", "x": 64, "y": 0, "width": 64, "height": 64},
-            {"name": "sprite82", "x": 64, "y": 64, "width": 64, "height": 64},
-            {"name": "sprite83", "x": 0, "y": 128, "width": 64, "height": 64},
-            {"name": "sprite84", "x": 64, "y": 128, "width": 64, "height": 64},
-            {"name": "sprite85", "x": 128, "y": 0, "width": 64, "height": 64},
-            {"name": "sprite86", "x": 128, "y": 64, "width": 64, "height": 64},
-            {"name": "sprite87", "x": 128, "y": 128, "width": 64, "height": 64}
+            {"name": "sprite80", "x": 64, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite81", "x": 128, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite82", "x": 192, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite83", "x": 256, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite84", "x": 320, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite85", "x": 384, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite86", "x": 448, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite87", "x": 512, "y": 640, "width": 64, "height": 64},
         ]
     }
 };
@@ -1038,6 +1043,122 @@ exports.andstones = {
             {"name": "08", "x": 65, "y": 99, "width": 64, "height": 32},
             {"name": "09", "x": 0, "y": 132, "width": 64, "height": 32},
             {"name": "10", "x": 65, "y": 132, "width": 64, "height": 32}
+        ]
+    }
+};
+
+
+/**
+ * Коралловый риф
+ */
+exports.coral = {
+    "image": t_coral,
+
+    "states": {
+        "default": [
+            {"name": "sprite1", "x": 16, "y": 7, "width": 33, "height": 36},
+            {"name": "sprite2", "x": 143, "y": 7, "width": 33, "height": 35},
+            {"name": "sprite3", "x": 201, "y": 7, "width": 46, "height": 33},
+            {"name": "sprite4", "x": 272, "y": 7, "width": 33, "height": 36},
+            {"name": "sprite5", "x": 399, "y": 7, "width": 33, "height": 35},
+            {"name": "sprite6", "x": 457, "y": 7, "width": 46, "height": 33},
+            {"name": "sprite7", "x": 73, "y": 10, "width": 46, "height": 29},
+            {"name": "sprite8", "x": 329, "y": 10, "width": 46, "height": 29},
+            {"name": "sprite9", "x": 330, "y": 49, "width": 46, "height": 47},
+            {"name": "sprite10", "x": 458, "y": 49, "width": 46, "height": 47},
+            {"name": "sprite11", "x": 266, "y": 51, "width": 44, "height": 45},
+            {"name": "sprite12", "x": 394, "y": 51, "width": 44, "height": 45},
+            {"name": "sprite13", "x": 16, "y": 55, "width": 33, "height": 36},
+            {"name": "sprite14", "x": 143, "y": 55, "width": 33, "height": 35},
+            {"name": "sprite15", "x": 201, "y": 55, "width": 46, "height": 33},
+            {"name": "sprite16", "x": 73, "y": 58, "width": 46, "height": 29},
+            {"name": "sprite17", "x": 260, "y": 98, "width": 50, "height": 40},
+            {"name": "sprite18", "x": 10, "y": 99, "width": 44, "height": 45},
+            {"name": "sprite19", "x": 323, "y": 99, "width": 53, "height": 38},
+            {"name": "sprite20", "x": 201, "y": 100, "width": 48, "height": 36},
+            {"name": "sprite21", "x": 388, "y": 102, "width": 54, "height": 36},
+            {"name": "sprite22", "x": 77, "y": 106, "width": 38, "height": 28},
+            {"name": "sprite23", "x": 141, "y": 106, "width": 38, "height": 28},
+            {"name": "sprite24", "x": 469, "y": 111, "width": 24, "height": 20},
+            {"name": "sprite25", "x": 335, "y": 165, "width": 70, "height": 65},
+            {"name": "sprite26", "x": 431, "y": 165, "width": 70, "height": 65},
+            {"name": "sprite27", "x": 141, "y": 176, "width": 51, "height": 61},
+            {"name": "sprite28", "x": 199, "y": 178, "width": 50, "height": 60},
+            {"name": "sprite29", "x": 261, "y": 179, "width": 53, "height": 57},
+            {"name": "sprite30", "x": 141, "y": 240, "width": 51, "height": 61},
+            {"name": "sprite31", "x": 199, "y": 242, "width": 50, "height": 60},
+            {"name": "sprite32", "x": 261, "y": 243, "width": 53, "height": 57},
+            {"name": "sprite33", "x": 431, "y": 245, "width": 70, "height": 65},
+            {"name": "sprite34", "x": 336, "y": 247, "width": 70, "height": 65},
+            {"name": "sprite35", "x": 10, "y": 248, "width": 44, "height": 47},
+            {"name": "sprite36", "x": 66, "y": 250, "width": 59, "height": 43},
+            {"name": "sprite37", "x": 141, "y": 304, "width": 51, "height": 61},
+            {"name": "sprite38", "x": 199, "y": 306, "width": 50, "height": 60},
+            {"name": "sprite39", "x": 261, "y": 307, "width": 53, "height": 57},
+            {"name": "sprite40", "x": 7, "y": 314, "width": 49, "height": 43},
+            {"name": "sprite41", "x": 72, "y": 314, "width": 48, "height": 43},
+            {"name": "sprite42", "x": 335, "y": 325, "width": 70, "height": 65},
+            {"name": "sprite43", "x": 431, "y": 325, "width": 70, "height": 65},
+            {"name": "sprite44", "x": 141, "y": 368, "width": 51, "height": 61},
+            {"name": "sprite45", "x": 199, "y": 370, "width": 50, "height": 60},
+            {"name": "sprite46", "x": 261, "y": 371, "width": 53, "height": 57},
+            {"name": "sprite47", "x": 8, "y": 375, "width": 48, "height": 49},
+            {"name": "sprite48", "x": 68, "y": 377, "width": 56, "height": 45},
+            {"name": "sprite49", "x": 335, "y": 405, "width": 70, "height": 65},
+            {"name": "sprite50", "x": 431, "y": 405, "width": 70, "height": 65},
+            {"name": "sprite51", "x": 141, "y": 432, "width": 51, "height": 61},
+            {"name": "sprite52", "x": 199, "y": 434, "width": 49, "height": 60},
+            {"name": "sprite53", "x": 261, "y": 435, "width": 53, "height": 57},
+            {"name": "sprite54", "x": 71, "y": 440, "width": 49, "height": 47},
+            {"name": "sprite55", "x": 7, "y": 441, "width": 50, "height": 46},
+            {"name": "sprite56", "x": 16, "y": 499, "width": 5, "height": 8},
+            {"name": "sprite57", "x": 22, "y": 499, "width": 5, "height": 8},
+            {"name": "sprite58", "x": 34, "y": 499, "width": 5, "height": 8},
+            {"name": "sprite59", "x": 40, "y": 499, "width": 5, "height": 8},
+            {"name": "sprite60", "x": 28, "y": 501, "width": 5, "height": 6},
+            {"name": "sprite61", "x": 205, "y": 515, "width": 42, "height": 66},
+            {"name": "sprite62", "x": 461, "y": 515, "width": 42, "height": 66},
+            {"name": "sprite63", "x": 13, "y": 518, "width": 48, "height": 64},
+            {"name": "sprite64", "x": 77, "y": 518, "width": 48, "height": 64},
+            {"name": "sprite65", "x": 141, "y": 518, "width": 48, "height": 64},
+            {"name": "sprite66", "x": 269, "y": 518, "width": 48, "height": 64},
+            {"name": "sprite67", "x": 333, "y": 518, "width": 48, "height": 64},
+            {"name": "sprite68", "x": 397, "y": 518, "width": 48, "height": 64},
+            {"name": "sprite69", "x": 205, "y": 595, "width": 42, "height": 66},
+            {"name": "sprite70", "x": 461, "y": 595, "width": 42, "height": 66},
+            {"name": "sprite71", "x": 13, "y": 598, "width": 48, "height": 64},
+            {"name": "sprite72", "x": 77, "y": 598, "width": 48, "height": 64},
+            {"name": "sprite73", "x": 141, "y": 598, "width": 48, "height": 64},
+            {"name": "sprite74", "x": 269, "y": 598, "width": 48, "height": 64},
+            {"name": "sprite75", "x": 333, "y": 598, "width": 48, "height": 64},
+            {"name": "sprite76", "x": 397, "y": 598, "width": 48, "height": 64},
+            {"name": "sprite77", "x": 0, "y": 674, "width": 63, "height": 75},
+            {"name": "sprite78", "x": 64, "y": 674, "width": 63, "height": 75},
+            {"name": "sprite79", "x": 128, "y": 674, "width": 63, "height": 75},
+            {"name": "sprite80", "x": 192, "y": 674, "width": 63, "height": 75},
+            {"name": "sprite81", "x": 256, "y": 674, "width": 63, "height": 75},
+            {"name": "sprite82", "x": 357, "y": 688, "width": 22, "height": 32},
+            {"name": "sprite83", "x": 389, "y": 688, "width": 22, "height": 32},
+            {"name": "sprite84", "x": 421, "y": 688, "width": 22, "height": 32},
+            {"name": "sprite85", "x": 453, "y": 688, "width": 22, "height": 32},
+            {"name": "sprite86", "x": 485, "y": 688, "width": 22, "height": 32},
+            {"name": "sprite87", "x": 293, "y": 770, "width": 98, "height": 121},
+            {"name": "sprite88", "x": 405, "y": 770, "width": 98, "height": 121},
+            {"name": "sprite89", "x": 2, "y": 775, "width": 44, "height": 65},
+            {"name": "sprite90", "x": 50, "y": 775, "width": 44, "height": 65},
+            {"name": "sprite91", "x": 98, "y": 775, "width": 44, "height": 65},
+            {"name": "sprite92", "x": 146, "y": 775, "width": 44, "height": 65},
+            {"name": "sprite93", "x": 194, "y": 775, "width": 44, "height": 65},
+            {"name": "sprite94", "x": 0, "y": 866, "width": 48, "height": 44},
+            {"name": "sprite95", "x": 48, "y": 866, "width": 48, "height": 44},
+            {"name": "sprite96", "x": 96, "y": 866, "width": 48, "height": 44},
+            {"name": "sprite97", "x": 181, "y": 898, "width": 98, "height": 121},
+            {"name": "sprite98", "x": 293, "y": 898, "width": 98, "height": 121},
+            {"name": "sprite99", "x": 405, "y": 898, "width": 98, "height": 121},
+            {"name": "sprite100", "x": 0, "y": 914, "width": 48, "height": 44},
+            {"name": "sprite101", "x": 48, "y": 914, "width": 48, "height": 44},
+            {"name": "sprite102", "x": 103, "y": 922, "width": 34, "height": 28},
+            {"name": "sprite103", "x": 7, "y": 970, "width": 33, "height": 27}
         ]
     }
 };
@@ -1258,6 +1379,110 @@ exports.juk = {
         "default": [
             {"name": "sprite19", "x": 0, "y": 128, "width": 64, "height": 64},
             ],
+        "run":[
+            {"name": "sprite20", "x": 64, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite21", "x": 128, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite22", "x": 192, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite23", "x": 256, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite24", "x": 320, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite25", "x": 384, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite26", "x": 448, "y": 128, "width": 64, "height": 64},
+            {"name": "sprite27", "x": 512, "y": 128, "width": 64, "height": 64},
+        ]
+    }
+};
+
+/**
+ * Тёмная магичка
+ */
+exports.darka = {
+    "image": s_darka,
+    "width": 100,
+    "height": 100,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite79", "x": 0, "y": 640, "width": 64, "height": 64},
+        ],
+        "run": [
+            {"name": "sprite80", "x": 64, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite81", "x": 128, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite82", "x": 192, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite83", "x": 256, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite84", "x": 320, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite85", "x": 384, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite86", "x": 448, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite87", "x": 512, "y": 640, "width": 64, "height": 64},
+        ]
+    }
+};
+
+/**
+ * Орк
+ */
+exports.ork = {
+    "image": s_ork,
+    "width": 100,
+    "height": 100,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite79", "x": 0, "y": 640, "width": 64, "height": 64},
+        ],
+        "run": [
+            {"name": "sprite80", "x": 64, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite81", "x": 128, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite82", "x": 192, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite83", "x": 256, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite84", "x": 320, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite85", "x": 384, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite86", "x": 448, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite87", "x": 512, "y": 640, "width": 64, "height": 64},
+        ]
+    }
+};
+
+/**
+ * Эльф
+ */
+exports.elf = {
+    "image": s_elf,
+    "width": 100,
+    "height": 100,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite79", "x": 0, "y": 640, "width": 64, "height": 64},
+        ],
+        "run": [
+            {"name": "sprite80", "x": 64, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite81", "x": 128, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite82", "x": 192, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite83", "x": 256, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite84", "x": 320, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite85", "x": 384, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite86", "x": 448, "y": 640, "width": 64, "height": 64},
+            {"name": "sprite87", "x": 512, "y": 640, "width": 64, "height": 64},
+        ]
+    }
+};
+
+/**
+ * Пират
+ */
+exports.pirat = {
+    "image": s_pirat,
+    "width": 100,
+    "height": 100,
+    "speed": 14,
+
+    "states": {
+        "default": [
+            {"name": "sprite19", "x": 0, "y": 128, "width": 64, "height": 64},
+        ],
         "run":[
             {"name": "sprite20", "x": 64, "y": 128, "width": 64, "height": 64},
             {"name": "sprite21", "x": 128, "y": 128, "width": 64, "height": 64},
