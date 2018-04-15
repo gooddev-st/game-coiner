@@ -38,7 +38,8 @@ Teleport.prototype.run = function(step){
         this.state = 'run';
     }
 
-    if(this.workTime <= 0){
+    if(this.workTime <= 0 && this.state==='run'){
+
         this.workTime = 0;
 
         this.state = 'default';
@@ -86,48 +87,30 @@ Teleport.prototype.info = function(){
 }
 
 //Определение соприкосновения с игроками
-Teleport.prototype.touch = function(players, room){
+Teleport.prototype.touch = function(players){
     let touchers = [];
 
     for(let i in players){
         //Если разные комнаты, то не касаются
-        if(this.room_id != players[i].room_id) continue;
+        if(this.room_id !== players[i].room_id) continue;
 
         if(isTouch(this, players[i])){
             touchers.push(players[i]);
         }
     }
 
-    if(touchers.length==0) return;
+    if(touchers.length===0) return;
 
     //Если коснулись - переместим коснувшихся
     for(let i in touchers){
 
-
-        if(
-            //Если мы на том свете
-            this.room_id==='finish' ||
-
-            //Если моб (нет "счета")
-            (touchers[i].score ==undefined &&
-                //и телепорт никто не активировал
-                this.workTime<=0) ||
-
-            //или игрок от 4-го уровня
-            (touchers[i].level>=4 &&
-            //и телепорт никто не активировал
-            this.workTime<=0) ||
-
-            //или игрок меньше 4-го уровня
-            (touchers[i].level<4 &&
-                //и телепорт кто-то активировал
-                this.workTime>0)
-        ) {
+        //Если телепорт активен
+        if(this.workTime<=0) {
 
             // Переместим
             touchers[i].teleport(this);
 
-            this.workTime = 3.0; //Активируем на 3 секунды
+            this.workTime = 3.0; //деактивируем на 3 секунды
 
         }
     }

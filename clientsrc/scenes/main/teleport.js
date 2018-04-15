@@ -62,6 +62,27 @@ export default class {
 
         this.character.draw(camera.context, x, y, this.state, this.currentSpriteNum, this.width, this.height);
 
+        //Пятно цвета соответствующее комнате
+        const rooms_colors = {
+            'start': 'rgba(255, 255, 0, 0.8)',
+            'forest': 'rgba(150, 220, 20, 0.8)',
+            'hell': 'rgba(255, 0, 57, 0.8)',
+            'paradise': 'rgba(0, 150, 255, 0.8)',
+            'pandora': 'rgba(0, 150, 0, 0.8)',
+            'tartar': 'rgba(55, 55, 0, 0.8)',
+        };
+
+
+        let color = rooms_colors[this.target.room_id];
+        if(color == undefined) color = 'rgba(0, 0, 0, 0.0)';
+
+        camera.context.save();
+        camera.context.beginPath();
+        camera.context.fillStyle = color;
+        camera.context.ellipse(x + this.width/2+10, y+this.height-11, 10, 4, 0, 0, 2 * Math.PI);
+        camera.context.fill();
+        camera.context.restore();
+
         // Рисуем пятно коллизий
         /*camera.context.save();
         camera.context.beginPath();
@@ -70,6 +91,10 @@ export default class {
         camera.context.rect(x, y, this.character.width, this.character.height);
         camera.context.stroke();
         camera.context.restore();*/
+    }
+
+    drawSpot(){
+        
     }
 
     animate(step){

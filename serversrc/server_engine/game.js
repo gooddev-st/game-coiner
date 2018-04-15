@@ -251,7 +251,7 @@ function start(){
 
                 teleport.run(STEP);
 
-                teleport.touch( players.list(), room);
+                teleport.touch( players.list());
             });
         });
 
