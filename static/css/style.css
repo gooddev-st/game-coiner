@@ -380,3 +380,55 @@ and (max-device-width: 320px) {
 .skills-panel .veko.value80{height: 20%;}
 .skills-panel .veko.value90{height: 10%;}
 /* Конец Скилы */
+
+
+/* Панель юнита */
+
+#unit-panel{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    max-width: 100px;
+    overflow: hidden;
+    padding: 0 6px 6px 0;
+    background-color: rgba(0,0,0,0.4);
+    color: #ffb800;
+    -webkit-border-radius: 0 0 10px 0;
+    -moz-border-radius: 0 0 10px 0;
+    border-radius: 0 0 10px 0;
+}
+#unit-panel>div{
+    font: bold 12px sans-serif;
+    border: 1px solid #ffb800;
+    padding: 6px 6px 10px 6px;
+    border-radius: 0 0 6px 0;
+    border-width: 0 1px 1px 0;
+    text-align: left;
+    overflow: hidden;
+}
+#unit-panel .row{
+    overflow: hidden;
+}
+#unit-panel .hr{
+    overflow: hidden;
+    border: none;
+    border-bottom: 2px solid #ffb800;
+    margin: 7px 3px 4px 3px;
+}
+#unit-panel .label{
+    float: left;
+}
+#unit-panel .value{
+    /*float: right;*/
+}
+
+#unit-panel #unit-name{
+    width: 100%;
+    text-align: center;
+}
+
+#unit-panel #unit-preview{
+    display: block;
+}
+/* Конец Панель юнита */

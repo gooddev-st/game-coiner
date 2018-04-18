@@ -591,6 +591,9 @@ function update(){
     //Камера
     camera && camera.update(room);
 
+    //Показать выбранного юнита в окне юнита
+    ui.unitInfo && ui.unitInfo.update(hero.unit);
+
     //Сущности
     entities.each((entity, index)=>{
 
