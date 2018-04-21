@@ -6,6 +6,7 @@ import {STEP} from "../../constants";
 import characters from "../../characters";
 import entities from "./entities";
 import Entity from "./entity";
+import camera from "./camera";
 
 const CHARACTER_DEFAULT = 'blond';
 
@@ -80,6 +81,16 @@ export default class Unit{
         this.updateEffects(data.effects);
 
     }
+
+    mouseBox(){
+        return {
+            left: this.x,
+            top: this.y-44,
+            right: this.x+this.width,
+            bottom: this.y+this.height
+        }
+    }
+
 
     updateEffects(effects){
         let existsEffect = {};
@@ -166,6 +177,8 @@ export default class Unit{
 
         this.drawCharacter(camera.context, x, y);
 
+        // this.drawBox(camera, x, y);
+
         // Рисуем имя
         if(this.level!=undefined) {
 
@@ -190,21 +203,6 @@ export default class Unit{
             y = sy - (this.character.height-this.height);
 
         this.character.draw(context, x, y, this.state, this.currentSpriteNum, this.width, this.height);
-
-        // Рисуем пятно коллизий
-        /*context.save();
-        context.beginPath();
-        context.fillStyle = "rgba(255,255,67,0.4)";
-        context.fillRect(sx, sy, this.width, this.height);
-        context.rect(x, y, this.character.width, this.character.height);
-        context.stroke();
-
-        context.beginPath();
-        context.fillStyle = "rgba(255,0,0,0.8)";
-        context.arc(sx, sy, 2, 0, Math.PI*2);
-        context.fill();
-
-        context.restore();*/
     }
 
 
@@ -314,10 +312,64 @@ export default class Unit{
     }
 
 
+
+    drawCollizoinBox(context, sx, sy){
+        let x = sx - (this.character.width-this.width)/2,
+            y = sy - (this.character.height-this.height);
+
+        // Рисуем пятно коллизий
+        context.save();
+        context.beginPath();
+        context.fillStyle = "rgba(255,255,67,0.4)";
+        context.fillRect(sx, sy, this.width, this.height);
+        context.rect(x, y, this.character.width, this.character.height);
+        context.stroke();
+
+        context.beginPath();
+        context.fillStyle = "rgba(255,0,0,0.8)";
+        context.arc(sx, sy, 2, 0, Math.PI*2);
+        context.fill();
+
+        context.restore();
+    }
+
+    drawBox(camera, x, y){
+        let box = this.mouseBox(),
+            context = camera.context;
+
+        // Рисуем пятно коллизий
+        context.save();
+        context.beginPath();
+        context.fillStyle = "rgba(255,255,67,0.4)";
+        context.fillRect(
+            box.left - camera.x,
+            box.top - camera.y,
+            box.right-box.left,
+            box.bottom-box.top
+        );
+
+        context.beginPath();
+        context.fillStyle = "rgba(255,0,0,0.8)";
+        context.arc(x, y, 2, 0, Math.PI*2);
+        context.fill();
+
+        context.restore();
+    }
+
+
     destroy(){
         for(let effectID in this.effects){
             this.effects[effectID].kill();
             delete this.effects[effectID];
         }
+    }
+
+    //Координаты внутри юнита?
+    inBox(camera, x, y){
+        let box = this.mouseBox();
+        return x>=box.left&&
+            x<box.right&&
+            y>=box.top&&
+            y<this.y+box.bottom;
     }
 }

@@ -44,7 +44,7 @@ function run(io) {
         let user = null;
 
         //Отправим приветствие (уведомление об ожидании логина)
-        events.one(socket, "server", "hello", {version: 0.16, message: "Добро пожаловать на сервер игры в монеты"});
+        events.one(socket, "server", "hello", {version: 0.18, message: "Добро пожаловать на сервер игры в монеты"});
 
         //При получении логина
         socket.on('login', (account) => {

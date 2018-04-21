@@ -20,9 +20,9 @@ import account from "../../account";
 export default {start, stop}
 
 // Запустим по окончании игры
-let
-    finalCallback = null,
-    interval = null;
+let finalCallback = null;
+
+let interval = null;
 
 let rooms = {},
     room_id = null,
@@ -32,6 +32,8 @@ let rooms = {},
     camera = null,
     loots = {},
     teleports = {};
+
+let currentUnit = null;
 
 
 function start(callback) {
@@ -81,6 +83,11 @@ function start(callback) {
     events.on("click", (eventName, pos)=>{
         if(pos) {
             entities.add(null, pos.x, pos.y+1, 'pointer', .35);
+        }
+
+        let unit = getPeekUnit(camera, pos.x, pos.y);
+        if(unit){
+            currentUnit = unit;
         }
     });
 
@@ -144,6 +151,8 @@ function stop() {
     entities.reset();
 
     ui.skills.stop();
+    ui.heroInfo.stop();
+    ui.unitInfo.stop();
 
     ui.top10.stop();
 
@@ -501,6 +510,10 @@ function onHero(event, type, data) {
             ui.heroInfo.start();
             ui.heroInfo.update(info);
 
+            currentUnit = hero.unit;
+            ui.unitInfo.start();
+            ui.unitInfo.update(currentUnit);
+
             ui.waitScreen.hide();
 
             controller.start();
@@ -591,8 +604,10 @@ function update(){
     //Камера
     camera && camera.update(room);
 
-    //Показать выбранного юнита в окне юнита
-    ui.unitInfo && ui.unitInfo.update(hero.unit);
+    if(currentUnit) {
+        //Показать выбранного юнита в окне юнита
+        ui.unitInfo && ui.unitInfo.update(currentUnit);
+    }
 
     //Сущности
     entities.each((entity, index)=>{
@@ -753,4 +768,12 @@ function roomInit(settings, players, heroUnit){
             hero.unit = new Unit(item);
         units.add(item.ID, hero.unit);
     }*/
+}
+
+function getPeekUnit(camera, x, y) {
+    for (let unit of units.toArray()) {
+        if(unit.inBox(camera, x, y)) {
+            return unit;
+        }
+    }
 }

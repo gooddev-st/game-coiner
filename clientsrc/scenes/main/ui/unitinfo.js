@@ -17,7 +17,7 @@ const canvas = document.getElementById("unit-preview");
 
 
 function start() {
-    panelElement.style.display = 'block';
+    // panelElement.style.display = 'block';
 }
 function stop(){
 
@@ -34,7 +34,8 @@ function update(unit){
 
     if(!unit) return;
 
-    nameElement && (nameElement.innerText = unit.name);
+    let name = unit.name || unit.ID;
+    nameElement && (nameElement.innerText = name);
     healthElement && (healthElement.innerText = unit.health);
 
     const context = canvas.getContext("2d");

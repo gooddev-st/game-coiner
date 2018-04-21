@@ -6,7 +6,7 @@ module.exports.each = each;
 module.exports.toArray = toArray;
 
 
-const Room = require("./room.js");
+const Room = require("./rooms/room.js");
 const characters = require("./characters");
 require('./constants.js')();
 

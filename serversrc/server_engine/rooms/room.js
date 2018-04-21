@@ -1,16 +1,16 @@
 module.exports = Room;
 
-const characters = require("./characters.js");
-const rooms = require("./rooms.js");
-const Cartoon = require("./cartoon.js");
-const Coin = require("./loot/coin");
-const Kaktoos = require("./loot/kaktoos");
-const Gad = require("./loot/gad");
-const Teleport = require("./teleport.js");
-const events = require('./events.js');
-const NpcsList = require('./npcs');
+const characters = require("../characters.js");
+const rooms = require("../rooms.js");
+const Cartoon = require("../cartoon.js");
+const Coin = require("../loot/coin");
+const Kaktoos = require("../loot/kaktoos");
+const Gad = require("../loot/gad");
+const Teleport = require("../teleport.js");
+const events = require('../events.js');
+const NpcsList = require('../npcs');
 
-require('./constants')();
+require('../constants')();
 
 
 const ENVIRONMENTS = {

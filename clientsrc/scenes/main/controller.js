@@ -234,7 +234,6 @@ function onMouseDown(e) {
         else if(e.button === 2){
             events.add('mouse-down-right', {x: x, y: y});
         }
-
     }
 }
 
