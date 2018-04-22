@@ -32,9 +32,16 @@ export default class {
 
         ctx.save();
 
-        this.generateRandomBack(ctx);
+        if(this.environment_id!=undefined) {
+            this.generateRandomBack(ctx);
+        }
+        else{
 
-        this.generateCartoon(ctx);
+        }
+
+        if(this.entities_num) {
+            this.generateCartoon(ctx);
+        }
 
         ctx.restore();
 

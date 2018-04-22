@@ -179,9 +179,14 @@ function onRoom(event, type, data) {
         try {
             if(!data.room) throw "Ошибка получения с сервера";
 
-            var room = data.room;
+            const room = data.room;
 
-            if (room.ID==undefined || !room.width || !room.height || room.environment_id==undefined) throw "Ошибка получения с сервера";
+            if (
+                room.ID==undefined ||
+                room.type==undefined ||
+                !room.width ||
+                !room.height
+            ) throw "Ошибка получения с сервера";
 
             roomInit(room, data.players, data.hero);
         }

@@ -6,14 +6,16 @@ module.exports.each = each;
 module.exports.toArray = toArray;
 
 
-const Room = require("./rooms/room.js");
-const characters = require("./characters");
+const Room = require("./rooms/room");
+const RandomRoom = require("./rooms/random");
+const FinishRoom = require("./rooms/finish");
 require('./constants.js')();
 
 
-const rooms = {
-    'start': new Room({
+const roomsSettings = [
+    {
         ID: 'start',
+        type: 'random',
         width: 2000,
         height: 2000,
 
@@ -36,10 +38,11 @@ const rooms = {
             'gob': {maxNum:5, interval: 20.0},
             'prof': {maxNum:1, interval: 10.0},
         },
-    }),
+    },
 
-    'forest': new Room({
+    {
         ID: 'forest',
+        type: 'random',
         width: 2000,
         height: 2000,
 
@@ -63,10 +66,11 @@ const rooms = {
             'skeleton': {maxNum:6, interval: 10.0},
             'doc': {maxNum:1, interval: 30.0},
         },
-    }),
+    },
 
-    'hell': new Room({
+    {
         ID: 'hell',
+        type: 'random',
         width: 800,
         height: 800,
 
@@ -90,10 +94,11 @@ const rooms = {
             'kroko': {maxNum:3, interval: 10.0},
             'koil': {maxNum:3, interval: 7.0},
         },
-    }),
+    },
 
-    'paradise': new Room({
+    {
         ID: 'paradise',
+        type: 'random',
         width: 1000,
         height: 3000,
 
@@ -115,10 +120,11 @@ const rooms = {
         populations: {
             'juk': {maxNum:6, interval: 10.0},
         },
-    }),
+    },
 
-    'pandora': new Room({
+    {
         ID: 'pandora',
+        type: 'random',
         width: 3000,
         height: 400,
 
@@ -140,10 +146,11 @@ const rooms = {
         populations: {
             'gunner': {maxNum:8, interval: 10.0},
         },
-    }),
+    },
 
-    'tartar': new Room({
+    {
         ID: 'tartar',
+        type: 'random',
         width: 3000,
         height: 3000,
 
@@ -167,10 +174,11 @@ const rooms = {
             'dead': {maxNum:5, interval: 5.0},
             'mag': {maxNum:5, interval: 5.0},
         },
-    }),
+    },
 
-    'sea': new Room({
+    {
         ID: 'sea',
+        type: 'random',
         width: 3000,
         height: 3000,
 
@@ -190,16 +198,17 @@ const rooms = {
         cartoons_num: 0,
 
         populations: {
-            'darka': {maxNum: 15, interval: 5.0},
+            // 'darka': {maxNum: 15, interval: 5.0},
             'ork': {maxNum: 5, interval: 5.0},
-            'elf': {maxNum: 5, interval: 5.0},
-            'pirat': {maxNum: 5, interval: 5.0},
+            // 'elf': {maxNum: 5, interval: 5.0},
+            // 'pirat': {maxNum: 5, interval: 5.0},
             // 'doc': {maxNum: 1, interval: 5.0},
         },
-    }),
+    },
 
-    'finish': new Room({
+    {
         ID: 'finish',
+        type: 'finish',
         width: 3000,
         height: 200,
 
@@ -217,26 +226,36 @@ const rooms = {
 
         teleports_num: 1,
         cartoons_num: 0,
-    }),
-};
+    },
+];
 
-//Рандомные телепорты
+const rooms = {};
+
+
+//Породим комнаты на основе настроек
+for(const i in roomsSettings){
+
+    let settings = roomsSettings[i];
+
+    let type = settings.type || 'easy';
+    switch (type) {
+        case 'random':
+            rooms[settings.ID] = new RandomRoom(settings);
+            break;
+        case 'finish':
+            rooms[settings.ID] = new FinishRoom(settings);
+            break;
+        default:
+            rooms[settings.ID] = new Room(settings);
+            break;
+    }
+}
+
+
+//Инитим комнаты (После того как список комнат готов)
 for(const i in rooms){
 
-    //Кроме телепорта из финишной комнаты
-    if(i==='finish'){
-        let target = {
-            room_id: PLAYER_START_ROOM,
-            x: PLAYER_START_X,
-            y: PLAYER_START_Y,
-        };
-
-        //Из финишной - один - в стартовую
-        rooms[i].addTeleport('finish', rooms[i].width - 100, 100, null, target)
-    }
-    else {
-        rooms[i].randomTeleports(rooms[i].teleports_num);
-    }
+    rooms[i].initialize();
 }
 
 function get(room_id){
