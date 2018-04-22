@@ -198,11 +198,11 @@ const roomsSettings = [
         cartoons_num: 0,
 
         populations: {
-            // 'darka': {maxNum: 15, interval: 5.0},
+            'darka': {maxNum: 15, interval: 5.0},
             'ork': {maxNum: 5, interval: 5.0},
-            // 'elf': {maxNum: 5, interval: 5.0},
-            // 'pirat': {maxNum: 5, interval: 5.0},
-            // 'doc': {maxNum: 1, interval: 5.0},
+            'elf': {maxNum: 5, interval: 5.0},
+            'pirat': {maxNum: 5, interval: 5.0},
+            'doc': {maxNum: 2, interval: 5.0},
         },
     },
 

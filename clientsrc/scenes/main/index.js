@@ -6,7 +6,7 @@ import events from "../../events";
 import hero from './hero';
 import Unit from "./unit";
 import Teleport from "./teleport";
-import Room from "./rooms/room";
+import Room from "./rooms/lightroom";
 import Loot from "./loot";
 import ui from "./ui/ui";
 import controller from "./controller";
@@ -94,7 +94,7 @@ function start(callback) {
 
             //Если юнит уже выделен
             if(currentUnit.ID===unit.ID){
-                //TODO: генерировать событие "цельмышью" для сервера
+                //событие "цельмышью" для сервера
                 events.add('hero-target', pos);
 
             }
@@ -681,7 +681,6 @@ function animate(){
 /**
  * Отрисовка на камеру
  * @param camera
- * TODO: порядок отрисовки!
  */
 function draw(camera){
 

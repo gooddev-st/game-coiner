@@ -16,6 +16,8 @@ const effects = require("./effects.js");
 
 const db = require('./db.js');
 
+const Weapon = require("./weapons").Sword;
+
 const sound_event = require('./sound_event.js');//звуковые события
 
 
@@ -27,6 +29,9 @@ const characters = require('./characters.js');
 const
     PLAYER_WIDTH = 44.0,
     PLAYER_HEIGHT = 44.0,
+    SPEED = 400,
+    VIEW_DISTANCE = 50,
+    ATTACK_DISTANCE = 50,
 
     SIN_45 = Math.sin(45.0);
 
@@ -87,8 +92,15 @@ function Player(id, name, socket, data) {
 
     this.width = PLAYER_WIDTH;
     this.height = PLAYER_HEIGHT;
-    this.baseSpeed = data.speed;
+
+    //TODO: скорости на основе уровня игрока
+    this.attackSpeed =  data.speed;
+    this.normalSpeed =  data.speed;
     this.speed = data.speed;
+
+    this.viewDistance = VIEW_DISTANCE;
+    //TODO: Расстояние атаки от оружия
+    this.attackDistance = ATTACK_DISTANCE;
 
 
     this.score = data.score ? data.score : 0;
@@ -108,8 +120,11 @@ function Player(id, name, socket, data) {
     this.currentSkill = null;
 
 
-    this.makeEffects = {};
+    // this.makeEffects = {};
     this.effects = {};
+
+    this.weapons = {}; // Оружие
+    this.currentWeapon = null;
 
     this.armor = 25;
     this.protect = 0;
@@ -138,6 +153,9 @@ function Player(id, name, socket, data) {
     this.skills['skill3'] = {id: 'holera', icon: 'holera', value: 0.0, increment: 50.0};
     this.skills['skill4'] = {id: 'shield', icon: 'shield', value: 100.0, increment: 10.0};
     this.currentSkill = 'skill1';
+
+    this.weapons['weapon1'] = new Weapon(35);
+    this.currentWeapon = 'weapon1';
 
     this.alredyInit = false;
 }
@@ -532,6 +550,19 @@ Player.prototype.hit = function (hitPoints) {
 
 
 /**
+ * Удар текущим оружием
+ * @param target
+ */
+Player.prototype.bah = function (target) {
+    if(!this.currentWeapon || !this.weapons[this.currentWeapon]) return;
+
+    const weapon = this.weapons[this.currentWeapon];
+
+    weapon.bah(target);
+};
+
+
+/**
  * Движение игрока по контроллеру в комнате
  * @param room
  * @param step
@@ -723,6 +754,10 @@ Player.prototype.calculateTarget = function(){
     target = this.targetMouse(click);
     if(target) return target;
 
+    // Идем к ближнему подходящему мобу (в поле зрения)
+    target = this.targetNpc();
+    if(target) return target;
+
     return null;
 };
 
@@ -804,6 +839,63 @@ Player.prototype.targetEffects = function(){
     }
 
     return null;
+};
+
+
+
+
+
+/**
+ * Условие пригодности как цели
+ * @param target
+ * @param self - игрок
+ * @returns {boolean}
+ */
+Player.prototype.targetNpcCondition = function(target, self) {
+    //По умолчанию - годятся все которые не он же и из другой фракции
+    return (target.ID!==self.ID && target.fraction!==self.fraction);
+};
+
+/**
+ * Если поблизости подходящий моб - идем к нему
+ * @returns {*}
+ */
+Player.prototype.targetNpc = function() {
+
+    let room = rooms.get(this.room_id),
+        npcs = room.npcs;
+
+    let nearest = npcs.nearest(this.room_id, this.x, this.y, this.targetNpcCondition, this);
+
+    if(!nearest) return null;
+
+    // Если в поле зрения - идем к
+    if(nearest.distance <= this.viewDistance){
+
+        //Включаем атакующую скорость
+        this.speed = this.attackSpeed;
+
+        //Подошли на расстояние атаки - атакуем
+        if(nearest.distance <= this.attackDistance) {
+
+            let npc = npcs.get(nearest.id);
+
+            this.freeze = true;
+
+            this.bah(npc);
+
+            return null;
+        }
+        else{
+            return nearest.pos;
+        }
+    }
+
+    //Включаем нормальную скорость
+    this.speed = this.normalSpeed;
+
+    return null;
+
 };
 
 
