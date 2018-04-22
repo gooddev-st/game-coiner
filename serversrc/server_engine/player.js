@@ -254,6 +254,12 @@ Player.prototype.init = function () {
         }
     });
 
+    this.socket.on('hero-target', (target) => {
+
+        this.controller.click = target;
+
+    });
+
     this.socket.on('mouse-down-left', (target) => {
 
         this.controller.mouseLeft = true;
@@ -261,12 +267,6 @@ Player.prototype.init = function () {
     });
 
     this.socket.on('mouse-up-left', (target) => {
-
-        //Если случился - отметим клик
-        if(this.controller.mouseLeft){
-
-            this.controller.click = target;
-        }
 
         this.controller.mouseLeft = false;
 
@@ -277,7 +277,8 @@ Player.prototype.init = function () {
         this.controller.up = false;
         this.controller.right = false;
         this.controller.down = false;
-        this.controller.click = false;
+        this.controller.click = null;
+        this.controller.mouseLeft = false;
         this.target = false;
     });
 
@@ -347,6 +348,9 @@ Player.prototype.fire = function (skillID) {
 };
 
 
+/**
+ * Получаем и сбрасываем "цель по клику"
+ */
 Player.prototype.getClick = function () {
     let click = this.controller.click;
     this.controller.click = null;

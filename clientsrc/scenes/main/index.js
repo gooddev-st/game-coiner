@@ -6,7 +6,7 @@ import events from "../../events";
 import hero from './hero';
 import Unit from "./unit";
 import Teleport from "./teleport";
-import Room from "./room";
+import Room from "./rooms/room";
 import Loot from "./loot";
 import ui from "./ui/ui";
 import controller from "./controller";
@@ -80,17 +80,36 @@ function start(callback) {
     events.on("hero", onHero);
     events.on("sound", onSound);
 
-    events.on("click", (eventName, pos)=>{
+    //На клик мышью
+    //TODO: в метод, в котором выделение юнита или отправка клика на сервер
+    events.on("mouse-down-left", (eventName, pos)=>{
         if(pos) {
             entities.add(null, pos.x, pos.y+1, 'pointer', .35);
         }
 
         let unit = getPeekUnit(camera, pos.x, pos.y);
+
+        //Если кликнули по юниту
         if(unit){
-            currentUnit = unit;
+
+            //Если юнит уже выделен
+            if(currentUnit.ID===unit.ID){
+                //TODO: генерировать событие "цельмышью" для сервера
+                events.add('hero-target', pos);
+
+            }
+            else {
+                currentUnit = unit;
+                //событие выбора игрока
+                events.add('selectUnit', unit.ID);
+            }
+        }
+        else{
+            events.add('hero-target', pos);
         }
     });
 
+    //Взрывы, визуальные эффекты и другое...
     events.on("entity", (eventName, type, data)=>{
         if(type==="remove-coin" && data.room_id===room_id){
 
@@ -139,10 +158,11 @@ function stop() {
 
     events.off("reconnect", onReconnect);
     events.off("room", onRoom);
-    events.off("hero");
-    events.off("sound");
+    events.off("hero", onHero);
+    events.off("sound", onSound);
 
     events.off("click");
+    events.off("entity");
     events.off("coin");
 
     units.reset();

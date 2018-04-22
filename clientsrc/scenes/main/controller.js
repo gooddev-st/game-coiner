@@ -38,6 +38,10 @@ const keys = {
 
 let clickPad = null;
 
+//Для генерации событий движения в направлении от hero к позиции мыши  (при нажатой левой клавише)
+let interval = null,
+    lastMousePos = {},
+    leftMouseDown = false;
 
 
 export default {start, stop, setClickPad}
@@ -60,6 +64,7 @@ function start() {
     window.addEventListener("click", onClick, false);
     window.addEventListener("mousedown", onMouseDown, false);
     window.addEventListener("mouseup", onMouseUp, false);
+    window.addEventListener("mousemove", onMouseMove, false);
 }
 
 
@@ -75,6 +80,7 @@ function stop() {
     window.removeEventListener("click", onClick, false);
     window.removeEventListener("mousedown", onMouseDown, false);
     window.removeEventListener("mouseup", onMouseUp, false);
+    window.removeEventListener("mousemove", onMouseMove, false);
 }
 
 
@@ -227,9 +233,14 @@ function onMouseDown(e) {
     if(clickPad) {
         let x = e.clientX + clickPad.x,
             y = e.clientY + clickPad.y;
+        lastMousePos.x = e.clientX;
+        lastMousePos.y = e.clientY;
 
         if(e.button === 0 || e.button===1) {
             events.add('mouse-down-left', {x: x, y: y});
+            leftMouseDown = true;
+
+            startMoveOnMouse();
         }
         else if(e.button === 2){
             events.add('mouse-down-right', {x: x, y: y});
@@ -239,6 +250,8 @@ function onMouseDown(e) {
 
 //Мышь отпустили
 function onMouseUp(e) {
+
+    stopMoveOnMouse();
 
     // Если есть по чем кликать отправим событие
     if(clickPad) {
@@ -255,11 +268,46 @@ function onMouseUp(e) {
     }
 }
 
+//Мышь движется
+function onMouseMove(e) {
+
+    // Если есть по чем кликать сохраним позицию мыши во вьюпорте
+    if(clickPad) {
+        //Если левая кнопка зажата
+        if(leftMouseDown) {
+            lastMousePos.x = e.clientX;
+            lastMousePos.y = e.clientY;
+        }
+        else{
+            stopMoveOnMouse();
+        }
+    }
+}
+
 
 /**
  * Если окно потеряло фокус
  */
 function onWindowBlur() {
+    stopMoveOnMouse();
+
     // отожмем все клавиши
     events.add('controllerReset', true);
+}
+
+/**
+ * Каждые 0.1 секунды движем героя за мышью
+ */
+function startMoveOnMouse() {
+    if(!interval) {
+
+        interval = setInterval(_ => {
+            events.add('hero-target', {x: lastMousePos.x + clickPad.x, y: lastMousePos.y + clickPad.y});
+        }, 100);
+    }
+}
+
+function stopMoveOnMouse() {
+    clearInterval(interval);
+    interval = null;
 }

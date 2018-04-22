@@ -18,6 +18,7 @@ export default class Unit{
      * @param data
      */
     constructor(data, isHero){
+        this.ID = data.ID;
 
         if(isHero){
             this.isHero = true;

@@ -1,6 +1,6 @@
 //Настройки рандомных цветов комнаты
 
-import sprites from "../../sprites";
+import sprites from "../../../sprites";
 
 import ENVIRONMENTS from './environments';
 /**
@@ -54,16 +54,16 @@ export default class {
     generateRandomBack(ctx){
 
         const
-            tileWidth = 22.0,
-            tileHeight = 22.0,
-            rows = Math.floor(this.width/tileWidth) + 1,
-            columns = Math.floor(this.height/tileHeight) + 1;
+            boxWidth = 22.0,
+            boxHeight = 22.0,
+            rows = Math.floor(this.width/boxWidth) + 1,
+            columns = Math.floor(this.height/boxHeight) + 1;
 
-        for (let x = 0.0, i = 0; i < rows; x+=tileHeight, i++) {
-            for (let y = 0, j=0; j < columns; y+=tileWidth, j++) {
+        for (let x = 0.0, i = 0; i < rows; x+=boxHeight, i++) {
+            for (let y = 0, j=0; j < columns; y+=boxWidth, j++) {
                 ctx.beginPath();
                 ctx.fillStyle = this.randomCSScolor(this.environment_id);
-                ctx.fillRect(x, y, tileWidth, tileHeight);
+                ctx.fillRect(x, y, boxWidth, boxHeight);
                 // ctx.closePath();
             }
         }
