@@ -80,6 +80,7 @@ function Npc(ID, x, y, room_id, character_id) {
 
     this.room_id = room_id;
     this.state = 'run';
+    this.direction = 'south';
 
     this.width = NPC_WIDTH;
     this.height = NPC_HEIGHT;
@@ -251,6 +252,24 @@ Npc.prototype.run = function (room, step) {
 
             this.x += x_increment;
             this.y += y_increment;
+
+            //Выставим направление
+            if(Math.abs(x_increment) > Math.abs(y_increment)){
+                if(x_increment > 0){
+                    this.direction = 'east';
+                }
+                else{
+                    this.direction = 'west';
+                }
+            }
+            else{
+                if(y_increment > 0){
+                    this.direction = 'south';
+                }
+                else{
+                    this.direction = 'north';
+                }
+            }
         }
 
     }
@@ -548,6 +567,7 @@ Npc.prototype.info = function(){
         y: this.y,
         character_id: this.character_id,
         state: this.state,
+        direction: this.direction,
 
         room_id: this.room_id,
 

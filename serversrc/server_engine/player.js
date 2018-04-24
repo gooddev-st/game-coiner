@@ -89,6 +89,7 @@ function Player(id, name, socket, data) {
 
     this.character_id = data.character_id || getRandomCharacter();
     this.state = 'default';
+    this.direction = 'south';
 
     this.width = PLAYER_WIDTH;
     this.height = PLAYER_HEIGHT;
@@ -409,13 +410,17 @@ Player.prototype.eating = function (loot) {
     this.hit(-20);
 
     //Левелап (LevelUp)
+    //TODO: с уровнем добавлять плюшек
     if(this.score >= TO_LEVELS[this.level]){
         this.level++;
 
         //Увеличим скорость
-        this.speed += 50;
+        this.normalSpeed += 50;
         //    только не слишком
-        if(this.speed>400) this.speed = 400;
+        if(this.normalSpeed>400) this.normalSpeed = 400;
+
+        this.attackSpeed = this.normalSpeed;
+        this.speed = this.normalSpeed;
 
         sound_event.add('level_up', this.room_id, this.x, this.y);
     }
@@ -618,6 +623,25 @@ Player.prototype.run = function (room) {
 
             this.x += x_increment;
             this.y += y_increment;
+
+
+            //Выставим направление
+            if(Math.abs(x_increment) > Math.abs(y_increment)){
+                if(x_increment > 0){
+                    this.direction = 'east';
+                }
+                else{
+                    this.direction = 'west';
+                }
+            }
+            else{
+                if(y_increment > 0){
+                    this.direction = 'south';
+                }
+                else{
+                    this.direction = 'north';
+                }
+            }
         }
 
     }
@@ -699,6 +723,7 @@ Player.prototype.makeDie = function(){
     this.health = this.maxHealth;
     for(let effectID in this.effects) delete this.effects[effectID];
     this.state = 'default';
+    this.direction = 'south';
     this.target = null;
 
     this.onDie();
@@ -951,6 +976,7 @@ Player.prototype.commonInfo = function(){
 
         character_id: this.character_id,
         state: this.state,
+        direction: this.direction,
 
         level: this.level,
 
@@ -981,6 +1007,7 @@ Player.prototype.allInfo = function(){
         y: this.y,
         character_id: this.character_id,
         state: this.state,
+        direction: this.direction,
 
         coins_count: this.coins_count,
         score: this.score,
