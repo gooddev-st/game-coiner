@@ -5,6 +5,7 @@
 
 // подключим события
 import events from '../../events.js'
+import ui from './ui/ui'
 
 
 const keys = {
@@ -64,6 +65,11 @@ function start() {
     window.addEventListener("mousedown", onMouseDown, false);
     window.addEventListener("mouseup", onMouseUp, false);
     window.addEventListener("mousemove", onMouseMove, false);
+    window.addEventListener("touchstart", onMouseDown, false);
+    window.addEventListener("touchend", onMouseUp, false);
+    window.addEventListener("touchmove", onMouseMove, false);
+    window.addEventListener("contextmenu", e=>e.preventDefault(), false);
+
 }
 
 
@@ -80,6 +86,9 @@ function stop() {
     window.removeEventListener("mousedown", onMouseDown, false);
     window.removeEventListener("mouseup", onMouseUp, false);
     window.removeEventListener("mousemove", onMouseMove, false);
+    window.removeEventListener("touchstart", onMouseDown, false);
+    window.removeEventListener("touchend", onMouseUp, false);
+    window.removeEventListener("touchmove", onMouseMove, false);
 }
 
 
@@ -230,12 +239,27 @@ function onMouseDown(e) {
 
     // Если есть по чем кликать отправим событие
     if(clickPad) {
+        //targetTouches
         let x = e.clientX + clickPad.x,
             y = e.clientY + clickPad.y;
+
         lastMousePos.x = e.clientX;
         lastMousePos.y = e.clientY;
 
-        if(e.button === 0 || e.button===1) {
+        //Если касание и оно одно
+        if(e.changedTouches && e.changedTouches.length>=1){
+            x = e.changedTouches[0].pageX + clickPad.x;
+            y = e.changedTouches[0].pageY + clickPad.y;
+
+            lastMousePos.x = e.changedTouches[0].pageX;
+            lastMousePos.y = e.changedTouches[0].pageY;
+
+            startMoveOnMouse();
+
+            events.add('mouse-down-left', {x: x, y: y});
+        }
+
+        else if(e.button === 0 || e.button===1) {
             events.add('mouse-down-left', {x: x, y: y});
             leftMouseDown = true;
 
@@ -243,6 +267,7 @@ function onMouseDown(e) {
         }
         else if(e.button === 2){
             events.add('mouse-down-right', {x: x, y: y});
+            e.preventDefault();
         }
     }
 }
@@ -257,11 +282,18 @@ function onMouseUp(e) {
         let x = e.clientX + clickPad.x,
             y = e.clientY + clickPad.y;
 
-        if(e.button === 0 || e.button===1) {
+        //Если касание и оно одно
+        if(e.changedTouches && e.changedTouches.length>=1){
+            x = e.changedTouches[0].pageX + clickPad.x;
+            y = e.changedTouches[0].pageY + clickPad.y;
+            events.add('mouse-up-left', {x: x, y: y});
+        }
+        else if(e.button === 0 || e.button===1) {
             events.add('mouse-up-left', {x: x, y: y});
         }
         else if(e.button === 2){
             events.add('mouse-up-right', {x: x, y: y});
+            e.preventDefault();
         }
 
     }
@@ -276,6 +308,14 @@ function onMouseMove(e) {
         if(leftMouseDown) {
             lastMousePos.x = e.clientX;
             lastMousePos.y = e.clientY;
+
+            //Если касание и оно одно
+            if(e.changedTouches && e.changedTouches.length>=1){
+                lastMousePos.x = e.changedTouches[0].pageX;
+                lastMousePos.y = e.changedTouches[0].pageY;
+                e.preventDefault();
+            }
+
         }
         else{
             stopMoveOnMouse();

@@ -33,6 +33,8 @@ function start() {
 
     skillsPanel.addEventListener('mouseup', onMouseUp, false);
     skillsPanel.addEventListener('mousedown', onMouseDown, false);
+    skillsPanel.addEventListener('touchend', onMouseUp, false);
+    skillsPanel.addEventListener('touchstart', onMouseDown, false);
 
     //Если смена умения - сменим
     events.on('skill-change', (eventName,ID)=>selectSkill(ID));
@@ -72,6 +74,8 @@ function start() {
 function stop() {
     skillsPanel.removeEventListener('mousedown', onMouseDown, false);
     skillsPanel.removeEventListener('mouseup', onMouseUp, false);
+    skillsPanel.removeEventListener('touchstart', onMouseDown, false);
+    skillsPanel.removeEventListener('touchend', onMouseUp, false);
     skillsPanel.style.display = 'none';
 }
 

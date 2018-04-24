@@ -754,9 +754,11 @@ Player.prototype.calculateTarget = function(){
     target = this.targetMouse(click);
     if(target) return target;
 
-    // Идем к ближнему подходящему мобу (в поле зрения)
-    target = this.targetNpc();
-    if(target) return target;
+    // Если нет цели - идем к ближнему подходящему мобу (в поле зрения)
+    if(!this.target) {
+        target = this.targetNpc();
+        if (target) return target;
+    }
 
     return null;
 };

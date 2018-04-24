@@ -17,24 +17,25 @@ const top10ContentElement = document.getElementById("top10-panel-content");
 
 
 function start() {
-    top10Element.addEventListener('mouseup', onClick, false);
 
-    events.on("keyup", (eventName, keyCode)=>{
-        if(keyCode==="statistic"){
-            if(isActive()){
-                hide();
-            }
-            else{
-                show();
-            }
-        }
-    });
+    top10Element.addEventListener('mouseup', onClick, false);
+    top10Element.addEventListener('touchend', onClick, false);
+    top10Element.addEventListener('mousedown', cancelEvent, false);
+    top10Element.addEventListener('touchstart', cancelEvent, false);
+    top10Element.addEventListener('click', cancelEvent, false);
+
+    events.on("keyup", onKeyUp);
 
     events.on("server", update);
 
 }
 function stop(){
     top10Element.removeEventListener('mouseup', onClick, false);
+    top10Element.removeEventListener('touchend', onClick, false);
+    top10Element.removeEventListener('mousedown', cancelEvent, false);
+    top10Element.removeEventListener('touchstart', cancelEvent, false);
+    top10Element.removeEventListener('click', cancelEvent, false);
+    events.off("keyup", onKeyUp);
     events.off("server", update);
 }
 
@@ -48,20 +49,37 @@ function hide() {
     top10Element.style.right = '-196px';
 }
 
-function isActive() {
-    return active;
-}
-
-
-function onClick(e){
-
+function toggle() {
     if (isActive()) {
         hide();
     }
     else {
         show();
     }
+}
 
+function isActive() {
+    return active;
+}
+
+
+function onKeyUp(eventName, keyCode) {
+    if(keyCode==="statistic"){
+        toggle();
+    }
+}
+
+
+function onClick(e){
+
+    toggle();
+
+    e.stopPropagation();
+    e.preventDefault();
+    return false;
+}
+
+function cancelEvent(e) {
     e.stopPropagation();
     e.preventDefault();
     return false;
