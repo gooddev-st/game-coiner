@@ -10,18 +10,27 @@ export default class Character{
         this.height = height || sprite.height;
     }
 
+    framesCount(state, direction){
+        if(!state || !this.sprite.states[state]){
+            return 0;
+        }
+
+        return this.sprite.states[state].length;
+    }
+
 
     /**
      * Отрисовка персонажа
-     * @param context - куда рисуем
+     * @param context
      * @param x
      * @param y
+     * @param state
+     * @param direction
+     * @param frameNum
      * @param width
      * @param height
-     * @param state
-     * @param frameNum - номер кадра анимации
      */
-    draw(context, x, y, state, frameNum, width, height){
+    draw(context, x, y, state, direction, frameNum, width, height){
 
         if(!state || !this.sprite.states[state]){
             state = 'default'

@@ -4,6 +4,7 @@
  */
 import {STEP} from "../../constants";
 import characters from "../../characters";
+import charactersLpc from "../../characters_lpc";
 import entities from "./entities";
 import Entity from "./entity";
 import camera from "./camera";
@@ -16,6 +17,7 @@ export default class Unit{
     /**
      * Конструктор
      * @param data
+     * @param isHero
      */
     constructor(data, isHero){
         this.ID = data.ID;
@@ -32,9 +34,16 @@ export default class Unit{
         this.width = data.width;
         this.height = data.height;
 
-        this.character = characters.get(data.character_id) || characters.get(CHARACTER_DEFAULT);
+        //Берем персонажа
+        //  сначала смотрим в LPC
+        this.character = charactersLpc.get(data.character_id) ||
+            // затем в обычных
+            characters.get(data.character_id) ||
+            // если нет - дефолтный
+            characters.get(CHARACTER_DEFAULT);
 
         this.state = data.state || 'default';
+        this.direction = data.direction || 'south';
 
         this.name = data.name;
 
@@ -62,7 +71,14 @@ export default class Unit{
         this.room_id = data.room_id;
         this.x = data.x;
         this.y = data.y;
-        this.character = characters.get(data.character_id) || characters.get(CHARACTER_DEFAULT);
+
+        //Берем персонажа
+        //  сначала смотрим в LPC
+        this.character = charactersLpc.get(data.character_id) ||
+            // затем в обычных
+            characters.get(data.character_id) ||
+            // если нет - дефолтный
+            characters.get(CHARACTER_DEFAULT);
 
         this.name = data.name;
 
@@ -70,7 +86,8 @@ export default class Unit{
             this.faza = 0;
             this.currentSpriteNum = 0;
         }
-        this.state = data.state;
+        this.state = data.state || 'default';
+        this.direction = data.direction || 'south';
 
         this.level = data.level;
         this.coins_count = data.coins_count;
@@ -138,8 +155,9 @@ export default class Unit{
         this.faza += this.animateSpeed * STEP;
         this.currentSpriteNum = Math.floor(this.faza);
 
+        let framesLength = this.character.framesCount(this.state, this.direction);
 
-        if (this.currentSpriteNum < 0 || this.currentSpriteNum >= this.character.sprite.states[this.state].length) {
+        if (this.currentSpriteNum < 0 || this.currentSpriteNum >= this.character.framesCount(this.state, this.direction)) {
             this.faza = 0;
             this.currentSpriteNum = 0;
         }
@@ -153,13 +171,6 @@ export default class Unit{
 
     draw(camera){
         if(!this.character) return false;
-
-        if(!this.character.sprite.states[this.state]){
-            this.state = 'default';
-        }
-        if(!this.character.sprite.states[this.state]){
-            return false;
-        }
 
         let x = this.x - camera.x,
             y = this.y - camera.y;
@@ -203,7 +214,7 @@ export default class Unit{
         let x = sx - (this.character.width-this.width)/2,
             y = sy - (this.character.height-this.height);
 
-        this.character.draw(context, x, y, this.state, this.currentSpriteNum, this.width, this.height);
+        this.character.draw(context, x, y, this.state, this.direction, this.currentSpriteNum, this.width, this.height);
     }
 
 

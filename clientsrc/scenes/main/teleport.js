@@ -66,7 +66,7 @@ export default class {
             return true;
         }
 
-        this.character.draw(camera.context, x, y, this.state, this.currentSpriteNum, this.width, this.height);
+        this.character.draw(camera.context, x, y, this.state, null, this.currentSpriteNum, this.width, this.height);
 
         //Пятно цвета соответствующее комнате
         const rooms_colors = {

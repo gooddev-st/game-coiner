@@ -1,3 +1,6 @@
+/**
+ * Персонажи
+ */
 import Character from "./engine/character.js";
 import sprites from "./sprites";
 import spritesets from "./spritesets";

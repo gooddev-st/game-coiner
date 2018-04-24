@@ -57,7 +57,7 @@ export default class {
         }
 
 
-        this.character.draw(camera.context, x, y, this.state, this.currentSpriteNum, this.width, this.height);
+        this.character.draw(camera.context, x, y, this.state, null, this.currentSpriteNum, this.width, this.height);
 
         // Рисуем пятно коллизий
         /*camera.context.save();

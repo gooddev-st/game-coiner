@@ -786,12 +786,6 @@ function roomInit(settings, players, heroUnit){
             units.add(item.ID, new Unit(item));
         }
     }
-
-    /*if(heroUnit && ! hero.unit){
-        let item = heroUnit;
-            hero.unit = new Unit(item);
-        units.add(item.ID, hero.unit);
-    }*/
 }
 
 function getPeekUnit(camera, x, y) {

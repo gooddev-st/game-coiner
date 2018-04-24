@@ -123,6 +123,6 @@ export default class Entity{
         let x = sx - (this.character.width-this.width)/2,
             y = sy - (this.character.height-this.height);
 
-        this.character.draw(context, x, y, this.state, this.currentSpriteNum, this.width, this.height);
+        this.character.draw(context, x, y, this.state, null, this.currentSpriteNum, this.width, this.height);
     }
 }
