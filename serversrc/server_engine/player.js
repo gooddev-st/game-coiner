@@ -87,6 +87,8 @@ function Player(id, name, socket, data) {
 
     this.target = null;// Позиция куда идти
 
+    this.targetOfAttack = null;
+
     this.character_id = data.character_id || getRandomCharacter();
     this.state = 'default';
     this.direction = 'south';
@@ -95,8 +97,8 @@ function Player(id, name, socket, data) {
     this.height = PLAYER_HEIGHT;
 
     //TODO: скорости на основе уровня игрока
-    this.attackSpeed =  data.speed;
-    this.normalSpeed =  data.speed;
+    this.attackSpeed =  data.attack_speed;
+    this.normalSpeed =  data.normal_speed;
     this.speed = data.speed;
 
     this.viewDistance = VIEW_DISTANCE;
@@ -298,7 +300,8 @@ Player.prototype.init = function () {
         this.controller.down = false;
         this.controller.click = null;
         this.controller.mouseLeft = false;
-        this.target = false;
+        this.target = null;
+        this.targetOfAttack = null;
     });
 
     this.socket.on('skill-change',(skill_id)=>{
@@ -391,6 +394,7 @@ Player.prototype.reset = function (socket) {
     this.controller.right = false;
     this.controller.down = false;
     this.target = null;
+    this.targetOfAttack = null;
 };
 
 
@@ -497,6 +501,7 @@ Player.prototype.teleport = function (teleport) {
 
     //Сбросим цель движения
     this.target = null;
+    this.targetOfAttack = null;
 
     //Если перемещаемся в другую комнату - закажем смену
     if(this.room_id !== teleport.target.room_id){
@@ -579,16 +584,23 @@ Player.prototype.run = function (room) {
         this.makeDie();
     }
 
+    //Восстановление энергии скилов
     this.updateSkillsValues();
 
+    //Применим на себя эффекты
     this.runEffects();
 
+    //Сохраняем, чтобы понять, что изменился
     let oldPos = {x: this.x, y: this.y},
         oldState = this.state,
         oldHealth = this.health;
 
+    //Посчитаем цель движения
     let target = this.calculateTarget();
     if(target) this.target = target;
+
+    //Посчитаем цель атаки
+    this.targetOfAttack = this.calculateTargetOfAttack();
 
     //Если станилка - сбросим цель
     if(this.freeze){
@@ -597,6 +609,9 @@ Player.prototype.run = function (room) {
 
         this.freeze = false;
     }
+
+
+    this.setDirection();
 
     //Если есть цель
     if (this.target) {
@@ -623,31 +638,21 @@ Player.prototype.run = function (room) {
 
             this.x += x_increment;
             this.y += y_increment;
-
-
-            //Выставим направление
-            if(Math.abs(x_increment) > Math.abs(y_increment)){
-                if(x_increment > 0){
-                    this.direction = 'east';
-                }
-                else{
-                    this.direction = 'west';
-                }
-            }
-            else{
-                if(y_increment > 0){
-                    this.direction = 'south';
-                }
-                else{
-                    this.direction = 'north';
-                }
-            }
         }
 
     }
 
+    //Проверим - не умерла ли цель атаки
+    if(this.targetOfAttack && this.targetOfAttack.isDie()){
+        this.targetOfAttack = null;
+    }
+
     //Выставим состояние
-    if(this.target){
+    if(this.targetOfAttack){
+
+        this.state = 'slash';
+    }
+    else if(this.target){
         this.state = 'run';
     }
     else{
@@ -764,7 +769,7 @@ Player.prototype.runEffects = function () {
 };
 
 
-//Рассчитаем цель
+//Рассчитаем цель перемещения
 Player.prototype.calculateTarget = function(){
     // если есть клик
     let click = this.getClick();
@@ -773,9 +778,11 @@ Player.prototype.calculateTarget = function(){
     /*target = this.targetEffects();
     if(target) return target;*/
 
+    //Движем с клавиатуры
     target = this.targetKeyboard();
     if(target) return target;
 
+    //Движем мышью или тачем
     target = this.targetMouse(click);
     if(target) return target;
 
@@ -789,6 +796,10 @@ Player.prototype.calculateTarget = function(){
 };
 
 
+/**
+ * Движение с клавиш
+ * @returns {*}
+ */
 Player.prototype.targetKeyboard = function(){
     let
         dx = 0,
@@ -823,6 +834,11 @@ Player.prototype.targetKeyboard = function(){
 };
 
 
+/**
+ * Движение мышью
+ * @param pos
+ * @returns {*}
+ */
 Player.prototype.targetMouse = function(pos){
 
     if (pos) {
@@ -869,9 +885,6 @@ Player.prototype.targetEffects = function(){
 };
 
 
-
-
-
 /**
  * Условие пригодности как цели
  * @param target
@@ -905,11 +918,7 @@ Player.prototype.targetNpc = function() {
         //Подошли на расстояние атаки - атакуем
         if(nearest.distance <= this.attackDistance) {
 
-            let npc = npcs.get(nearest.id);
-
             this.freeze = true;
-
-            this.bah(npc);
 
             return null;
         }
@@ -920,6 +929,53 @@ Player.prototype.targetNpc = function() {
 
     //Включаем нормальную скорость
     this.speed = this.normalSpeed;
+
+    return null;
+
+};
+
+//Рассчитаем цель атаки
+Player.prototype.calculateTargetOfAttack = function(){
+
+    let targetOfAttack;
+
+    targetOfAttack = this.targetOfAttackNpc();
+    if (targetOfAttack) return targetOfAttack;
+
+    return null;
+};
+
+
+/**
+ * Условие пригодности как цели атаки
+ * @param target
+ * @param self - игрок
+ * @returns {boolean}
+ */
+Player.prototype.targetOfAttackNpcCondition = function(target, self) {
+    //По умолчанию - годятся все которые не он же и из другой фракции
+    return (target.ID!==self.ID && target.fraction!==self.fraction);
+};
+
+
+Player.prototype.targetOfAttackNpc = function() {
+
+    let room = rooms.get(this.room_id),
+        npcs = room.npcs;
+
+    let nearest = npcs.nearest(this.room_id, this.x, this.y, this.targetOfAttackNpcCondition, this);
+
+    if(!nearest) return null;
+
+    //Подошли на расстояние атаки - атакуем
+    if(nearest.distance <= this.attackDistance) {
+
+        let npc = npcs.get(nearest.id);
+
+        this.bah(npc);
+
+        return npc;
+    }
 
     return null;
 
@@ -941,6 +997,8 @@ Player.prototype.info = function(){
         score: this.score,
 
         speed: this.speed,
+        normal_speed: this.normalSpeed,
+        attack_speed: this.attackSpeed,
 
         room_id: this.room_id,
         x: this.x,
@@ -1048,4 +1106,45 @@ Player.prototype.onDie = function() {
         grave_id = Math.floor(Math.random()*characters.SPRITESET_GRAVES.size);
 
     room.addCartoon(this.x+20, this.y, characters.SPRITESET_GRAVES.ID, grave_id, 60.0);
+};
+
+
+Player.prototype.setDirection = function() {
+    let target;
+    //Если есть цель атаки - повернемся к ней
+    if(this.targetOfAttack) {
+        target = {x: this.targetOfAttack.x, y: this.targetOfAttack.y}
+    }
+    //иначе если есть - к цели движения
+    else if(this.target){
+        target = {x: this.target.x, y: this.target.y}
+    }
+    else{
+        return;
+    }
+
+    let x_increment = target.x - this.x,
+        y_increment = target.y - this.y;
+
+    if(x_increment===0 && y_increment===0){
+        return;
+    }
+
+    //Выставим направление
+    if(Math.abs(x_increment) > Math.abs(y_increment)){
+        if(x_increment > 0){
+            this.direction = 'east';
+        }
+        else{
+            this.direction = 'west';
+        }
+    }
+    else{
+        if(y_increment > 0){
+            this.direction = 'south';
+        }
+        else{
+            this.direction = 'north';
+        }
+    }
 };

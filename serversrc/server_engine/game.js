@@ -147,6 +147,8 @@ function login(account, socket, callback) {
                     score: 0,
 
                     speed: PLAYER_START_SPEED,
+                    normal_speed: PLAYER_START_SPEED,
+                    attack_speed: PLAYER_START_SPEED,
 
                     room_id: PLAYER_START_ROOM,
                     x: PLAYER_START_X,
