@@ -202,7 +202,7 @@ const roomsSettings = [
             'ork': {maxNum: 5, interval: 5.0},
             'elf': {maxNum: 5, interval: 5.0},
             'pirat': {maxNum: 5, interval: 5.0},
-            'doc': {maxNum: 2, interval: 5.0},
+            // 'doc': {maxNum: 2, interval: 5.0},
         },
     },
 

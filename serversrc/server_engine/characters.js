@@ -6,6 +6,8 @@ exports.CHARACTER_COIN = 'coin_gold';
 exports.CHARACTER_COIN_SILVER = 'coin_silver';
 exports.CHARACTER_COIN_COPPER = 'coin_copper';
 
+exports.CHARACTER_SACK = 'sack';
+
 exports.CHARACTER_CRYSTAL_BLUE = 'blue_crystal';
 exports.CHARACTER_CRYSTAL_GREEN = 'green_crystal';
 exports.CHARACTER_CRYSTAL_GREY = 'grey_crystal';

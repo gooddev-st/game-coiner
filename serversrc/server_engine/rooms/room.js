@@ -3,6 +3,7 @@ module.exports = Room;
 const characters = require("../characters.js");
 const Cartoon = require("../cartoon.js");
 const Coin = require("../loot/coin");
+const Sack = require("../loot/sack");
 const Teleport = require("../teleport.js");
 const events = require('../events.js');
 const NpcsList = require('../npcs');
@@ -107,6 +108,15 @@ Room.prototype.addCoin = function (x, y, content){
     this.loot.push(coin);
 
     events.room(this.ID, "room", "loot-create", {info: coin.info()});
+};
+
+
+Room.prototype.addSack = function (x, y, content){
+
+    let item = new Sack(this.ID, x, y, content);
+    this.loot.push(item);
+
+    events.room(this.ID, "room", "loot-create", {info: item.info()});
 };
 
 

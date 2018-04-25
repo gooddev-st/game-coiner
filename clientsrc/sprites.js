@@ -40,7 +40,8 @@ let s_doc = document.getElementById('s_doc'),
     s_ork = document.getElementById('s_ork'),
     s_elf = document.getElementById('s_elf'),
     s_pirat = document.getElementById('s_pirat'),
-    t_coral = document.getElementById('t_coral');
+    t_coral = document.getElementById('t_coral'),
+    s_bag = document.getElementById('s_bag');
 
 
 /**
@@ -1492,6 +1493,25 @@ exports.pirat = {
             {"name": "sprite25", "x": 384, "y": 128, "width": 64, "height": 64},
             {"name": "sprite26", "x": 448, "y": 128, "width": 64, "height": 64},
             {"name": "sprite27", "x": 512, "y": 128, "width": 64, "height": 64},
+        ]
+    }
+};
+
+
+/**
+ * Мешок
+ */
+exports.sack = {
+    "image": s_bag,
+    "width": 28,
+    "height": 35,
+
+    "states": {
+        "default": [
+            {"name": "sprite4", "x": 0, "y": 0, "width": 18, "height": 25},
+        ],
+        "run": [
+            {"name": "sprite9", "x": 18, "y": 0, "width": 18, "height": 25},
         ]
     }
 };

@@ -133,8 +133,11 @@ function Npc(ID, x, y, room_id, character_id) {
  * @param attackSpeed
  */
 Npc.prototype.initSpeed = function (normalSpeed, attackSpeed) {
-    this.normalSpeed = normalSpeed || NPC_SPEED;
-    this.attackSpeed = attackSpeed || this.normalSpeed;
+    this.normalSpeed = normalSpeed;
+    if(this.normalSpeed == undefined) this.normalSpeed = NPC_SPEED;
+
+    this.attackSpeed = attackSpeed;
+    if(this.attackSpeed == undefined) this.attackSpeed = this.normalSpeed;
     this.speed = this.normalSpeed;
 };
 
@@ -602,7 +605,7 @@ Npc.prototype.onDie = function() {
     //если что-то накопил - выроним
     if (content > 0) {
 
-        room.addCoin(this.x, this.y+3, content);
+        room.addSack(this.x, this.y+3, content);
     }
 
     //Поставим могилку
