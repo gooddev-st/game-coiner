@@ -129,7 +129,7 @@ const roomsSettings = [
         height: 400,
 
         environment_id: 4,
-        entities_num: 3000,
+        entities_num: 1000,
 
         dead_zone_left: 10,
         dead_zone_top: 80,

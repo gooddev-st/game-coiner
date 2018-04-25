@@ -12,6 +12,7 @@ export default class {
         this.height = height;
         this.environment_id = environment_id;
         this.entities_num = entities_num;
+
         this.image = null;
 
         this.backTile = null;
@@ -19,6 +20,8 @@ export default class {
         this.tileHeight = ENVIRONMENTS[this.environment_id].height || 100;
         this.pixelWidth = ENVIRONMENTS[this.environment_id].pixelWidth || 2;
         this.pixelHeight = ENVIRONMENTS[this.environment_id].pixelHeight || 2;
+
+        this.entities = [];
 
         this.generate();
     }
@@ -33,6 +36,8 @@ export default class {
 
     generate(){
         this.generateRandomTile();
+
+        this.generateMushrooms();
     }
 
     generateRandomTile(){
@@ -67,7 +72,11 @@ export default class {
 
     }
 
-    generateCartoon(ctx){
+    /**
+     * Грибочки всякие
+     * @param ctx
+     */
+    generateMushrooms(){
         const env = ENVIRONMENTS[this.environment_id];
 
         const spr = sprites[env.entitiesSprites];
@@ -78,32 +87,13 @@ export default class {
             //Случайная плитка из набора
             let id = Math.floor(Math.random()*spr.states.default.length);
             let tile = spr.states.default[id];
+            let image = spr.image;
 
             //Случайные координаты
             let xx = Math.floor(Math.random()*(this.width + tile.width)/10)*10 - tile.width;
             let yy = Math.floor(Math.random()*(this.height + tile.height)/10)*10 - tile.height;
-            let w = tile.width, h = tile.height, sx = tile.x, sy = tile.y;
 
-
-            //Обрезка по границам комнаты
-
-            if(xx < this.width && xx > -tile.width && yy < this.height && yy > -tile.height) {
-
-                if(xx < 0){w += xx;sx -= xx;xx = 0;}
-
-                if(yy < 0){h += yy;sy -= yy;yy = 0;}
-
-                if (xx > this.width - tile.width) {
-                    w = this.width - xx;
-                }
-
-                if (yy > this.height - tile.height) {
-                    h = this.height - yy;
-                }
-
-                ctx.drawImage(spr.image, sx, sy, w, h, xx, yy, w, h);
-            }
-
+            this.entities.push({image: image, tile: tile, x: xx, y: yy});
         }
     }
 
@@ -118,6 +108,14 @@ export default class {
         camera.context.restore();
 
         if(!this.backTile) return false;
+
+        this.drawTiles(camera);
+
+        this.drawMushrooms(camera);
+
+    }
+
+    drawTiles(camera){
 
 
         /**
@@ -212,9 +210,52 @@ export default class {
         }
     }
 
-    /*drawTile(col, row, camera){
-        camera.context.save();
-        camera.context.drawImage(this.image, sx, sy, sw, sh, dx, dy, dw, dh);
-        camera.context.restore();
-    }*/
+    drawMushrooms(camera){
+
+        if(!this.entities || this.entities instanceof Array===false) return;
+
+        this.entities.forEach((it)=> {
+
+            let tile = it.tile,
+                image = it.image,
+                x = it.x,
+                y = it.y;
+            let w = tile.width, h = tile.height, sx = tile.x, sy = tile.y;
+
+
+            //Только то, что в камере
+            if (
+                x < camera.x+camera.width &&
+                x > camera.x-tile.width &&
+                y < camera.y+camera.height &&
+                y > camera.y-tile.height) {
+
+                //Обрезка по границам комнаты
+                if(x < 0){w += x;sx -= x;x = 0;}
+
+                if(y < 0){h += y;sy -= y;y = 0;}
+
+                if (x > this.width - tile.width) {w = this.width - x;}
+
+                if (y > this.height - tile.height) {h = this.height - y;}
+
+
+                x = x - camera.x;
+                y = y - camera.y;
+
+                //Обрезка по границам камеры
+                if (x < 0) {w += x;sx -= x;x = 0;}
+
+                if (y < 0) {h += y;sy -= y;y = 0;}
+
+                if (x > camera.width - w) {w = camera.width - x;}
+
+                if (y > camera.height - h) {h = camera.height - y;}
+
+                /*camera.context.rect(x, y, w, h);
+                camera.context.stroke();*/
+                camera.context.drawImage(image, sx, sy, w, h, x, y, w, h);
+            }
+        });
+    }
 }
