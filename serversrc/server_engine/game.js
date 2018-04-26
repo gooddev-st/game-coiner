@@ -240,7 +240,7 @@ function start(){
         //Проверим как там монеты
         //TODO: Проверять только для плееров/мобов в той же комнате
         rooms.each((room_id, room)=>{
-            room.lootEach((id, loot)=>{
+            room.loot.each((id, loot)=>{
 
                 loot.touch(targets);
 
@@ -307,7 +307,7 @@ function sendGameState(){
             }
         });
         //лут
-        room.lootEach((id, loot) => {
+        room.loot.each((id, loot) => {
             if (loot.changed) {
                 room_info.loot[loot.ID] = loot.info();
                 loot.changed = false;

@@ -361,7 +361,7 @@ Npc.prototype.calculateTarget = function(room) {
     if(target) return target;
 
     // Иначе пойдем за ближайшей монетой
-    target = this.targetCoin(room);
+    target = this.targetLoot(room);
     if(target) return target;
 
     // Иначе - шляемся
@@ -372,38 +372,21 @@ Npc.prototype.calculateTarget = function(room) {
 
 };
 
-Npc.prototype.targetCoin = function(room) {
+Npc.prototype.targetLootCondition = function(target, self) {
+    return target.type==='coin';
+};
 
-    if(!room || !room.loot.length) return false;
+Npc.prototype.targetLoot = function(room) {
 
-    let distances = [];
+    if(!room || !room.loot.size()) return false;
 
-    // Соберем в массив все монеты
-    for(const i in room.loot){
-        let
-            x = room.loot[i].x,
-            y = room.loot[i].y,
-            xdiff = Math.abs(x - this.x),
-            ydiff = Math.abs(y - this.y);
+    let nearest = room.loot.nearest(this.room_id, this.x, this.y, this.targetLootCondition, this);
 
-        distances.push({
-            // Расстояние до монеты
-            distance: Math.sqrt(xdiff * xdiff + ydiff * ydiff),
-            // Её расположение
-            pos: {x: x, y: y}
-        });
-    }
-
-    // Найдем индекс минимального значения
-    let min_index = distances.reduce(
-        (prev, value, i, array) => {
-            return value.distance < array[prev].distance ? i : prev;
-        }, 0
-    );
+    if(!nearest) return null;
 
     // Если в поле зрения - идем к луту
-    if(distances[min_index].distance <= this.viewDistance){
-        return distances[min_index].pos;
+    if(nearest.distance <= this.viewDistance){
+        return nearest.pos;
     }
 
     return null;

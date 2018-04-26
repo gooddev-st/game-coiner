@@ -10,7 +10,7 @@ const
     COIN_WIDTH = 44,
     COIN_HEIGHT = 22;
 
-function Coin(room_id, x, y, content) {
+function Coin(ID, room_id, x, y, content) {
 
     if(content==undefined) content = 1;
 
@@ -49,7 +49,7 @@ function Coin(room_id, x, y, content) {
             break;
     }
 
-    Loot.call(this, room_id, x, y, character_id, 'coin', COIN_WIDTH, COIN_HEIGHT, content);
+    Loot.call(this, ID, room_id, x, y, character_id, 'coin', COIN_WIDTH, COIN_HEIGHT, content);
 
 }
 

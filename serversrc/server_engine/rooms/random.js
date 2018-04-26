@@ -71,14 +71,14 @@ RandomRoom.prototype.randomLoot = function(num){
         let content = 1 + Math.floor(Math.random()*5),
             pos = this.randomPos(44, 22);
 
-        this.loot.push(new Coin(this.ID, pos.x, pos.y, content));
+        this.loot.add('coin', this.ID, pos.x, pos.y, content);
     }
 
     /*for(let i = 0; i<num; i++){
         let content = 13,// + Math.floor(Math.random()*5),
             pos = this.randomPos(41, 40);
 
-        this.loot.push(new Kaktoos(this.ID, pos.x, pos.y, content));
+        this.loot.add('kaktoos', this.ID, pos.x, pos.y, content);
     }*/
 };
 
@@ -156,14 +156,13 @@ RandomRoom.prototype.genCoins = function () {
         this.generation_faza -= this.generation_interval;
 
         //Если не превышен лимит для комнаты
-        if(this.loot.length < this.coins_max_limit) {
+        if(this.loot.size() < this.coins_max_limit) {
 
             //Создаем монету
             let content = 1 + Math.floor(Math.random()*5),
                 pos = this.randomPos(44, 22);
 
-            let coin = new Coin(this.ID, pos.x, pos.y, content);
-            this.loot.push(coin);
+            let coin = this.loot.add('coin', this.ID, pos.x, pos.y, content);
 
             events.room(this.ID, "room", "loot-create", {info: coin.info()});
         }

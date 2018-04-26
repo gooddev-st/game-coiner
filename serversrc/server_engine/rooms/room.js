@@ -2,10 +2,9 @@ module.exports = Room;
 
 const characters = require("../characters.js");
 const Cartoon = require("../cartoon.js");
-const Coin = require("../loot/coin");
-const Sack = require("../loot/sack");
 const Teleport = require("../teleport.js");
 const events = require('../events.js');
+const LootList = require('../loot.js');
 const NpcsList = require('../npcs');
 
 require('../constants')();
@@ -24,7 +23,7 @@ function Room(settings) {
     this.dead_zone_bottom = settings.dead_zone_bottom;
 
     this.cartoons = [];
-    this.loot = [];
+    this.loot = new LootList('loot');
     this.teleports = [];
 
     this.npcs = new NpcsList();
@@ -57,9 +56,7 @@ Room.prototype.addTeleport = function(x, y, character_id, target){
 
 
 Room.prototype.lootEach = function(callback){
-    for(const i in this.loot){
-        callback(i, this.loot[i]);
-    }
+    this.loot.each(callback);
 };
 
 
@@ -67,14 +64,6 @@ Room.prototype.cartoonsEach = function(callback){
     for(const i in this.cartoons){
         callback(i, this.cartoons[i]);
     }
-};
-
-Room.prototype.lootInfo = function(){
-    let lootInfo = [];
-     this.lootEach((i, it)=>{
-        lootInfo.push(it.info());
-    });
-    return lootInfo;
 };
 
 
@@ -104,8 +93,7 @@ Room.prototype.run = function () {
 
 Room.prototype.addCoin = function (x, y, content){
 
-    let coin = new Coin(this.ID, x, y, content);
-    this.loot.push(coin);
+    let coin = this.loot.add('coin', this.ID, x, y, content);
 
     events.room(this.ID, "room", "loot-create", {info: coin.info()});
 };
@@ -113,8 +101,7 @@ Room.prototype.addCoin = function (x, y, content){
 
 Room.prototype.addSack = function (x, y, content){
 
-    let item = new Sack(this.ID, x, y, content);
-    this.loot.push(item);
+    let item = this.loot.add('sack', this.ID, x, y, content);
 
     events.room(this.ID, "room", "loot-create", {info: item.info()});
 };
@@ -151,10 +138,12 @@ Room.prototype.cleanUp = function () {
     });
 
     //Удаляем "мертвые" монеты
-    this.lootEach((i, it)=>{
+    this.loot.each((i, it)=>{
         if(it.isDie()){
-            this.loot.splice(i, 1);
+
             events.room(this.ID, "room", "loot-remove", {info: it.info()});
+
+            this.loot.remove(i);
         }
     });
 
@@ -179,7 +168,7 @@ Room.prototype.info = function(){
         width: this.width,
         height: this.height,
         cartoons: this.cartoons,
-        loot: this.lootInfo(),
+        loot: this.loot.listInfo(),
         teleports: this.teleportsInfo(),
         npcs: this.npcs.listInfo(),
         environment_id: this.environment_id,

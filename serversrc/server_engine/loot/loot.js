@@ -4,12 +4,11 @@ const
     DEFAULT_LOOT_WIDTH = 44,
     DEFAULT_LOOT_HEIGHT = 22;
 
-function Loot(room_id, x, y, character_id, type, width, height, content) {
+function Loot(ID, room_id, x, y, character_id, type, width, height, content) {
 
-    this.prefix = type || 'loot';
+    this.ID = ID;
 
-    //TODO: Потенциальная проблема. Может и совпасть
-    this.ID = this.prefix + Math.floor(Math.random()*65536);
+    this.type = type;
 
     this.room_id = room_id;
     this.x = x;
@@ -60,6 +59,7 @@ Loot.prototype.touch = function(players){
     if(touchers.length>1){
         winner = Math.floor(Math.random()*touchers.length);
     }
+
     touchers[winner].eating(this);
 
     //Пометим на удаление
