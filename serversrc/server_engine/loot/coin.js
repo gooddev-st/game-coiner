@@ -5,6 +5,7 @@ module.exports = Coin;
 
 const characters = require("../characters");
 const Loot = require("./loot");
+const events = require("../events");
 
 const
     COIN_WIDTH = 44,
@@ -54,3 +55,10 @@ function Coin(ID, room_id, x, y, content) {
 }
 
 Coin.prototype = Object.create(Loot.prototype);
+
+
+Coin.prototype.kill = function () {
+    events.room(this.room_id, "entity", "remove-coin", {room_id: this.room_id, x: this.x+this.width/2, y: this.y});
+    Loot.prototype.kill.apply(this);
+
+};

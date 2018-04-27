@@ -160,6 +160,8 @@ function Player(id, name, socket, data) {
     this.weapons['weapon1'] = new Weapon(35);
     this.currentWeapon = 'weapon1';
 
+    this.neededLoot = {'coin':1, 'sack':1};
+
     this.alredyInit = false;
 }
 
@@ -452,8 +454,6 @@ Player.prototype.eating = function (loot) {
 
     this.levelupValue = TO_LEVELS[this.level] - TO_LEVELS[this.level - 1];
     this.levelupCounter = this.score - TO_LEVELS[this.level - 1];
-
-    events.room(loot.room_id, "entity", "remove-coin", {room_id: loot.room_id, x: x, y: y});
 
     db.updateAvatar(this.info());
     this.changed = true;
@@ -1147,4 +1147,13 @@ Player.prototype.setDirection = function() {
             this.direction = 'north';
         }
     }
+};
+
+/**
+ * Необходимость лута
+ * @param loot
+ * @returns {boolean}
+ */
+Player.prototype.needed = function (loot) {
+    return !!this.neededLoot[loot.type];
 };

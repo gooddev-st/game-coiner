@@ -125,6 +125,8 @@ function Npc(ID, x, y, room_id, character_id) {
 
     this.weapons['weapon1'] = new Claws(35);
     this.currentWeapon = 'weapon1';
+
+    this.neededLoot = {'coin':1};
 }
 
 /**
@@ -372,8 +374,25 @@ Npc.prototype.calculateTarget = function(room) {
 
 };
 
+
+/**
+ * Необходимость лута
+ * @param loot
+ * @returns {boolean}
+ */
+Npc.prototype.needed = function (loot) {
+    return !!this.neededLoot[loot.type];
+};
+
+
+/**
+ * "Подходящесть" лута для движения к нему
+ * @param target
+ * @param self
+ * @returns {*}
+ */
 Npc.prototype.targetLootCondition = function(target, self) {
-    return target.type==='coin';
+    return self.needed(target);
 };
 
 Npc.prototype.targetLoot = function(room) {

@@ -1505,7 +1505,7 @@ exports.sack = {
     "image": s_sack,
     "width": 44,
     "height": 44,
-    "top": -20,
+    "top": 20,
     "left": 10,
 
 
