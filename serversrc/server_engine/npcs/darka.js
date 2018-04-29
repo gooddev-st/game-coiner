@@ -5,7 +5,7 @@ module.exports = Darka;
 
 
 const Heal = require("./heal");
-const Weapon = require("../weapons").Sword;
+const Weapon = require("../weapons").Magicsword;
 const Weapon3 = require("../weapons").Curezzler;
 const characters = require('../characters.js');
 

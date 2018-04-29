@@ -74,6 +74,7 @@ function Player(id, name, socket, data) {
 
     this.db_id = id
     this.ID = 'avatar'+id;
+    this.type = 'player';
 
     //Для определения "свой-чужой"
     this.fraction = 'human';
@@ -157,7 +158,7 @@ function Player(id, name, socket, data) {
     this.skills['skill4'] = {id: 'shield', icon: 'shield', value: 100.0, increment: 10.0};
     this.currentSkill = 'skill1';
 
-    this.weapons['weapon1'] = new Weapon(35);
+    this.weapons['weapon1'] = new Weapon(30);
     this.currentWeapon = 'weapon1';
 
     this.neededLoot = {'coin':1, 'sack':1};
@@ -650,7 +651,21 @@ Player.prototype.run = function (room) {
     //Выставим состояние
     if(this.targetOfAttack){
 
-        this.state = 'slash';
+        const weaponType = this.weapons[this.currentWeapon].type;
+        //состояние атаки в зависимости от типа оружия
+        if(weaponType==='gun'){
+            this.state = 'shoot';
+        }
+        else if(weaponType==='spear'){
+            this.state = 'thrust';
+        }
+        else if(weaponType==='magic'){
+            this.state = 'spellcast';
+        }
+        else{
+            this.state = 'slash';
+        }
+
     }
     else if(this.target){
         this.state = 'run';
@@ -715,6 +730,11 @@ Player.prototype.run = function (room) {
 
 Player.prototype.kill = function(){
     this.die = true;
+};
+
+
+Player.prototype.isDie = function(){
+    return this.die;
 };
 
 
@@ -787,10 +807,10 @@ Player.prototype.calculateTarget = function(){
     if(target) return target;
 
     // Если нет цели - идем к ближнему подходящему мобу (в поле зрения)
-    if(!this.target) {
+    /*if(!this.target) {
         target = this.targetNpc();
         if (target) return target;
-    }
+    }*/
 
     return null;
 };

@@ -52,13 +52,8 @@ function Heal(ID, x, y, room_id, character_id) {
 
 Heal.prototype = Object.create(Npc.prototype);
 
-/**
- * Условие пригодности плеера как цели
- * @param target
- * @param self
- * @returns {boolean}
- */
-Heal.prototype.targetPlayerCondition = function(target, self) {
+
+const playerCondition = function (target, self) {
     //Будем идти к нездоровым игрокам нашей фракции
     // или к игрокам враждебной фракции
     return (
@@ -67,14 +62,16 @@ Heal.prototype.targetPlayerCondition = function(target, self) {
     );
 };
 
+Heal.prototype.targetPlayerCondition = playerCondition;
+Heal.prototype.targetOfAttackPlayerCondition = playerCondition;
+
 /**
- * Условие пригодности плеера как цели
+ * Условие пригодности моба как цели
  * @param target
  * @param self
  * @returns {boolean}
  */
-Heal.prototype.targetNpcCondition = function(target, self) {
-
+const npcCondition = function (target, self) {
     //Если здоровья меньше половины (и рядом нет нездоровых игроков)
     //поставим задачу вылечиться на 100%
     if(self.health < self.maxHealth/2){
@@ -94,19 +91,25 @@ Heal.prototype.targetNpcCondition = function(target, self) {
     );
 };
 
+Heal.prototype.targetNpcCondition = npcCondition;
+Heal.prototype.targetOfAttackNpcCondition = npcCondition;
+
 Heal.prototype.bah = function(target){
     //"Чужих" бъем
-    let weapon = this.weapons[this.currentWeapon];
+    let weapon = this.weapons['weapon1'];
+    this.currentWeapon = 'weapon1';
 
     // log(weapon);
 
     //Для себя - СУПЕРлечение
     if(target.ID===this.ID){
         weapon = this.weapons['weapon3'];
+        this.currentWeapon = 'weapon3';
     }
     //Для "своих" - лечение
     else if(target.fraction===this.fraction){
         weapon = this.weapons['weapon2'];
+        this.currentWeapon = 'weapon2';
     }
 
     if(!weapon) return;

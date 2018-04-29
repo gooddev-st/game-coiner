@@ -5,8 +5,10 @@ module.exports = {
     Claws: Claws,
     Chewing: Chewing,
     Paw: Paw,
+    MagicPaw: MagicPaw,
     Slime: Slime,
     Sword: Sword,
+    Magicsword: Magicsword,
     Pistol: Pistol,
     Shotgun: Shotgun,
     Curezzler: Curezzler,
@@ -20,6 +22,7 @@ const sound_event = require('./sound_event');//звуковые события
  */
 function Weapon() {
     this.id = 'weapon';
+    this.type = 'edged';
     this.hitPoints = 1;
     this.value = 0.0;
     this.increment = 100.0;
@@ -130,6 +133,7 @@ Sword.prototype = Object.create(Weapon.prototype);
 function Pistol(hitPoints, increment) {
     Weapon.call(this);
     this.id = 'pistol';
+    this.type = 'gun';
     this.hitPoints = hitPoints || 50;
     this.increment = increment || 200.0;
     this.sound = ['weapon-pistol1'];
@@ -145,6 +149,7 @@ Pistol.prototype = Object.create(Weapon.prototype);
 function Shotgun(hitPoints, increment) {
     Weapon.call(this);
     this.id = 'shotgun';
+    this.type = 'gun';
     this.hitPoints = hitPoints || 100;
     this.increment = increment || 100.0;
     this.sound = ['weapon-shotgun1'];
@@ -160,8 +165,43 @@ Shotgun.prototype = Object.create(Weapon.prototype);
 function Curezzler(hitPoints, increment) {
     Weapon.call(this);
     this.id = 'curezzler';
+    this.type = 'magic';
     this.hitPoints = hitPoints || -10;
     this.increment = increment || 200.0;
     this.sound = 'heal-up';
 }
 Curezzler.prototype = Object.create(Weapon.prototype);
+
+/**
+ * Магический меч
+ * @param hitPoints
+ * @param increment
+ * @constructor
+ */
+function Magicsword(hitPoints, increment) {
+    Weapon.call(this);
+    this.id = 'magic-sword';
+    this.type = 'magic';
+    this.hitPoints = hitPoints || 32;
+    this.increment = increment || 350.0;
+    this.sound = ['weapon-sword1', 'weapon-sword2', 'weapon-sword3'];
+}
+Magicsword.prototype = Object.create(Weapon.prototype);
+
+
+
+/**
+ * Магическая Лапа
+ * @param hitPoints
+ * @param increment
+ * @constructor
+ */
+function MagicPaw(hitPoints, increment) {
+    Weapon.call(this);
+    this.id = 'paw';
+    this.type = 'magic';
+    this.hitPoints = hitPoints || 45;
+    this.increment = increment || 100.0;
+    this.sound = ['weapon-paw1', 'weapon-paw2', 'weapon-paw3', 'weapon-paw4'];
+}
+MagicPaw.prototype = Object.create(Weapon.prototype);

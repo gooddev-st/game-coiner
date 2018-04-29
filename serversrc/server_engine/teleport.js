@@ -84,7 +84,7 @@ Teleport.prototype.info = function(){
         character_id: this.character_id,
         target: this.target
     }
-}
+};
 
 //Определение соприкосновения с игроками
 Teleport.prototype.touch = function(players){

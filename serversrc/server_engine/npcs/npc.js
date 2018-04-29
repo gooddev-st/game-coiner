@@ -62,6 +62,13 @@ function getRandomCharacter(possible_characters) {
  * @constructor
  */
 function Npc(ID, x, y, room_id, character_id) {
+
+    this.ID = ID;
+    this.type = 'npc';
+
+    //Для определения "свой-чужой"
+    this.fraction = 'monsters';
+
     this.x = x;
     this.y = y;
 
@@ -95,15 +102,12 @@ function Npc(ID, x, y, room_id, character_id) {
     this.maxHealth = 100;
     this.health = 100;
 
-    this.ID = ID;
-
-    //Для определения "свой-чужой"
-    this.fraction = 'monsters';
-
     //Есть ли изменения для отсылки
     this.changed = true;
 
     this.target = null; //Позиция куда идет
+
+    this.targetOfAttack = null; //Позиция куда идет
 
     this.content = []; //Съеденное
 
@@ -181,6 +185,7 @@ Npc.prototype.teleport = function (teleport) {
     this.y = teleport.target.y;
 
     this.target = null;
+    this.targetOfAttack = null;
 
     //sound
     sound_event.add("teleport", teleport.room_id, teleport.x, teleport.y);
@@ -224,12 +229,18 @@ Npc.prototype.run = function (room, step) {
     let target = this.calculateTarget(room);
     if(target) this.target = target;
 
+    //Посчитаем цель атаки
+    this.targetOfAttack = this.calculateTargetOfAttack();
+
     if(this.freeze){
 
         this.target = false;
 
         this.freeze = false;
     }
+
+
+    this.setDirection();
 
     // если есть цель
     if (this.target) {
@@ -257,24 +268,6 @@ Npc.prototype.run = function (room, step) {
 
             this.x += x_increment;
             this.y += y_increment;
-
-            //Выставим направление
-            if(Math.abs(x_increment) > Math.abs(y_increment)){
-                if(x_increment > 0){
-                    this.direction = 'east';
-                }
-                else{
-                    this.direction = 'west';
-                }
-            }
-            else{
-                if(y_increment > 0){
-                    this.direction = 'south';
-                }
-                else{
-                    this.direction = 'north';
-                }
-            }
         }
 
     }
@@ -319,8 +312,31 @@ Npc.prototype.run = function (room, step) {
         this.kill();
     }
 
+    //Проверим - не умерла ли цель атаки
+    if(this.targetOfAttack && this.targetOfAttack.isDie()){
+        this.targetOfAttack = null;
+    }
+
     //Выставим состояние
-    if(this.target){
+    if(this.targetOfAttack){
+
+        const weaponType = this.weapons[this.currentWeapon].type;
+        //состояние атаки в зависимости от типа оружия
+        if(weaponType==='gun'){
+            this.state = 'shoot';
+        }
+        else if(weaponType==='spear'){
+            this.state = 'thrust';
+        }
+        else if(weaponType==='magic'){
+            this.state = 'spellcast';
+        }
+        else{
+            this.state = 'slash';
+        }
+
+    }
+    else if(this.target){
         this.state = 'run';
     }
     else{
@@ -413,14 +429,28 @@ Npc.prototype.targetLoot = function(room) {
 };
 
 /**
- * Условие пригодности плеера как цели
+ * Условие пригодности игрока как цели
  * @param target
+ * @param self
  * @returns {boolean}
  */
-Npc.prototype.targetPlayerCondition = function(target, self) {
-    //По умолчанию - годятся все
-    return true;
+const playerCondition = function (target, self) {
+    //По умолчанию - годятся все из другой фракции
+    return (target.fraction!==self.fraction);
 };
+
+/**
+ * Условие пригодности моба как цели
+ * @param target
+ * @param self - сам моб
+ * @returns {boolean}
+ */
+const npcCondition = function(target, self) {
+    //По умолчанию - годятся все которые не он же и из другой фракции
+    return (target.ID!==self.ID && target.fraction!==self.fraction);
+};
+
+Npc.prototype.targetPlayerCondition = playerCondition;
 
 /**
  * Если поблизости подходящий плеер - идем к нему
@@ -441,11 +471,7 @@ Npc.prototype.targetPlayer = function() {
         //Подошли на расстояние атаки - атакуем
         if(nearest.distance <= this.attackDistance) {
 
-            let player = players.get(nearest.id);
-
             this.freeze = true;
-
-            this.bah(player);
 
             return null;//{x: this.x, y: this.y};
         }
@@ -462,18 +488,9 @@ Npc.prototype.targetPlayer = function() {
 };
 
 
-/**
- * Условие пригодности моба как цели
- * @param target
- * @param self - сам моб
- * @returns {boolean}
- */
-Npc.prototype.targetNpcCondition = function(target, self) {
-    //По умолчанию - годятся все которые не он же и из другой фракции
-    return (target.ID!==self.ID && target.fraction!==self.fraction);
-};
+Npc.prototype.targetNpcCondition = npcCondition;
 
-/**
+    /**
  * Если поблизости подходящий моб - идем к нему
  * @returns {*}
  */
@@ -495,11 +512,7 @@ Npc.prototype.targetNpc = function() {
         //Подошли на расстояние атаки - атакуем
         if(nearest.distance <= this.attackDistance) {
 
-            let npc = npcs.get(nearest.id);
-
             this.freeze = true;
-
-            this.bah(npc);
 
             return null;
         }
@@ -515,16 +528,17 @@ Npc.prototype.targetNpc = function() {
 
 };
 
-
+/**
+ * Шаримся
+ * @param room
+ * @returns {{x: *, y: *}}
+ */
 Npc.prototype.targetRandom = function (room) {
     return {
         x: room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right-this.width),
         y: room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom-this.height)
     };
 };
-
-
-
 
 
 Npc.prototype.targetEffects = function(){
@@ -554,6 +568,76 @@ Npc.prototype.targetEffects = function(){
 
     return null;
 };
+
+//Рассчитаем цель атаки
+Npc.prototype.calculateTargetOfAttack = function(){
+
+    let targetOfAttack;
+
+    targetOfAttack = this.targetOfAttackPlayer();
+    if (targetOfAttack) return targetOfAttack;
+
+    targetOfAttack = this.targetOfAttackNpc();
+    if (targetOfAttack) return targetOfAttack;
+
+    return null;
+};
+
+
+/**
+ * Условие пригодности моба как цели атаки
+ * @param target
+ * @param self
+ * @returns {boolean}
+ */
+Npc.prototype.targetOfAttackNpcCondition = npcCondition;
+
+Npc.prototype.targetOfAttackNpc = function() {
+
+    let room = rooms.get(this.room_id),
+        npcs = room.npcs;
+
+    let nearest = npcs.nearest(this.room_id, this.x, this.y, this.targetOfAttackNpcCondition, this);
+
+    if(!nearest) return null;
+
+    //Подошли на расстояние атаки - атакуем
+    if(nearest.distance <= this.attackDistance) {
+
+        let npc = npcs.get(nearest.id);
+
+        this.bah(npc);
+
+        return npc;
+    }
+
+    return null;
+
+};
+
+
+Npc.prototype.targetOfAttackPlayerCondition = playerCondition;
+
+Npc.prototype.targetOfAttackPlayer = function() {
+
+    let nearest = players.nearest(this.room_id, this.x, this.y, this.targetOfAttackPlayerCondition, this);
+
+    if(!nearest) return null;
+
+    //Подошли на расстояние атаки - атакуем
+    if(nearest.distance <= this.attackDistance) {
+
+        let npc = players.get(nearest.id);
+
+        this.bah(npc);
+
+        return npc;
+    }
+
+    return null;
+
+};
+
 
 /**
  * Возвращает информацию о мобе
@@ -613,4 +697,45 @@ Npc.prototype.onDie = function() {
     //Поставим могилку
     let grave_id = Math.floor(Math.random()*characters.SPRITESET_GRAVES.size);
     room.addCartoon(this.x+20, this.y, characters.SPRITESET_GRAVES.ID, grave_id, 60.0);
+};
+
+
+Npc.prototype.setDirection = function() {
+    let target;
+    //Если есть цель атаки - повернемся к ней
+    if(this.targetOfAttack) {
+        target = {x: this.targetOfAttack.x, y: this.targetOfAttack.y}
+    }
+    //иначе если есть - к цели движения
+    else if(this.target){
+        target = {x: this.target.x, y: this.target.y}
+    }
+    else{
+        return;
+    }
+
+    let x_increment = target.x - this.x,
+        y_increment = target.y - this.y;
+
+    if(x_increment===0 && y_increment===0){
+        return;
+    }
+
+    //Выставим направление
+    if(Math.abs(x_increment) > Math.abs(y_increment)){
+        if(x_increment > 0){
+            this.direction = 'east';
+        }
+        else{
+            this.direction = 'west';
+        }
+    }
+    else{
+        if(y_increment > 0){
+            this.direction = 'south';
+        }
+        else{
+            this.direction = 'north';
+        }
+    }
 };

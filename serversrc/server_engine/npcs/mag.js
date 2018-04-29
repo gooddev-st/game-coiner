@@ -5,7 +5,7 @@ module.exports = Mag;
 
 
 const Npc = require("./npc");
-const Claws = require("../weapons").Claws;
+const Weapon = require("../weapons").MagicPaw;
 const characters = require('../characters.js');
 const players = require("../players.js");
 
@@ -39,7 +39,7 @@ function Mag(ID, x, y, room_id) {
 
     this.escapeDistance = ESCAPE_DISTANCE;
 
-    this.weapons['weapon1'] = new Claws(30);
+    this.weapons['weapon1'] = new Weapon(30);
 }
 
 Mag.prototype = Object.create(Npc.prototype);
@@ -52,7 +52,7 @@ Mag.prototype = Object.create(Npc.prototype);
  */
 Mag.prototype.targetPlayer = function() {
 
-    let nearest = players.nearest(this.room_id, this.x, this.y, this.targetPlayerCondition);
+    let nearest = players.nearest(this.room_id, this.x, this.y, this.targetPlayerCondition, this);
 
     if(!nearest) return null;
 
@@ -68,13 +68,9 @@ Mag.prototype.targetPlayer = function() {
             nearest.distance > this.escapeDistance
         ) {
 
-            let player = players.get(nearest.id);
-
             this.freeze = true;
 
-            this.bah(player);
-
-            return null;//{x: this.x, y: this.y};
+            return null;
         }
         else if(nearest.distance<=this.escapeDistance){
             //Вектор убегания

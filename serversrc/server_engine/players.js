@@ -72,6 +72,7 @@ function count() {
  * @param x
  * @param y
  * @param conditionFunc
+ * @param self
  * @returns {*}
  */
 function nearest(room_id, x, y, conditionFunc, self) {
