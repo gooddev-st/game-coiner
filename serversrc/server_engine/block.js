@@ -70,7 +70,7 @@ Block.prototype.crossingWay = function(begin, end){
 
     if(endInside){
         //левая граница
-        //TODO: доделать
+
 
     }
 };

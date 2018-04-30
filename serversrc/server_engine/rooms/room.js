@@ -82,11 +82,11 @@ Room.prototype.teleportsInfo = function(){
 };
 
 
-Room.prototype.run = function () {
+Room.prototype.update = function () {
 
     //Движем мобов
     this.npcs.each((ID, npc)=>{
-        npc.run( this, STEP );
+        npc.update();
     });
 };
 

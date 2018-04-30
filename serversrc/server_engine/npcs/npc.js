@@ -9,6 +9,7 @@ const events = require("../events.js");
 const rooms = require("../rooms.js");
 const players = require("../players.js");
 const log = require("../log");
+require("../constants")();
 
 const sound_event = require('../sound_event.js');//звуковые события
 
@@ -219,14 +220,15 @@ Npc.prototype.hit = function (hitPoints) {
  * @param room
  * @param step
  */
-Npc.prototype.run = function (room, step) {
+Npc.prototype.update = function () {
 
     //Сохраним старое, чтоб понимать - изменился ли
     let oldX = this.x, oldY = this.y, oldState = this.state, oldHealth = this.health;
 
     this.runEffects();
 
-    let target = this.calculateTarget(room);
+    //Цель движения
+    let target = this.calculateTarget();
     if(target) this.target = target;
 
     //Посчитаем цель атаки
@@ -234,44 +236,52 @@ Npc.prototype.run = function (room, step) {
 
     if(this.freeze){
 
-        this.target = false;
+        this.target = null;
 
         this.freeze = false;
     }
 
+    //Движемся
+    this.move();
 
+    //Скорректируем позицию по препятствиям
+    this.correctPosition();
+
+    //Выставим направление юнита
     this.setDirection();
 
-    // если есть цель
-    if (this.target) {
+    //применим урон
+    this.applyDamage();
 
-        //Если закончили движение - сбросим цель
-        if(
-            this.x === this.target.x &&
-            this.y === this.target.y
-        ){
-            this.target = null;
-        }
-
-        //иначе движемся
-        else{
-            let target = this.target,
-                inctement = this.speed * step,
-                x = target.x - this.x,
-                y = target.y - this.y,
-                l = Math.sqrt(x * x + y * y),
-                x_increment = inctement * x / l,
-                y_increment = inctement * y / l;
-
-            if(Math.abs(x_increment) > Math.abs(x)) x_increment = x;
-            if(Math.abs(y_increment) > Math.abs(y)) y_increment = y;
-
-            this.x += x_increment;
-            this.y += y_increment;
-        }
-
+    //"Умрем" если нет здоровья
+    //TODO: Умирать анимировано
+    if (this.health <= 0) {
+        this.health = 0;
+        this.kill();
     }
 
+    //Проверим - не умерла ли цель атаки
+    if(this.targetOfAttack && this.targetOfAttack.isDie()){
+        this.targetOfAttack = null;
+    }
+
+    //Выставим состояние
+    this.setState();
+
+
+    if(this.x !== oldX || this.y !== oldY || this.state !== oldState || this.health !== oldHealth){
+        this.changed = true;
+    }
+
+};
+
+
+/**
+ * Поправить позицию по препятствиям
+ */
+Npc.prototype.correctPosition = function () {
+
+    const room = rooms.get(this.room_id);
 
     // Если уперлись в границу - остановимся и поправим цель
     if (this.x < 0 + room.dead_zone_left) {
@@ -290,64 +300,6 @@ Npc.prototype.run = function (room, step) {
         this.y = room.height - room.dead_zone_bottom - this.height;
         this.target && (this.target.y = this.y);
     }
-
-
-    if(this.damage > 0) {
-        this.damage -= this.armor;
-        this.damage -= this.protect;
-        if(this.damage < 0) this.damage = 0;
-    }
-    this.protect = 0;
-
-    //Применим урон (если с минусом - лечение)
-    this.health -= this.damage;
-    this.damage = 0;
-
-    if(this.health > this.maxHealth) this.health = this.maxHealth;
-
-    //"Умрем" если нет здоровья
-    //TODO: Умирать анимировано
-    if (this.health <= 0) {
-        this.health = 0;
-        this.kill();
-    }
-
-    //Проверим - не умерла ли цель атаки
-    if(this.targetOfAttack && this.targetOfAttack.isDie()){
-        this.targetOfAttack = null;
-    }
-
-    //Выставим состояние
-    if(this.targetOfAttack){
-
-        const weaponType = this.weapons[this.currentWeapon].type;
-        //состояние атаки в зависимости от типа оружия
-        if(weaponType==='gun'){
-            this.state = 'shoot';
-        }
-        else if(weaponType==='spear'){
-            this.state = 'thrust';
-        }
-        else if(weaponType==='magic'){
-            this.state = 'spellcast';
-        }
-        else{
-            this.state = 'slash';
-        }
-
-    }
-    else if(this.target){
-        this.state = 'run';
-    }
-    else{
-        this.state = 'default';
-    }
-
-
-    if(this.x !== oldX || this.y !== oldY || this.state !== oldState || this.health !== oldHealth){
-        this.changed = true;
-    }
-
 };
 
 
@@ -363,7 +315,7 @@ Npc.prototype.runEffects = function () {
 };
 
 
-Npc.prototype.calculateTarget = function(room) {
+Npc.prototype.calculateTarget = function() {
     let target;
 
     /*// Эффекты движения
@@ -379,11 +331,11 @@ Npc.prototype.calculateTarget = function(room) {
     if(target) return target;
 
     // Иначе пойдем за ближайшей монетой
-    target = this.targetLoot(room);
+    target = this.targetLoot();
     if(target) return target;
 
     // Иначе - шляемся
-    if(!this.target) return this.targetRandom(room);
+    if(!this.target) return this.targetRandom();
 
     return null;
 
@@ -411,7 +363,9 @@ Npc.prototype.targetLootCondition = function(target, self) {
     return self.needed(target);
 };
 
-Npc.prototype.targetLoot = function(room) {
+Npc.prototype.targetLoot = function() {
+
+    const room = rooms.get(this.room_id);
 
     if(!room || !room.loot.size()) return false;
 
@@ -533,7 +487,10 @@ Npc.prototype.targetNpc = function() {
  * @param room
  * @returns {{x: *, y: *}}
  */
-Npc.prototype.targetRandom = function (room) {
+Npc.prototype.targetRandom = function () {
+
+    const room = rooms.get(this.room_id);
+
     return {
         x: room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right-this.width),
         y: room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom-this.height)
@@ -683,12 +640,10 @@ Npc.prototype.kill = function() {
 Npc.prototype.onDie = function() {
     let room = rooms.get(this.room_id);
 
-    //Выроним кристалл
-    //со всем, что накопил
     let content = this.content;
     this.content = 0;
 
-    //если что-то накопил - выроним
+    //если что-то накопил - выроним мешок
     if (content > 0) {
 
         room.addSack(this.x, this.y+3, content);
@@ -700,6 +655,9 @@ Npc.prototype.onDie = function() {
 };
 
 
+/**
+ * Выставим направление юнита
+ */
 Npc.prototype.setDirection = function() {
     let target;
     //Если есть цель атаки - повернемся к ней
@@ -738,4 +696,90 @@ Npc.prototype.setDirection = function() {
             this.direction = 'north';
         }
     }
+};
+
+
+/**
+ * Выставим состояние юнита
+ */
+Npc.prototype.setState = function() {
+    if(this.targetOfAttack){
+
+        const weaponType = this.weapons[this.currentWeapon].type;
+        //состояние атаки в зависимости от типа оружия
+        if(weaponType==='gun'){
+            this.state = 'shoot';
+        }
+        else if(weaponType==='spear'){
+            this.state = 'thrust';
+        }
+        else if(weaponType==='magic'){
+            this.state = 'thrust';
+        }
+        else{
+            this.state = 'slash';
+        }
+
+    }
+    else if(this.target){
+        this.state = 'run';
+    }
+    else{
+        this.state = 'default';
+    }
+};
+
+
+/**
+ * Движем юнит
+ */
+Npc.prototype.move = function() {
+    // если есть цель
+    if (this.target) {
+
+        //Если закончили движение - сбросим цель
+        if(
+            this.x === this.target.x &&
+            this.y === this.target.y
+        ){
+            this.target = null;
+        }
+
+        //иначе движемся
+        else{
+            let target = this.target,
+                increment = this.speed * STEP,
+                x = target.x - this.x,
+                y = target.y - this.y,
+                l = Math.sqrt(x * x + y * y),
+                x_increment = increment * x / l,
+                y_increment = increment * y / l;
+
+            if(Math.abs(x_increment) > Math.abs(x)) x_increment = x;
+            if(Math.abs(y_increment) > Math.abs(y)) y_increment = y;
+
+            this.x += x_increment;
+            this.y += y_increment;
+        }
+
+    }
+};
+
+
+/**
+ * Применим урон
+ */
+Npc.prototype.applyDamage = function () {
+    if(this.damage > 0) {
+        this.damage -= this.armor;
+        this.damage -= this.protect;
+        if(this.damage < 0) this.damage = 0;
+    }
+    this.protect = 0;
+
+    //Применим урон (если с минусом - лечение)
+    this.health -= this.damage;
+    this.damage = 0;
+
+    if(this.health > this.maxHealth) this.health = this.maxHealth;
 };

@@ -578,7 +578,12 @@ Player.prototype.bah = function (target) {
  * @param room
  * @param step
  */
-Player.prototype.run = function (room) {
+Player.prototype.update = function () {
+
+    //Сохраняем, чтобы понять, что изменился
+    let oldPos = {x: this.x, y: this.y},
+        oldState = this.state,
+        oldHealth = this.health;
 
     //Умерев - умрем
     if(this.die){
@@ -590,11 +595,6 @@ Player.prototype.run = function (room) {
 
     //Применим на себя эффекты
     this.runEffects();
-
-    //Сохраняем, чтобы понять, что изменился
-    let oldPos = {x: this.x, y: this.y},
-        oldState = this.state,
-        oldHealth = this.health;
 
     //Посчитаем цель движения
     let target = this.calculateTarget();
@@ -614,34 +614,12 @@ Player.prototype.run = function (room) {
 
     this.setDirection();
 
-    //Если есть цель
-    if (this.target) {
+    //Движемся
+    this.move();
 
-        //Если уже пришли - сбросим цель
-        if(
-            this.x === this.target.x &&
-            this.y === this.target.y
-        ){
-            this.target = null;
-        }
-        //Иначе - движемся
-        else {
+    //Проверка не перешли ли преграды и норм ли цель
+    this.correctPosition();
 
-            let increment = this.speed * STEP,
-                x = this.target.x - this.x,
-                y = this.target.y - this.y,
-                l = Math.sqrt(x * x + y * y),
-                x_increment = increment * x / l,
-                y_increment = increment * y / l;
-
-            if (Math.abs(x_increment) > Math.abs(x)) x_increment = x;
-            if (Math.abs(y_increment) > Math.abs(y)) y_increment = y;
-
-            this.x += x_increment;
-            this.y += y_increment;
-        }
-
-    }
 
     //Проверим - не умерла ли цель атаки
     if(this.targetOfAttack && this.targetOfAttack.isDie()){
@@ -649,32 +627,32 @@ Player.prototype.run = function (room) {
     }
 
     //Выставим состояние
-    if(this.targetOfAttack){
+    this.setState();
 
-        const weaponType = this.weapons[this.currentWeapon].type;
-        //состояние атаки в зависимости от типа оружия
-        if(weaponType==='gun'){
-            this.state = 'shoot';
-        }
-        else if(weaponType==='spear'){
-            this.state = 'thrust';
-        }
-        else if(weaponType==='magic'){
-            this.state = 'spellcast';
-        }
-        else{
-            this.state = 'slash';
-        }
+    this.applyDamage();
 
-    }
-    else if(this.target){
-        this.state = 'run';
-    }
-    else{
-        this.state = 'default';
+    //"Умрем" если нет здоровья
+    //TODO: умирать анимировано
+    if (this.health <= 0) {
+        this.health = 0;
+        this.kill();
     }
 
-    //Проверка цели
+
+    if (
+        this.x !== oldPos.x || this.y !== oldPos.y ||
+        this.state !== oldState ||
+        this.health !== oldHealth
+    ) {
+        this.changed = true;
+    }
+};
+
+/**
+ * Скорректируем цель движения по препятствиям
+ */
+Player.prototype.correctPosition = function(){
+    const room = rooms.get(this.room_id);
 
     // Если уперлись в границу - остановимся и поправим цель
     if (this.x < 0 + room.dead_zone_left) {
@@ -692,38 +670,6 @@ Player.prototype.run = function (room) {
     if (this.y + this.height > (room.height - room.dead_zone_bottom)) {
         this.y = room.height - room.dead_zone_bottom - this.height;
         this.target && (this.target.y = this.y);
-    }
-
-
-    //Применим урон (если с минусом - лечение)
-
-    //Защита щита
-    if(this.damage > 0) {
-        this.damage -= this.armor;
-        this.damage -= this.protect;
-        if(this.damage < 0) this.damage = 0;
-    }
-    this.protect = 0;
-
-    this.health -= this.damage;
-    this.damage = 0;
-
-    if(this.health > this.maxHealth) this.health = this.maxHealth;
-
-    //"Умрем" если нет здоровья
-    //TODO: умирать анимировано
-    if (this.health <= 0) {
-        this.health = 0;
-        this.kill();
-    }
-
-
-    if (
-        this.x !== oldPos.x || this.y !== oldPos.y ||
-        this.state !== oldState ||
-        this.health !== oldHealth
-    ) {
-        this.changed = true;
     }
 };
 
@@ -1176,4 +1122,83 @@ Player.prototype.setDirection = function() {
  */
 Player.prototype.needed = function (loot) {
     return !!this.neededLoot[loot.type];
+};
+
+
+/**
+ * Выставим состояние юнита
+ */
+Player.prototype.setState = function () {
+    if(this.targetOfAttack){
+
+        const weaponType = this.weapons[this.currentWeapon].type;
+        //состояние атаки в зависимости от типа оружия
+        if(weaponType==='gun'){
+            this.state = 'shoot';
+        }
+        else if(weaponType==='spear'){
+            this.state = 'thrust';
+        }
+        else if(weaponType==='magic'){
+            this.state = 'spellcast';
+        }
+        else{
+            this.state = 'slash';
+        }
+
+    }
+    else if(this.target){
+        this.state = 'run';
+    }
+    else{
+        this.state = 'default';
+    }
+};
+
+Player.prototype.move = function () {
+    //Если есть цель
+    if (this.target) {
+
+        //Если уже пришли - сбросим цель
+        if(
+            this.x === this.target.x &&
+            this.y === this.target.y
+        ){
+            this.target = null;
+        }
+        //Иначе - движемся
+        else {
+
+            let increment = this.speed * STEP,
+                x = this.target.x - this.x,
+                y = this.target.y - this.y,
+                l = Math.sqrt(x * x + y * y),
+                x_increment = increment * x / l,
+                y_increment = increment * y / l;
+
+            if (Math.abs(x_increment) > Math.abs(x)) x_increment = x;
+            if (Math.abs(y_increment) > Math.abs(y)) y_increment = y;
+
+            this.x += x_increment;
+            this.y += y_increment;
+        }
+
+    }
+};
+
+Player.prototype.applyDamage = function () {
+    //Применим урон (если с минусом - лечение)
+
+    //Защита щита
+    if(this.damage > 0) {
+        this.damage -= this.armor;
+        this.damage -= this.protect;
+        if(this.damage < 0) this.damage = 0;
+    }
+    this.protect = 0;
+
+    this.health -= this.damage;
+    this.damage = 0;
+
+    if(this.health > this.maxHealth) this.health = this.maxHealth;
 };

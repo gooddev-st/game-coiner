@@ -109,7 +109,7 @@ RandomRoom.prototype.randomTeleports = function(num){
 };
 
 
-RandomRoom.prototype.run = function () {
+RandomRoom.prototype.update = function () {
 
 
     //Рождаем мобов с заданным интервалом
@@ -119,11 +119,7 @@ RandomRoom.prototype.run = function () {
     //Рождаем монеты
     this.genCoins();
 
-
-    //Движем мобов
-    this.npcs.each((ID, npc)=>{
-        npc.run( this, STEP );
-    });
+    Room.prototype.update.call(this);
 };
 
 

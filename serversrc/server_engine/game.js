@@ -205,12 +205,12 @@ function start(){
 
         //Мир "живет"
         world.cleanUp();
-        world.run();
+        world.update();
 
         //Комнаты "живут"
         rooms.each((room_id, room)=>{
             room.cleanUp();
-            room.run();
+            room.update();
         });
 
         //Соберем цели воздействия
@@ -233,7 +233,7 @@ function start(){
 
         //Движем плееров
         players.each((playerID, player)=>{
-            player.run( rooms.get(player.room_id) );
+            player.update();
         });
 
 

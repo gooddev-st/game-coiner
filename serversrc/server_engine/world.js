@@ -53,7 +53,7 @@ module.exports.init = function () {
 };
 
 
-module.exports.run = function () {
+module.exports.update = function () {
 
 };
 
