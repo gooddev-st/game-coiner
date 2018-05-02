@@ -103,9 +103,9 @@ export default class Unit{
     mouseBox(){
         return {
             left: this.x,
-            top: this.y-44,
+            top: this.y-this.height,
             right: this.x+this.width,
-            bottom: this.y+this.height
+            bottom: this.y
         }
     }
 
@@ -118,19 +118,19 @@ export default class Unit{
             if(effects[i] in this.effects===false) {
 
                 if (effects[i] === 'freeze') {
-                    let entity = new Entity(null, this.x + this.width / 2, this.y + 18, characters.get('freeze'), 0.0, 0.0);
+                    let entity = new Entity(null, this.x, this.y+1, characters.get('freeze'), 0.0, 0.0);
                     this.effects[effects[i]] = entity;
                     entities.addOne(entity);
                 }
 
                 if (effects[i] === 'holera') {
-                    let entity = new Entity(null, this.x + this.width / 2, this.y + 18, characters.get('blackboom'), 0.0, 0.0);
+                    let entity = new Entity(null, this.x, this.y+1, characters.get('blackboom'), 0.0, 0.0);
                     this.effects[effects[i]] = entity;
                     entities.addOne(entity);
                 }
 
                 if (effects[i] === 'shield') {
-                    let entity = new Entity(null, this.x + this.width / 2, this.y + 18, characters.get('shield'), 0.0, 0.0);
+                    let entity = new Entity(null, this.x, this.y+1, characters.get('shield'), 0.0, 0.0);
                     this.effects[effects[i]] = entity;
                     entities.addOne(entity);
                 }
@@ -164,8 +164,8 @@ export default class Unit{
 
         //Анимация эффектов
         for(let i in this.effects){
-            this.effects[i].x = this.x+this.width/2;
-            this.effects[i].y = this.y+18;
+            this.effects[i].x = this.x;
+            this.effects[i].y = this.y+1;
         }
     }
 
@@ -176,25 +176,31 @@ export default class Unit{
             y = this.y - camera.y;
 
         // не рисуем вне камеры
+        let xdiff = (this.width - this.character.width)/2;//выступ чарактера за объект
         if(
-            x < -this.character.width ||
-            y < -this.character.height ||
-            x > camera.width ||
-            y > camera.height
+            x < - this.character.width  - xdiff||
+            y < 0 ||
+            x > camera.width + xdiff ||
+            y > camera.height + this.character.height
         ) {
             return true;
         }
 
+        let chx = x, chy = y - this.character.height
+
         this.drawShadow(camera.context, x, y);
 
-        this.drawCharacter(camera.context, x, y);
+        this.drawCharacter(camera.context, chx, chy);
 
-        // this.drawBox(camera, x, y);
+        if(camera.isShowCollision) {
+            // this.drawBox(camera, x, y);
+            this.drawCollizoinBox(camera, x, y);
+        }
 
         // Рисуем имя
         if(this.level!=undefined) {
 
-            this.drawName(camera.context, x, y-55, this.name, this.level, this.isHero);
+            this.drawName(camera.context, chx, chy, this.name, this.level, this.isHero);
         }
 
         // Если есть - рисуем индикатор
@@ -205,14 +211,14 @@ export default class Unit{
 
             volume = Math.floor(this.health*100/maxHealth);
 
-            this.drawVolume(camera.context, x, y - 50, volume);
+            this.drawVolume(camera.context, chx, chy, volume);
         }
     }
 
 
     drawCharacter(context, sx, sy){
-        let x = sx - (this.character.width-this.width)/2,
-            y = sy - (this.character.height-this.height);
+        let x = sx + (this.width - this.character.width)/2,
+            y = sy;
 
         this.character.draw(context, x, y, this.state, this.direction, this.currentSpriteNum, this.width, this.height);
     }
@@ -229,7 +235,7 @@ export default class Unit{
 
         let volumeWidth = 50;
         let volumeHeight = 4;
-        let volumeX = x + (this.width - volumeWidth)/2;
+        let volumeX = x + this.width/2 - volumeWidth/2;
         let volumeY = y;
 
 
@@ -274,8 +280,8 @@ export default class Unit{
 
         let lx = sx+(this.width - padWidth)/2,
             x = lx + textLevelWidth + 2,
-            ly = sy,
-            y = sy;
+            ly = sy - 5,
+            y = sy - 5;
 
 
         context.beginPath();
@@ -309,15 +315,15 @@ export default class Unit{
 
         context.beginPath();
         context.fillStyle = shadowColor1;
-        context.ellipse(x + this.width/2, y+this.height-2, 20, 10, 0, 0, 2 * Math.PI);
+        context.ellipse(x + this.width/2, y-2, 20, 10, 0, 0, 2 * Math.PI);
         context.fill();
         context.beginPath();
         context.fillStyle = shadowColor2;
-        context.ellipse(x + this.width/2, y+this.height-2, 17, 8, 0, 0, 2 * Math.PI);
+        context.ellipse(x + this.width/2, y-2, 17, 8, 0, 0, 2 * Math.PI);
         context.fill();
         context.beginPath();
         context.fillStyle = shadowColor2;
-        context.ellipse(x + this.width/2, y+this.height-2, 15, 7, 0, 0, 2 * Math.PI);
+        context.ellipse(x + this.width/2, y-2, 15, 7, 0, 0, 2 * Math.PI);
         context.fill();
 
         context.restore();
@@ -325,15 +331,16 @@ export default class Unit{
 
 
 
-    drawCollizoinBox(context, sx, sy){
+    drawCollizoinBox(camera, sx, sy){
         let x = sx - (this.character.width-this.width)/2,
-            y = sy - (this.character.height-this.height);
+            y = sy - this.character.height,
+            context = camera.context;
 
         // Рисуем пятно коллизий
         context.save();
         context.beginPath();
         context.fillStyle = "rgba(255,255,67,0.4)";
-        context.fillRect(sx, sy, this.width, this.height);
+        context.fillRect(sx, sy - this.height, this.width, this.height);
         context.rect(x, y, this.character.width, this.character.height);
         context.stroke();
 
@@ -349,7 +356,7 @@ export default class Unit{
         let box = this.mouseBox(),
             context = camera.context;
 
-        // Рисуем пятно коллизий
+        // Рисуем границы персонажа
         context.save();
         context.beginPath();
         context.fillStyle = "rgba(255,255,67,0.4)";

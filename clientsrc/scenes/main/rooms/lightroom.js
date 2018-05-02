@@ -202,7 +202,7 @@ export default class {
                     th = th - crop;
                 }
 
-                if(tw>0 && th>0) {
+                if(this.backTile && tw>0 && th>0) {
                     camera.context.drawImage(this.backTile, tx, ty, tw, th, tdx, tdy, tw, th);
                 }
 
@@ -254,6 +254,7 @@ export default class {
 
                 /*camera.context.rect(x, y, w, h);
                 camera.context.stroke();*/
+                if(!image || w <=0 || h <=0) return;
                 camera.context.drawImage(image, sx, sy, w, h, x, y, w, h);
             }
         });

@@ -17,10 +17,10 @@ function Room(settings) {
     this.width = settings.width || 2000;
     this.height = settings.height || 2000;
 
-    this.dead_zone_left = settings.dead_zone_left;
-    this.dead_zone_top = settings.dead_zone_top;
-    this.dead_zone_right = settings.dead_zone_right;
-    this.dead_zone_bottom = settings.dead_zone_bottom;
+    this.dead_zone_left = settings.dead_zone_left || 10;
+    this.dead_zone_top = settings.dead_zone_top || 65;
+    this.dead_zone_right = settings.dead_zone_right || 10;
+    this.dead_zone_bottom = settings.dead_zone_bottom || 0;
 
     this.cartoons = [];
     this.loot = new LootList('loot');
@@ -34,10 +34,23 @@ function Room(settings) {
 
 /**
  * Инициализация комнаты
- * @param settings
  */
 Room.prototype.initialize = function(){
 
+};
+
+
+/**
+ * Случайная позиция на карте (с учетом размера спрайта, чтоб не выпирал)
+ * @param width - ширина размещаемого спрайта
+ * @param height - высота размещаемого спрайта
+ * @returns {{x: *, y: *}}
+ */
+Room.prototype.randomPos = function(width, height){
+    return {
+        x: this.dead_zone_left + Math.random() * (this.width - this.dead_zone_left - this.dead_zone_right - width),
+        y: this.dead_zone_top + Math.random() * (this.height - this.dead_zone_top - this.dead_zone_bottom - height),
+    }
 };
 
 
@@ -49,9 +62,9 @@ Room.prototype.initialize = function(){
  * @param character_id
  * @param target
  */
-Room.prototype.addTeleport = function(x, y, character_id, target){
+Room.prototype.addTeleport = function(x, y, character_id, target, type){
 
-    this.teleports.push(new Teleport(this.ID, x, y, character_id || characters.CHARACTER_TELEPORT, target));
+    this.teleports.push(new Teleport(this.ID, x, y, character_id || characters.CHARACTER_TELEPORT, target, type));
 };
 
 

@@ -6,7 +6,8 @@ import events from "../../events";
 import hero from './hero';
 import Unit from "./unit";
 import Teleport from "./teleport";
-import Room from "./rooms/lightroom";
+import LightRoom from "./rooms/lightroom";
+import LoadedRoom from "./rooms/loadedroom";
 import Loot from "./loot";
 import ui from "./ui/ui";
 import controller from "./controller";
@@ -55,6 +56,7 @@ function start(callback) {
     const canvas = document.getElementById("canvas");
     // Создадим камеру по "канве"
     camera = new Camera(0, 0, canvas);
+
     // изменяем камеру под окно
     camera.resize();
 
@@ -713,6 +715,13 @@ function draw(camera){
         renderArray.push({y: item.y, item: item});
     });
 
+    //Комнатные сущности
+    if(room && room.cartoons) {
+        room.cartoons.forEach((item) => {
+            renderArray.push({y: item.y, item: item});
+        });
+    };
+
     renderArray.sort((a, b)=>{
         return a.y - b.y;
     });
@@ -749,7 +758,13 @@ function roomInit(settings, players, heroUnit){
         room = rooms[settings.ID];
     }
     else{
-        room = new Room(settings.width, settings.height, settings.environment_id, settings.entities_num);
+        if(settings.type==='loaded'){
+            room = new LoadedRoom(settings);
+        }
+        else{
+            room = new LightRoom(settings.width, settings.height, settings.environment_id, settings.entities_num);
+        }
+
         rooms[settings.ID] = room;
     }
 

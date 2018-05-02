@@ -43,8 +43,8 @@ exports.bushs = [
  * Надгробья
  */
 exports.graves = [
-    {"image": s_graves, "width": 22, "height": 32, "top": 26, "states": {"default": [{"name": "sprite3", "x": 165, "y": 0, "width": 22, "height": 32},]}},
-    {"image": s_graves, "width": 28, "height": 27, "top": 28, "states": {"default": [{"name": "sprite5", "x": 98, "y": 2, "width": 28, "height": 27}]}},
+    {"image": s_graves, "width": 22, "height": 32, "states": {"default": [{"name": "sprite3", "x": 165, "y": 0, "width": 22, "height": 32},]}},
+    {"image": s_graves, "width": 28, "height": 27, "states": {"default": [{"name": "sprite5", "x": 98, "y": 2, "width": 28, "height": 27}]}},
 ];
 
 /**
@@ -52,7 +52,7 @@ exports.graves = [
  */
 exports.campfire = [
     {
-        "image": s_campfire, "width": 64, "height": 64, "top": 16, "states": {
+        "image": s_campfire, "width": 64, "height": 64, "states": {
             "default": [
                 {"name": "sprite1", "x": 0, "y": 0, "width": 64, "height": 64},
                 {"name": "sprite2", "x": 64, "y": 0, "width": 64, "height": 64},

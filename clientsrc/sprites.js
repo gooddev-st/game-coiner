@@ -477,6 +477,8 @@ exports.pointer = {
     "image": s_pointer,
     "width": 64,
     "height": 64,
+    "top": 32,
+    "left": -32,
 
     "states": {
         "default": [
@@ -688,8 +690,8 @@ exports.shield = {
     "width": 90,
     "height": 110,
     "speed": 30,
-    "top": -25,
-    "left": 0,
+    "top": 0,
+    "left": -25,
 
     "states": {
         "default": [
@@ -737,6 +739,8 @@ exports.push1 = {
     "image": s_push,
     "width": 256,
     "height": 256,
+    "top": 100,
+    "left": -100,
     "speed": 30,
 
     "states": {
@@ -1240,6 +1244,8 @@ exports.freeze = {
     "image": s_freeze,
     "width": 56,
     "height": 65,
+    "left": -10,
+    "top": 18,
     "speed": 30,
 
     "states": {
@@ -1505,8 +1511,8 @@ exports.sack = {
     "image": s_sack,
     "width": 44,
     "height": 44,
-    "top": 20,
-    "left": 10,
+    /*"top": 20,
+    "left": 10,*/
 
 
     "states": {

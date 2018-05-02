@@ -22,6 +22,7 @@ services:
         container_name: game-server
         volumes:
             - ./serversrc:/home/node/app/server
+            - ./static:/home/node/app/static
         environment:
             VIRTUAL_HOST: server.games.q-dev.ru
             TZ: Europe/Moscow

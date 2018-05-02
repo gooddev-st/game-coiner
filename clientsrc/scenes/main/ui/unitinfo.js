@@ -12,6 +12,7 @@ export default {start, stop, update, test_update}
 const panelElement = document.getElementById("unit-panel");
 const nameElement = document.getElementById("unit-name");
 const healthElement = document.getElementById("unit-health");
+const posElement = document.getElementById("unit-pos");
 const canvas = document.getElementById("unit-preview");
 
 const testElement = document.getElementById("test-text");
@@ -39,10 +40,11 @@ function update(unit){
     let name = unit.name || unit.ID;
     nameElement && (nameElement.innerText = name);
     healthElement && (healthElement.innerText = unit.health);
+    posElement && (posElement.innerText = '('+Math.floor(unit.x) + ','+Math.floor(unit.y) + ')');
 
     const context = canvas.getContext("2d");
     context.clearRect(0, 0, canvas.width, canvas.height);
-    unit.drawCharacter && unit.drawCharacter(context, 20, 50);
+    unit.drawCharacter && unit.drawCharacter(context, 20, 0);
 }
 
 function test_update(text) {

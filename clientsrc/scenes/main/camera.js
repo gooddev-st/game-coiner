@@ -10,6 +10,10 @@ const MAX_DEADZONE_Y = 500;
  */
 export default class {
     constructor(x, y, canvas, follower){
+
+        //Включим отображение зон коллизий
+        // this.isShowCollision = true;
+
         this.x = x;
         this.y = y;
         this.width = canvas.width;
@@ -124,6 +128,8 @@ export default class {
         if(this.height > room.height)
             this.y += (this.height - room.height)/2;
 
-
+        //Округлим (чтоб избежать щелей между плитками)
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
     }
 }

@@ -310,40 +310,6 @@ h1{
     border-radius: 6px 6px 0 0;
 }
 
-@media only screen
-and (min-device-width: 321px)
-and (max-device-width: 1024px) {
-
-    .skills-panel{
-        min-width: auto;
-        bottom: auto;
-        top: 50%;
-        left: 0;
-        width: 65px;
-        height: 40vh;
-        min-height: 182px;
-        margin: -20vh 0 0 0;
-        padding: 2px 2px 2px 0;
-        border-radius: 0 6px 6px 0;
-    }
-}
-
-@media only screen
-and (max-device-width: 320px) {
-
-    .skills-panel{
-        left: 50%;
-        height: 65px;
-        width: 182px;
-        min-width: 182px;
-        margin: 0 0 0 -91px;
-        overflow: hidden;
-        background: rgba(30,30,30,0.6);
-        padding: 2px 2px 0 2px;
-        border-radius: 6px 6px 0 0;
-    }
-}
-
 .skills-panel>div{
     border: 1px solid #ffb800;
     border-bottom: none;
@@ -439,3 +405,56 @@ and (max-device-width: 320px) {
     display: block;
 }
 /* Конец Панель юнита */
+
+
+
+
+@media only screen
+and (min-device-width: 321px)
+and (max-device-width: 1024px) {
+
+    .skills-panel{
+        min-width: auto;
+        bottom: auto;
+        top: 50%;
+        left: 0;
+        width: 65px;
+        height: 40vh;
+        min-height: 182px;
+        margin: -20vh 0 0 0;
+        padding: 2px 2px 2px 0;
+        border-radius: 0 6px 6px 0;
+    }
+
+
+    #hero-panel{
+        left: -9999px;
+    }
+    #unit-panel{
+        left: -9999px;
+    }
+}
+
+@media only screen
+and (max-device-width: 320px) {
+
+    .skills-panel{
+        left: 50%;
+        height: 65px;
+        width: 182px;
+        min-width: 182px;
+        margin: 0 0 0 -91px;
+        overflow: hidden;
+        background: rgba(30,30,30,0.6);
+        padding: 2px 2px 0 2px;
+        border-radius: 6px 6px 0 0;
+    }
+
+
+    #hero-panel{
+        left: -9999px;
+    }
+    #unit-panel{
+        left: -9999px;
+    }
+}

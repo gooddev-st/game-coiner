@@ -58,7 +58,7 @@ Coin.prototype = Object.create(Loot.prototype);
 
 
 Coin.prototype.kill = function () {
-    events.room(this.room_id, "entity", "remove-coin", {room_id: this.room_id, x: this.x+this.width/2, y: this.y});
+    events.room(this.room_id, "entity", "remove-coin", {room_id: this.room_id, x: this.x, y: this.y});
     Loot.prototype.kill.apply(this);
 
 };

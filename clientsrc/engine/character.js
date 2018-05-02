@@ -68,6 +68,7 @@ export default class Character{
     /**
      * Рисуем кадр анимации
      * @param context
+     * @param image
      * @param sprite
      * @param x
      * @param y
@@ -76,7 +77,7 @@ export default class Character{
      */
     drawFrame(context, image, sprite, x, y, width, height){
 
-        if(width>0 && height>0) {
+        if(image && width>0 && height>0) {
 
             let scaleX = sprite.width / width,
                 scaleY = sprite.height / height;

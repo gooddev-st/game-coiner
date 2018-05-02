@@ -6,8 +6,11 @@ import {STEP} from "../../constants";
 
 export default class Entity{
 
-    constructor(ID, x, y, character, lifetime, faza){
+
+    constructor(ID, x, y, character, lifetime, faza, type){
         this.ID = ID;
+
+        this.type = type || 'character';
 
         this.x = x;
         this.y = y;
@@ -17,7 +20,7 @@ export default class Entity{
         // время жизни
         this.lifetime = lifetime;
 
-        this.immortal = lifetime > 0.0 ? false : true;
+        this.immortal = (lifetime <= 0.0);
 
         this.width = this.character.width;
         this.height = this.character.height;
@@ -87,42 +90,53 @@ export default class Entity{
             return false;
         }
 
-        let x = this.x - camera.x - this.width/2,
-            y = this.y - camera.y - this.height/2;
+        let x = this.x - camera.x,
+            y = this.y - camera.y;
 
         // не рисуем вне камеры
+        let xdiff = (this.width - this.character.width)/2;//выступ чарактера за объект
         if(
-            x < -this.character.width ||
-            y < -this.character.height ||
-            x > camera.width ||
-            y > camera.height
+            x < - this.character.width  - xdiff||
+            y < 0 ||
+            x > camera.width + xdiff ||
+            y > camera.height + this.character.height
         ) {
             return true;
         }
 
-        this.drawCharacter(camera.context, x, y);
+        this.drawCharacter(camera, x, y);
 
         //Рисуем пятно расположения
-        /*camera.context.save();
+        if(camera.isShowCollision) {
+            this.drawBox(camera, x, y);
+        }
+    }
+
+
+    drawCharacter(camera, sx, sy){
+        let x = sx - (this.character.width-this.width)/2,
+            y = sy - this.character.height;
+
+        this.character.draw(camera.context, x, y, this.state, null, this.currentSpriteNum, this.width, this.height);
+    }
+
+
+    drawBox(camera, x, y){
+        let chx = x - (this.character.width-this.width)/2,
+            chy = y - this.character.height;
+
+        camera.context.save();
         camera.context.beginPath();
         camera.context.fillStyle = "rgba(255,255,67,0.4)";
-        camera.context.fillRect(this.x-camera.x, this.y-camera.y, this.width, this.height);
-        camera.context.rect(x, y, this.character.width, this.character.height);
+        camera.context.fillRect(x, y - this.height, this.width, this.height);
+        camera.context.rect(chx, chy, this.character.width, this.character.height);
         camera.context.stroke();
 
         camera.context.beginPath();
         camera.context.fillStyle = "rgba(255,0,0,0.8)";
-        camera.context.arc(this.x-camera.x, this.y-camera.y, 2, 0, Math.PI*2);
+        camera.context.arc(x, y, 2, 0, Math.PI*2);
         camera.context.fill();
 
-        camera.context.restore();*/
-    }
-
-
-    drawCharacter(context, sx, sy){
-        let x = sx - (this.character.width-this.width)/2,
-            y = sy - (this.character.height-this.height);
-
-        this.character.draw(context, x, y, this.state, null, this.currentSpriteNum, this.width, this.height);
+        camera.context.restore();
     }
 }

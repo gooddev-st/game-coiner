@@ -1,5 +1,5 @@
 /**
- *
+ * 
  * Модуль игрока
  * @type {Player}
  */
@@ -53,7 +53,6 @@ function getRandomCharacter() {
     const randomArray = [
         characters.CHARACTER_GIRL,
         characters.CHARACTER_BLOND,
-        characters.CHARACTER_MAG,
     ];
 
     let key = Math.floor(Math.random() * randomArray.length);
@@ -343,8 +342,8 @@ Player.prototype.fire = function (skillID) {
 
             events.room(this.room_id, 'entity', 'push-effect', {
                 room_id: this.room_id,
-                x: this.x + 20,
-                y: this.y + 30,
+                x: this.x,
+                y: this.y - 1,
             });
 
             sound_event.add('push-effect', this.room_id, this.x, this.y);
@@ -515,7 +514,7 @@ Player.prototype.teleport = function (teleport) {
     sound_event.add("teleport", teleport.target.room_id, teleport.target.x, teleport.target.y);
 
     let
-        x = this.x + this.width/2,
+        x = this.x - this.width,
         y = this.y + 1;
     events.room(teleport.target.room_id, 'entity', 'teleport-target', {
         room_id: teleport.target.room_id,
@@ -648,27 +647,88 @@ Player.prototype.update = function () {
     }
 };
 
+
+function isTouch(barier, player){
+    if (
+        barier.left < player.x + player.width
+        &&
+        barier.right > player.x
+        &&
+        barier.top < player.y
+        &&
+        barier.bottom > player.y - player.height
+    ) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Поправим позицию по препятствию
+ * @param barier
+ */
+Player.prototype.correctTouch = function(barier) {
+    let
+        deepTop = this.y - barier.top,
+        deepBottom = barier.bottom - (this.y-this.height),
+        deepLeft = this.x + this.width - barier.left,
+        deepRight = barier.right - this.x;
+
+    let minDeep = Math.min(deepLeft, deepRight, deepTop, deepBottom);
+
+
+    //  Выталкиваем по приоритетам
+    //вверх
+    if(deepTop===minDeep){
+        this.y = barier.top - 1;
+        this.target && (this.target.y = this.y);
+    }
+    else if(deepLeft===minDeep){
+        this.x = barier.left - this.width - 1;
+        this.target && (this.target.x = this.x);
+    }
+    else if(deepBottom===minDeep){
+        this.y = barier.bottom + this.height + 1;
+        this.target && (this.target.y = this.y);
+    }
+    else{
+        this.x = barier.right + 1;
+        this.target && (this.target.x = this.x);
+    }
+};
+
+
 /**
  * Скорректируем цель движения по препятствиям
  */
 Player.prototype.correctPosition = function(){
     const room = rooms.get(this.room_id);
 
+    //Столкновение с препятствиями
+    if(room.bariers) {
+        for (let i in room.bariers){
+            if(isTouch(room.bariers[i], this)){
+                this.correctTouch(room.bariers[i]);
+            }
+        }
+    }
+
+
     // Если уперлись в границу - остановимся и поправим цель
     if (this.x < 0 + room.dead_zone_left) {
         this.x = 0 + room.dead_zone_left;
         this.target && (this.target.x = this.x);
     }
-    if (this.y < 0 + room.dead_zone_top) {
-        this.y = 0 + room.dead_zone_top;
+    if (this.y - this.height < 0 + room.dead_zone_top) {
+        this.y = 0 + this.height + room.dead_zone_top;
         this.target && (this.target.y = this.y);
     }
     if (this.x + this.width > (room.width - room.dead_zone_right)) {
         this.x = room.width - room.dead_zone_right - this.width;
         this.target && (this.target.x = this.x);
     }
-    if (this.y + this.height > (room.height - room.dead_zone_bottom)) {
-        this.y = room.height - room.dead_zone_bottom - this.height;
+    if (this.y > (room.height - room.dead_zone_bottom)) {
+        this.y = room.height - room.dead_zone_bottom;
         this.target && (this.target.y = this.y);
     }
 };
@@ -710,7 +770,7 @@ Player.prototype.makeDie = function(){
     sound_event.add("hero_death", this.room_id, this.x, this.y);
 
     let
-        x = this.x + this.width/2,
+        x = this.x - this.width,
         y = this.y + 1;
     events.room(this.room_id, 'entity', 'teleport-target', {
         room_id: this.room_id,
@@ -812,7 +872,7 @@ Player.prototype.targetMouse = function(pos){
         //Отцентрировано по центру игрока
         return {
             x: pos.x - this.width / 2,
-            y: pos.y - this.height / 2
+            y: pos.y + this.height / 2
         };
 
     }
@@ -1170,14 +1230,14 @@ Player.prototype.move = function () {
         else {
 
             let increment = this.speed * STEP,
-                x = this.target.x - this.x,
-                y = this.target.y - this.y,
-                l = Math.sqrt(x * x + y * y),
-                x_increment = increment * x / l,
-                y_increment = increment * y / l;
+                dx = this.target.x - this.x,
+                dy = this.target.y - this.y,
+                l = Math.sqrt(dx * dx + dy * dy),
+                x_increment = increment * dx / l,
+                y_increment = increment * dy / l;
 
-            if (Math.abs(x_increment) > Math.abs(x)) x_increment = x;
-            if (Math.abs(y_increment) > Math.abs(y)) y_increment = y;
+            if (Math.abs(x_increment) > Math.abs(dx)) x_increment = dx;
+            if (Math.abs(y_increment) > Math.abs(dy)) y_increment = dy;
 
             this.x += x_increment;
             this.y += y_increment;

@@ -80,7 +80,8 @@
             </div>
             <div class="row">
                 <div class="label">Здоровье:</div>
-                <div id="unit-health" class="value">44%</div>
+                <div id="unit-health" class="value">0</div>
+                <div id="unit-pos" class="value">0,0</div>
             </div>
             <div class="row">
                 <div id="test-text" class="value"></div>
@@ -124,9 +125,6 @@
 
 
 <div class="sprite-images" style="display: none;">
-    <img id="sprites" src="i/sprite.png">
-    <img id="sprites2" src="i/sprite2.png">
-    <img id="coins" src="i/coin_gold.png">
     <img id="s_bag" src="i/bag.png">
     <img id="s_sack" src="i/sack.png">
 
@@ -236,7 +234,7 @@
             $game_title.addClass('hidden');
             resetTimeout()
         });
-        $(document).touchmove(function (e) {
+        $(document).on('touchmove', function (e) {
             $game_title.addClass('hidden');
             resetTimeout()
         });

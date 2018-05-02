@@ -4,10 +4,11 @@ const rooms = require('./rooms.js');
 
 const
     WIDTH = 70,
-    HEIGHT = 30;
+    HEIGHT = 50;
 
-function Teleport(room_id, x, y, character_id, target) {
+function Teleport(room_id, x, y, character_id, target, type) {
     this.ID = 'teleport'+Math.floor(Math.random()*65536);
+    this.type = type || 'random';
 
     this.room_id = room_id;
     this.x = x;
@@ -44,7 +45,7 @@ Teleport.prototype.run = function(step){
 
         this.state = 'default';
 
-        if(TELEPORT_RANDOM_TARGET && this.room_id!=='finish') {
+        if(this.type==='random' && this.room_id!=='finish') {
             //По деактивации - изменим цель на случайную
             let roomsArray = rooms.toArray(),
                 room_id = roomsArray[Math.floor(Math.random() * roomsArray.length)].ID;
@@ -125,9 +126,9 @@ function isTouch(item, player){
         &&
         item.x + item.width > player.x
         &&
-        item.y < player.y + player.height
+        item.y - item.height < player.y
         &&
-        item.height + item.y > player.y
+        item.y > player.y - player.height
     ) {
         return true;
     }

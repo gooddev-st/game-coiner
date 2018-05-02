@@ -8,6 +8,7 @@ module.exports.toArray = toArray;
 
 const Room = require("./rooms/room");
 const RandomRoom = require("./rooms/random");
+const LoadedRoom = require("./rooms/loaded");
 const FinishRoom = require("./rooms/finish");
 require('./constants.js')();
 
@@ -23,7 +24,7 @@ const roomsSettings = [
         entities_num: 30,
 
         dead_zone_left: 10,
-        dead_zone_top: 80,
+        dead_zone_top: 65,
         dead_zone_right: 10,
         dead_zone_bottom: 0,
 
@@ -50,7 +51,7 @@ const roomsSettings = [
         entities_num: 250,
 
         dead_zone_left: 10,
-        dead_zone_top: 80,
+        dead_zone_top: 65,
         dead_zone_right: 10,
         dead_zone_bottom: 0,
 
@@ -78,9 +79,9 @@ const roomsSettings = [
         entities_num: 100,
 
         dead_zone_left: 10,
-        dead_zone_top: 60,
+        dead_zone_top: 10,
         dead_zone_right: 10,
-        dead_zone_bottom: 0,
+        dead_zone_bottom: 10,
 
         coins_num: 25,
         coins_max_limit: 145,
@@ -106,7 +107,7 @@ const roomsSettings = [
         entities_num: 100,
 
         dead_zone_left: 10,
-        dead_zone_top: 80,
+        dead_zone_top: 65,
         dead_zone_right: 10,
         dead_zone_bottom: 0,
 
@@ -132,7 +133,7 @@ const roomsSettings = [
         entities_num: 1000,
 
         dead_zone_left: 10,
-        dead_zone_top: 80,
+        dead_zone_top: 10,
         dead_zone_right: 10,
         dead_zone_bottom: 0,
 
@@ -227,6 +228,17 @@ const roomsSettings = [
         teleports_num: 1,
         cartoons_num: 0,
     },
+
+    {
+        ID: 'glade',
+        type: 'loaded',
+
+        file: 'glade.json',
+
+        coins_num: 10,
+        coins_max_limit: 10,
+        coins_generate_interval: 20.0,
+    },
 ];
 
 const rooms = {};
@@ -239,6 +251,9 @@ for(const i in roomsSettings){
 
     let type = settings.type || 'easy';
     switch (type) {
+        case 'loaded':
+            rooms[settings.ID] = new LoadedRoom(settings);
+            break;
         case 'random':
             rooms[settings.ID] = new RandomRoom(settings);
             break;

@@ -88,8 +88,8 @@ function isTouch(coin, player){
         &&
         coin.x + coin.width > player.x
         &&
-        coin.y < player.y + player.height
+        coin.y - coin.height < player.y
         &&
-        coin.height + coin.y > player.y;
+        coin.y > player.y - player.height;
 
 }
