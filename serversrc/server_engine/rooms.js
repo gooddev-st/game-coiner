@@ -9,7 +9,8 @@ module.exports.toArray = toArray;
 const Room = require("./rooms/room");
 const RandomRoom = require("./rooms/random");
 const LoadedRoom = require("./rooms/loaded");
-const FinishRoom = require("./rooms/finish");
+
+const log = require('./log');
 require('./constants.js')();
 
 
@@ -209,8 +210,11 @@ const roomsSettings = [
 
     {
         ID: 'finish',
-        type: 'finish',
-        width: 3000,
+        // type: 'finish',
+        type: 'loaded',
+
+        file: 'finish.json',
+        /*width: 3000,
         height: 200,
 
         environment_id: 6,
@@ -219,14 +223,14 @@ const roomsSettings = [
         dead_zone_left: 10,
         dead_zone_top: 10,
         dead_zone_right: 10,
-        dead_zone_bottom: 0,
+        dead_zone_bottom: 0,*/
 
         coins_num: 0,
         coins_max_limit: 0,
         coins_generate_interval: 20.0,
 
-        teleports_num: 1,
-        cartoons_num: 0,
+        /*teleports_num: 1,
+        cartoons_num: 0,*/
     },
 
     {
@@ -257,9 +261,6 @@ for(const i in roomsSettings){
         case 'random':
             rooms[settings.ID] = new RandomRoom(settings);
             break;
-        case 'finish':
-            rooms[settings.ID] = new FinishRoom(settings);
-            break;
         default:
             rooms[settings.ID] = new Room(settings);
             break;
@@ -269,7 +270,6 @@ for(const i in roomsSettings){
 
 //Инитим комнаты (После того как список комнат готов)
 for(const i in rooms){
-
     rooms[i].initialize();
 }
 

@@ -55,6 +55,7 @@ LoadedRoom.prototype.load = function () {
             let map;
 
             if(err){
+                log('Ошибка загрузки комнаты');
                 log(err);
                 process.exit(err.errno);
                 return;
@@ -63,6 +64,7 @@ LoadedRoom.prototype.load = function () {
                 map = JSON.parse(data);
             }
             catch (e){
+                log('Ошибка разбора комнаты');
                 log(e);
                 process.exit(1);
             }
@@ -111,8 +113,14 @@ LoadedRoom.prototype.initialize = function () {
         y: PLAYER_START_Y,
     };
 
-    //На стартовую
-    this.addTeleport(50, 100, null, target, 'normal');
+    if(this.ID==='finish'){
+        //На стартовую
+        this.addTeleport( 3000, 750, null, target, 'normal');
+    }
+    else {
+        //На стартовую
+        this.addTeleport(50, 100, null, target, 'normal');
+    }
 };
 
 

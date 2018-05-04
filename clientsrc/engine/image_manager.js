@@ -6,7 +6,7 @@ export default class {
 
         this.base_url = base_url || '/i/';
 
-        this.gidNext = 0;
+        this.gidNext = 1;
 
         this.counter = 0;
         this.loadedCounter = 0;

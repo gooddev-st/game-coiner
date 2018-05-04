@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * Модуль игрока
  * @type {Player}
  */
@@ -762,7 +762,7 @@ Player.prototype.makeDie = function(){
     sound_event.add("hero_death", this.room_id, this.x, this.y);
 
     this.x = 100;
-    this.y = 100;
+    this.y = 750;
 
     //Сменим комнату
     this.changeRoom("finish");
