@@ -87,6 +87,9 @@ function Player(id, name, socket, data) {
 
     this.target = null;// Позиция куда идти
 
+    //Путь движения
+    this.path = [];
+
     this.targetOfAttack = null;
 
     this.character_id = data.character_id || getRandomCharacter();
@@ -146,6 +149,7 @@ function Player(id, name, socket, data) {
         left: false,
         right: false,
         down: false,
+        ctrl: false,
         mouseLeft: false,
         mouseRight: false,
         click: null,
@@ -223,6 +227,9 @@ Player.prototype.init = function () {
             case "down":
                 this.controller.down = true;
                 break;
+            case "ctrl":
+                this.controller.ctrl = true;
+                break;
         }
         // log('Нажата клавиша '+key_name);
     });
@@ -240,6 +247,9 @@ Player.prototype.init = function () {
                 break;
             case "down":
                 this.controller.down = false;
+                break;
+            case "ctrl":
+                this.controller.ctrl = false;
                 break;
             case "fire":
                 this.fire();
@@ -300,9 +310,11 @@ Player.prototype.init = function () {
         this.controller.up = false;
         this.controller.right = false;
         this.controller.down = false;
+        this.controller.ctrl = false;
         this.controller.click = null;
         this.controller.mouseLeft = false;
         this.target = null;
+        this.path = [];
         this.targetOfAttack = null;
     });
 
@@ -395,7 +407,9 @@ Player.prototype.reset = function (socket) {
     this.controller.left = false;
     this.controller.right = false;
     this.controller.down = false;
+    this.controller.ctrl = false;
     this.target = null;
+    this.path = [];
     this.targetOfAttack = null;
 };
 
@@ -501,6 +515,7 @@ Player.prototype.teleport = function (teleport) {
 
     //Сбросим цель движения
     this.target = null;
+    this.path = [];
     this.targetOfAttack = null;
 
     //Если перемещаемся в другую комнату - закажем смену
@@ -606,6 +621,7 @@ Player.prototype.update = function () {
     if(this.freeze){
 
         this.target = false;
+        this.path = [];
 
         this.freeze = false;
     }
@@ -664,6 +680,31 @@ function isTouch(barier, player){
 }
 
 /**
+ * Поправим позицию по границам карты
+ */
+Player.prototype.correctMapBorder = function() {
+    let room = rooms.get(this.room_id);
+    // Если уперлись в границу - остановимся и поправим цель
+    //TODO: поправлять путь
+    if (this.x < 0 + room.dead_zone_left) {
+        this.x = 0 + room.dead_zone_left;
+        this.target && (this.target.x = this.x);
+    }
+    if (this.y - this.height < 0 + room.dead_zone_top) {
+        this.y = 0 + this.height + room.dead_zone_top;
+        this.target && (this.target.y = this.y);
+    }
+    if (this.x + this.width > (room.width - room.dead_zone_right)) {
+        this.x = room.width - room.dead_zone_right - this.width;
+        this.target && (this.target.x = this.x);
+    }
+    if (this.y > (room.height - room.dead_zone_bottom)) {
+        this.y = room.height - room.dead_zone_bottom;
+        this.target && (this.target.y = this.y);
+    }
+};
+
+/**
  * Поправим позицию по препятствию
  * @param barier
  */
@@ -713,24 +754,8 @@ Player.prototype.correctPosition = function(){
         }
     }
 
-
-    // Если уперлись в границу - остановимся и поправим цель
-    if (this.x < 0 + room.dead_zone_left) {
-        this.x = 0 + room.dead_zone_left;
-        this.target && (this.target.x = this.x);
-    }
-    if (this.y - this.height < 0 + room.dead_zone_top) {
-        this.y = 0 + this.height + room.dead_zone_top;
-        this.target && (this.target.y = this.y);
-    }
-    if (this.x + this.width > (room.width - room.dead_zone_right)) {
-        this.x = room.width - room.dead_zone_right - this.width;
-        this.target && (this.target.x = this.x);
-    }
-    if (this.y > (room.height - room.dead_zone_bottom)) {
-        this.y = room.height - room.dead_zone_bottom;
-        this.target && (this.target.y = this.y);
-    }
+    // Если уперлись в границу карты
+    this.correctMapBorder();
 };
 
 
@@ -797,19 +822,25 @@ Player.prototype.runEffects = function () {
 
 //Рассчитаем цель перемещения
 Player.prototype.calculateTarget = function(){
+    let target;
+
     // если есть клик
     let click = this.getClick();
-
-    let target;
-    /*target = this.targetEffects();
-    if(target) return target;*/
+    if(click){
+        this.path = this.calculatePath(click);
+    }
 
     //Движем с клавиатуры
     target = this.targetKeyboard();
-    if(target) return target;
+    if(target){
+        this.path = [];
+        return target;
+    }
 
-    //Движем мышью или тачем
-    target = this.targetMouse(click);
+
+
+    //Движемся по пути
+    target = this.targetPath();
     if(target) return target;
 
     // Если нет цели - идем к ближнему подходящему мобу (в поле зрения)
@@ -861,19 +892,52 @@ Player.prototype.targetKeyboard = function(){
 
 
 /**
- * Движение мышью
+ * Вычисление пути движения
  * @param pos
- * @returns {*}
+ * @returns {*[]}
  */
-Player.prototype.targetMouse = function(pos){
-
+Player.prototype.calculatePath = function (pos) {
     if (pos) {
 
-        //Отцентрировано по центру игрока
-        return {
+        //Веха
+        let pathPoint = {
+
+            //Отцентрировано по центру игрока
             x: pos.x - this.width / 2,
             y: pos.y + this.height / 2
         };
+
+        //В зависимости от Ctrl - новый или добавляем
+        let path = this.controller.ctrl ? this.path : [];
+
+        path.push(pathPoint);
+
+        return path;
+
+    }
+};
+
+
+/**
+ * Движение по пути
+ * @returns {*}
+ */
+Player.prototype.targetPath = function(){
+
+    if (this.path.length) {
+
+        //Закончили шаг пути
+        if(this.x===this.path[0].x && this.y===this.path[0].y){
+            this.path.shift();
+        }
+
+        //Пустой путь
+        if(!this.path.length){
+            return null;
+        }
+
+        //Отцентрировано по центру игрока
+        return this.path[0];
 
     }
 

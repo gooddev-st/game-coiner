@@ -30,6 +30,8 @@ const keys = {
     N9: 57,
     N0: 48,
 
+    CTRL: 17,
+
     SPACE: 32, //Огонь!
 
     STATISTIC: 73 // "I"
@@ -122,6 +124,9 @@ function onKeydown(e) {
         case keys.SPACE:
             events.add('keydown', 'fire');
             break;
+        case keys.CTRL:
+            events.add('keydown', 'ctrl');
+            break;
         /*case keys.N1:
             events.add('skill-change', 'skill1');
             break;
@@ -180,6 +185,9 @@ function onKeyup(e) {
             break;
         case keys.SPACE:
             events.add('keyup', 'fire');
+            break;
+        case keys.CTRL:
+            events.add('keyup', 'ctrl');
             break;
         case keys.STATISTIC:
             events.add('keyup', 'statistic');
