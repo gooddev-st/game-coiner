@@ -3,7 +3,9 @@
  */
 
 import ImageManager from '../../../engine/image_manager'
+import TileManager from '../../../engine/tile_manager'
 import Tile from '../../../engine/tile'
+import AnimatedTile from '../../../engine/animated_tile'
 import EntityTiled from '../entity_tiled'
 
 /**
@@ -22,7 +24,7 @@ export default class {
         this.imageManager = new ImageManager('/i/tilesets/');
 
         //Набор плиток для карты
-        this.tiles = {};
+        this.tiles = new TileManager();
 
         this.layer = {};
         this.decorLayer = {};
@@ -94,31 +96,63 @@ export default class {
                     let imageGid = this.imageManager.add(tile.image),
                         gid = parseInt(j) + parseInt(tileset.firstgid);
                     //Добавим плитку
-                    this.tiles[gid] = new Tile({
-                        gid: gid, imageGid:imageGid,
-                        x: 0, y: 0,
-                        width: tile.imagewidth, height: tile.imageheight});
+                    this.tiles.add( gid,
+                        new Tile({
+                            gid: gid, imageGid: imageGid,
+                            x: 0, y: 0,
+                            width: tile.imagewidth, height: tile.imageheight
+                        })
+                    );
                 }
             }
             //Если набор тайлов на одной картинке
             else if(tileset.columns!==0 && tileset.image){
                 let imageGid = this.imageManager.add(tileset.image),
-                    tileGid = parseInt(tileset.firstgid);
+                    startGid = parseInt(tileset.firstgid),
+                    tileGid = startGid;
 
 
                 for (let row = 0; row < tileset.tilecount / tileset.columns; row++) {
                     for (let col = 0; col < tileset.columns; col++) {
-
                         //Добавим плитку
-                        this.tiles[tileGid] = new Tile({
-                            gid: tileGid, imageGid: imageGid,
-                            x: col * tileset.tilewidth, y: row * tileset.tileheight,
-                            width: tileset.tilewidth, height: tileset.tileheight
-                        });
+
+                        this.tiles.add(tileGid,
+                            new Tile({
+                                gid: tileGid, imageGid: imageGid,
+                                x: col * tileset.tilewidth, y: row * tileset.tileheight,
+                                width: tileset.tilewidth, height: tileset.tileheight
+                            })
+                        );
 
                         tileGid++;
                     }
 
+                }
+
+
+                //Добавим анимацию
+                tileGid = startGid;
+                for (let row = 0; row < tileset.tilecount / tileset.columns; row++) {
+                    for (let col = 0; col < tileset.columns; col++) {
+                        //Если есть - загрузим анимацию
+                        if(
+                            tileset.tiles &&
+                            tileset.tiles[tileGid-startGid] &&
+                            tileset.tiles[tileGid-startGid]['animation']
+                        ){
+
+                            let tile = this.tiles.get(tileGid);
+
+                            let animation = tileset.tiles[tileGid-startGid]['animation'];
+
+                            animation.forEach((frame)=>{
+                                tile.addFrame(this.tiles.get(startGid+frame.tileid), frame.duration);
+                            });
+
+                        }
+
+                        tileGid++;
+                    }
                 }
 
             }
@@ -174,7 +208,7 @@ export default class {
                     if(it.name==='cartoons') {
 
                         this.cartoons.push(
-                            new EntityTiled(this.imageManager, this.tiles[obj.gid], x, y)
+                            new EntityTiled(this.imageManager, this.tiles.get(obj.gid), x, y)
                         );
                     }
                     //Кроме преград
@@ -304,7 +338,7 @@ export default class {
     drawTile(camera, layer, col, row, sx, sy, sw, sh, dx, dy, dw, dh){
 
         let tileGid = layer.data[row*layer.cols+col],
-            tile = this.tiles[tileGid];
+            tile = this.tiles.get(tileGid);
 
         if(!tile) return;
 
@@ -323,7 +357,7 @@ export default class {
 
         this.objects.forEach((it)=> {
 
-            let tile = this.tiles[it.tileGid],
+            let tile = this.tiles.get(it.tileGid),
                 image = this.imageManager.get(tile.imageGid),
 
                 x = it.x,

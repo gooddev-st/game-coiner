@@ -12,6 +12,41 @@ export default class Tile{
 
         this.width = tile.width;
         this.height = tile.height;
+
+        this.frames = [];
+    }
+
+    /**
+     * Добавить кадр анимации
+     * @param tile
+     * @param duration
+     */
+    addFrame(tile, duration){
+        this.frames.push({tile: tile, duration: duration});
+    }
+
+
+    /**
+     * Возвращает кадр анимации
+     * @param id
+     * @returns {*}
+     */
+    getFrame(id){
+        return this.frames.length ? this.frames[id] : {tile: this, duration: 100};
+    }
+
+
+    /**
+     * Возвращает номер следующего кадра анимации
+     * @param current_id
+     * @returns {*}
+     */
+    getNextFrameID(current_id){
+        let next_id = current_id + 1;
+        if(next_id >= this.frames.length || next_id < 0){
+            next_id = 0;
+        }
+        return next_id;
     }
 
 
@@ -21,16 +56,20 @@ export default class Tile{
      * @param imageManager
      * @param x
      * @param y
+     * @param frameID
      */
-    draw(context, imageManager, x, y){
+    draw(context, imageManager, x, y, frameID){
 
-        let image = imageManager.get(this.imageGid);
+        let frame = this.getFrame(frameID),
+            tile = frame.tile;
+
+        let image = imageManager.get(tile.imageGid);
 
         //Обрезка отрисовки вне канвы TODO: резать по камере
         if(
-            x + this.width > 0 &&
+            x + tile.width > 0 &&
             x < context.canvas.width &&
-            y + this.height > 0 &&
+            y + tile.height > 0 &&
             y < context.canvas.height
         ) {
 
@@ -40,7 +79,8 @@ export default class Tile{
                 context,
                 image,
                 x,
-                y
+                y,
+                frameID
             );
         }
     }
@@ -52,12 +92,16 @@ export default class Tile{
      * @param image
      * @param x
      * @param y
+     * @param frameID
      */
-    drawFrame(context, image, x, y){
+    drawFrame(context, image, x, y, frameID){
+
+        let frame = this.getFrame(frameID),
+            tile = frame.tile;
 
         if(image && this.width>0 && this.height>0) {
 
-            let sx = this.x, sy = this.y, sw = this.width, sh = this.height;
+            let sx = tile.x, sy = tile.y, sw = tile.width, sh = tile.height;
             let dx = x, dy = y, dw = this.width, dh = this.height;
 
             if (x < 0) {

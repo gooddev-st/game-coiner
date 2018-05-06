@@ -677,6 +677,13 @@ function animate(){
         entity.animate();
     });
 
+    //Комнатные сущности
+    if(room && room.cartoons) {
+        room.cartoons.forEach((cartoon) => {
+            cartoon.animate && cartoon.animate();
+        });
+    };
+
 }
 
 
