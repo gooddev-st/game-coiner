@@ -20,6 +20,9 @@ const Weapon = require("./weapons").Sword;
 
 const sound_event = require('./sound_event.js');//звуковые события
 
+const findpath = require('./lib/findpath'),
+    collisions = require('./lib/collisions');
+
 
 /**
  * Константы персонажей
@@ -654,6 +657,12 @@ Player.prototype.update = function () {
     }
 
 
+    //Если не сдвинулись даже на пиксель - сбросим путь
+    if(Math.floor(this.x) === Math.floor(oldPos.x) && Math.floor(this.y) === Math.floor(oldPos.y)){
+        this.path = [];
+    }
+
+
     if (
         this.x !== oldPos.x || this.y !== oldPos.y ||
         this.state !== oldState ||
@@ -900,19 +909,67 @@ Player.prototype.calculatePath = function (pos) {
     if (pos) {
 
         //Веха
-        let pathPoint = {
-
+        let startPoint = {
+            id: 'A',
+            x: this.x,
+            y: this.y,
+            },
+            pathPoint = {
+            id: 'B',
             //Отцентрировано по центру игрока
             x: pos.x - this.width / 2,
             y: pos.y + this.height / 2
         };
 
-        //В зависимости от Ctrl - новый или добавляем
-        let path = this.controller.ctrl ? this.path : [];
+        let possibleNodes = {'A': startPoint, 'B': pathPoint};
 
-        path.push(pathPoint);
+        const room = rooms.get(this.room_id);
+        const roomBox = {
+            left: room.dead_zone_left,
+            right: room.width - room.dead_zone_right,
+            top: room.dead_zone_top,
+            bottom: room.height - room.dead_zone_bottom,
+        };
 
-        return path;
+        let path = ['B'];
+
+        if(room.bariers) {
+
+            let wrongTarget = false;
+
+            if (!findpath.check(room.bariers, -1, pathPoint, this.width, this.height, roomBox)) {
+                wrongTarget = true;
+            }
+
+            let itEasy = !collisions.touchPlayerSegmentBariers(startPoint, pathPoint, this.width, this.height, room.bariers);
+
+            if (!itEasy && !wrongTarget) {
+                possibleNodes = Object.assign({}, possibleNodes,
+                    findpath.getPossibleNodes(room.bariers, this.width, this.height, roomBox)
+                );
+
+
+                //Добавление ребер графа. Только узлы, в которые можно пройти без препятствий
+                for (let i in possibleNodes) {
+                    findpath.getNeighbors(possibleNodes[i], possibleNodes, room.bariers, this.width, this.height);
+                }
+
+                let g = new findpath.Graph();
+                g.vertices = possibleNodes;
+
+                path = g.shortestPath('A', 'B').reverse();
+            }
+        }
+
+        let posPath = [];
+
+
+        for(let step=0; step<path.length;step++){
+            let node = possibleNodes[path[step]];
+            posPath.push({x: node.x, y: node.y});
+        }
+
+        return posPath;
 
     }
 };
@@ -926,7 +983,7 @@ Player.prototype.targetPath = function(){
 
     if (this.path.length) {
 
-        //Закончили шаг пути
+        //Закончили шаг пути - удалим
         if(this.x===this.path[0].x && this.y===this.path[0].y){
             this.path.shift();
         }
@@ -936,38 +993,22 @@ Player.prototype.targetPath = function(){
             return null;
         }
 
-        //Отцентрировано по центру игрока
-        return this.path[0];
+        //На основании текущего куска пути посчитаем шаг
+        let target = {x: this.x, y: this.y},
+            increment = this.speed * STEP,
+            dx = this.path[0].x - this.x,
+            dy = this.path[0].y - this.y,
+            l = Math.sqrt(dx * dx + dy * dy),
+            x_increment = increment * dx / l,
+            y_increment = increment * dy / l;
 
-    }
+        if (Math.abs(x_increment) > Math.abs(dx)) x_increment = dx;
+        if (Math.abs(y_increment) > Math.abs(dy)) y_increment = dy;
 
-    return null;
-};
+        target.x = this.x + x_increment;
+        target.y = this.y + y_increment;
 
-
-Player.prototype.targetEffects = function(){
-
-    if (this.effects) {
-
-        //Толчок
-        if("push" in this.effects){
-            return this.effects.push.run(this);
-        }
-
-        //Заморозка
-        if("freeze" in this.effects){
-            return this.effects.freeze.run(this);
-        }
-
-        //Холера
-        if("holera" in this.effects){
-            return this.effects.holera.run(this);
-        }
-
-        //Щит
-        if("shield" in this.effects){
-            return this.effects.shield.run(this);
-        }
+        return target;
 
     }
 

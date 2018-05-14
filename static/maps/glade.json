@@ -1410,15 +1410,15 @@
                  "y":1610
                 }, 
                 {
-                 "height":17,
+                 "height":20,
                  "id":251,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":25,
-                 "x":286,
-                 "y":1600
+                 "width":34,
+                 "x":274,
+                 "y":1601
                 }],
          "opacity":1,
          "type":"objectgroup",

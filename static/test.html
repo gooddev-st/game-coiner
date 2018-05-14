@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Проверка пересечений</title>
+</head>
+<body style="margin: 0; padding: 0;">
+<canvas id="main" width="900" height="600" style="background-color: #eeeeee"></canvas>
+<div id="log"></div>
+<div id="path"></div>
+<script src="js/lib/collisions.js"></script>
+<script src="js/lib/findpath.js"></script>
+<script src="js/jquery.min.js"></script>
+<script>
+
+    const PLAYER_WIDTH = 34,
+        PLAYER_HEIGHT = 34,
+        ROOM = {
+            left: 0,
+            right: 900,
+            top: 0,
+            bottom: 600
+    };
+
+    function clear(context) {
+        context.save();
+        context.fillStyle = '#eeeeee';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.restore();
+    }
+
+    function drawPoint(context, x, y, size, strokeStyle, fillStyle) {
+        context.save();
+        context.beginPath();
+        context.strokeStyle = strokeStyle || "rgba(255,0,0,0.8)";
+        context.fillStyle = fillStyle || "rgba(150,150,100,0.8)";
+        context.arc(x, y, size || 4, 0, Math.PI*2);
+        context.fill();
+        context.stroke();
+
+        context.restore();
+    }
+
+    function drawPossibleNode(context, possibleNode, width, height) {
+        context.save();
+        context.fillStyle = 'rgba(200,200,50,0.3)';
+        context.fillRect(possibleNode.x, possibleNode.y-height, width, height);
+        drawPoint(context, possibleNode.x, possibleNode.y, 2);
+
+        context.fillStyle = 'rgba(200,0,50,0.7)';
+        context.font="20px Times New Roman";
+        context.fillText(possibleNode.id, possibleNode.x + 2, possibleNode.y - 16);
+
+        context.restore();
+    }
+
+    function drawPath(context, startPoint, path, shiftX, shiftY, isMain, possibleNodes) {
+        if(!shiftX) shiftX = 0;
+        if(!shiftY) shiftY = 0;
+
+        if(!Array.isArray(path) || path.length===0) return;
+
+        context.save();
+        context.strokeStyle = isMain ? "rgba(0,150,100,0.8)" : "rgba(40,250,150,0.8)";
+        context.lineWidth = 2;
+        context.beginPath();
+        context.moveTo(startPoint.x + shiftX, startPoint.y - shiftY);
+
+        for(let i = 0; i<path.length; i++){
+            context.lineTo(possibleNodes[path[i]].x + shiftX, possibleNodes[path[i]].y - shiftY);
+        }
+        context.stroke();
+        context.restore();
+
+        let color = isMain ? 'darkgreen' : 'lightgreen';
+
+        drawPoint(context, startPoint.x + shiftX, startPoint.y - shiftY, false, color, color);
+
+        for(let i = 0; i<path.length-1; i++){
+            drawPoint(context, possibleNodes[path[i]].x + shiftX, possibleNodes[path[i]].y - shiftY);
+        }
+
+        color = isMain ? 'darkblue' : 'lightblue';
+        drawPoint(context, possibleNodes[path[path.length-1]].x + shiftX, possibleNodes[path[path.length-1]].y - shiftY, false, color, color);
+    }
+
+    function drawPlayerPath(context, startPoint, path, possibleNodes) {
+        const points = [
+            {x: 0, y: 0},
+            {x: PLAYER_WIDTH, y: 0},
+            {x: PLAYER_WIDTH, y: PLAYER_HEIGHT},
+            {x: 0, y: PLAYER_HEIGHT},
+        ];
+        points.forEach((shift, i)=>{
+            drawPath(context, startPoint, path, shift.x, shift.y, i===0, possibleNodes);
+        });
+    }
+
+    function drawBariers(context, bariers) {
+        if(!Array.isArray(bariers) || bariers.length===0) return;
+
+        context.fillStyle = 'rgba(100,100,100,1)';
+
+        bariers.forEach((barier)=>{
+            context.fillRect(barier.left, barier.top, barier.right-barier.left, barier.bottom-barier.top);
+        });
+    }
+
+
+    let pointA = {id: 'A', x: 20, y: 64},
+        pointB = {id: 'B', x: 850, y: 550},
+        bariers = [
+            {
+                left: 100,
+                top: 500,
+                right: 800,
+                bottom: 540
+            },
+            {
+                left: 300,
+                top: 200,
+                right: 800,
+                bottom: 300
+            },
+            {
+                left: 500,
+                top: 350,
+                right: 870,
+                bottom: 450
+            },
+            {
+                left: 400,
+                top: 100,
+                right: 450,
+                bottom: 400
+            },
+        ],
+        bariers1 = [
+            {
+                left: 100,
+                top: 100,
+                right: 800,
+                bottom: 150
+            },
+            {
+                left: 100,
+                top: 150,
+                right: 150,
+                bottom: 400
+            },
+            {
+                left: 100,
+                top: 400,
+                right: 650,
+                bottom: 450
+            },
+            {
+                left: 650,
+                top: 200,
+                right: 670,
+                bottom: 450
+            },
+            {
+                left: 200,
+                top: 200,
+                right: 650,
+                bottom: 250
+            },
+            {
+                left: 200,
+                top: 250,
+                right: 220,
+                bottom: 350
+            },
+            {
+                left: 220,
+                top: 300,
+                right: 600,
+                bottom: 350
+            },
+        ],
+        path = [],
+        possibleNodes = {};
+
+    let log = document.getElementById('log'),
+        pathElement = document.getElementById('path'),
+        canvas = document.getElementById('main'),
+        context = canvas.getContext('2d');
+
+    function run() {
+        let time = (new Date()).getTime();
+        clear(context);
+        drawBariers(context, bariers);
+
+        possibleNodes = {'A': pointA, 'B': pointB};
+
+        let wrongTarget = false;
+
+        if (!check(bariers, -1, pointB, PLAYER_WIDTH, PLAYER_HEIGHT, ROOM)) {
+            log.innerHTML = 'Плохая цель';
+            wrongTarget = true;
+        }
+
+        path = ['B'];
+
+        let itEasy = !touchPlayerSegmentBariers(pointA, pointB, PLAYER_WIDTH, PLAYER_HEIGHT, bariers);
+
+        if(!wrongTarget) {
+            log.innerHTML = itEasy ? 'Просто ходьба' : 'Ходьба с препятствиями';
+        }
+
+        if (!itEasy && !wrongTarget) {
+            possibleNodes = Object.assign({}, possibleNodes,
+                getPossibleNodes(bariers, PLAYER_WIDTH, PLAYER_HEIGHT, ROOM)
+            );
+
+
+            //Добавление ребер графа. Только узлы, в которые можно пройти без препятствий
+            for (let i in possibleNodes) {
+                getNeighbors(possibleNodes[i], possibleNodes, bariers, PLAYER_WIDTH, PLAYER_HEIGHT);
+            }
+
+            let g = new Graph();
+            g.vertices = possibleNodes;
+
+            path = g.shortestPath('A', 'B').reverse();
+        }
+
+        for (let i in possibleNodes) {
+            drawPossibleNode(context, possibleNodes[i], PLAYER_WIDTH, PLAYER_HEIGHT)
+        }
+
+        drawPlayerPath(context, pointA, path, possibleNodes);
+
+        time = ((new Date()).getTime() - time) + ' мс';
+        pathElement.innerText = path.toString() + ' ' + time;
+    }
+
+
+
+    $(function () {
+        run();
+
+        $('#main')
+
+            .on('contextmenu', function (e) {
+                pointA.x = e.pageX - PLAYER_WIDTH/2;
+                pointA.y = e.pageY + PLAYER_HEIGHT/2;
+                run();
+                return false;
+            })
+
+            .on('click', function (e) {
+                if (e.button === 0) {
+                    pointB.x = e.pageX - PLAYER_WIDTH/2;
+                    pointB.y = e.pageY + PLAYER_HEIGHT/2;
+                    run();
+                }
+            })
+
+            .on('mousemove', function (e) {
+                if (e.buttons&1) {
+                    pointB.x = e.pageX - PLAYER_WIDTH/2;
+                    pointB.y = e.pageY + PLAYER_HEIGHT/2;
+                    run();
+                }
+                if (e.buttons&2) {
+                    pointA.x = e.pageX - PLAYER_WIDTH/2;
+                    pointA.y = e.pageY + PLAYER_HEIGHT/2;
+                    run();
+                }
+            });
+    });
+
+</script>
+</body>
+</html>
