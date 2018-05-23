@@ -757,14 +757,14 @@ Player.prototype.correctPosition = function(){
     //Столкновение с препятствиями
     if(room.bariers) {
         for (let i in room.bariers){
-            if(isTouch(room.bariers[i], this)){
-                this.correctTouch(room.bariers[i]);
+            if(collisions.touchBar(this, room.bariers[i])){
+                collisions.correctBarTouch(this, room.bariers[i]);
             }
         }
     }
 
     // Если уперлись в границу карты
-    this.correctMapBorder();
+    collisions.correctByRoomBorder(this, room);
 };
 
 
@@ -960,6 +960,8 @@ Player.prototype.calculatePath = function (pos) {
                 path = g.shortestPath('A', 'B').reverse();
             }
         }
+
+        log(path);
 
         let posPath = [];
 

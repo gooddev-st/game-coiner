@@ -43,6 +43,7 @@ function getPossibleNodes(bariers, width, height, room) {
 }
 
 
+
 function check(bariers, i, node, width, height, room) {
     return checkBariers(bariers, i, node, width, height) &&
     !touchBorders(
@@ -123,6 +124,7 @@ function getNeighbors(possibleNode, possibleNodes, bariers, width, height) {
         possibleNode.neighbors[B.id] = distance(A, B);
     }
 }
+
 
 
 function PriorityQueue () {

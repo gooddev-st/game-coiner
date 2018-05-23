@@ -13,6 +13,9 @@ require("../constants")();
 
 const sound_event = require('../sound_event.js');//звуковые события
 
+const findpath = require('../lib/findpath'),
+    collisions = require('../lib/collisions');
+
 const Claws = require("../weapons").Claws;
 
 /**
@@ -223,7 +226,9 @@ Npc.prototype.hit = function (hitPoints) {
 Npc.prototype.update = function () {
 
     //Сохраним старое, чтоб понимать - изменился ли
-    let oldX = this.x, oldY = this.y, oldState = this.state, oldHealth = this.health;
+    let oldPos = {x: this.x, y: this.y},
+        oldState = this.state,
+        oldHealth = this.health;
 
     this.runEffects();
 
@@ -260,6 +265,11 @@ Npc.prototype.update = function () {
         this.kill();
     }
 
+    //Если не сдвинулись даже на пиксель - сбросим путь
+    if(Math.floor(this.x) === Math.floor(oldPos.x) && Math.floor(this.y) === Math.floor(oldPos.y)){
+        this.target = null;
+    }
+
     //Проверим - не умерла ли цель атаки
     if(this.targetOfAttack && this.targetOfAttack.isDie()){
         this.targetOfAttack = null;
@@ -269,7 +279,7 @@ Npc.prototype.update = function () {
     this.setState();
 
 
-    if(this.x !== oldX || this.y !== oldY || this.state !== oldState || this.health !== oldHealth){
+    if(this.x !== oldPos.x || this.y !== oldPos.y || this.state !== oldState || this.health !== oldHealth){
         this.changed = true;
     }
 
@@ -283,23 +293,17 @@ Npc.prototype.correctPosition = function () {
 
     const room = rooms.get(this.room_id);
 
-    // Если уперлись в границу - остановимся и поправим цель
-    if (this.x < 0 + room.dead_zone_left) {
-        this.x = 0 + room.dead_zone_left;
-        this.target && (this.target.x = this.x);
+    //Столкновение с препятствиями
+    if(room.bariers) {
+        for (let i in room.bariers){
+            if(collisions.touchBar(this, room.bariers[i])){
+                collisions.correctBarTouch(this, room.bariers[i]);
+            }
+        }
     }
-    if (this.y < 0 + room.dead_zone_top) {
-        this.y = 0 + room.dead_zone_top;
-        this.target && (this.target.y = this.y);
-    }
-    if (this.x + this.width > (room.width - room.dead_zone_right)) {
-        this.x = room.width - room.dead_zone_right - this.width;
-        this.target && (this.target.x = this.x);
-    }
-    if (this.y + this.height > (room.height - room.dead_zone_bottom)) {
-        this.y = room.height - room.dead_zone_bottom - this.height;
-        this.target && (this.target.y = this.y);
-    }
+
+    // Если уперлись в границу карты
+    collisions.correctByRoomBorder(this, room);
 };
 
 

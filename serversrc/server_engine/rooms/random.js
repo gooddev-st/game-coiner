@@ -37,8 +37,9 @@ RandomRoom.prototype = Object.create(Room.prototype);
 
 RandomRoom.prototype.initialize = function () {
     this.randomTeleports(this.teleports_num);
-    //Фиксированый
+    //Фиксированые
     this.addTeleport(50, 100, null, {room_id: 'glade', x: 400, y: 400}, 'normal');
+    this.addTeleport(150, 100, null, {room_id: 'labirint', x: 400, y: 400}, 'normal');
 };
 
 /**

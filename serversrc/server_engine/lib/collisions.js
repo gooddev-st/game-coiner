@@ -1,4 +1,4 @@
-module.exports = {touchBar, touchPoint, touchSegment, touchPlayerSegmentBariers};
+module.exports = {touchBar, touchPoint, touchSegment, touchPlayerSegmentBariers, correctBarTouch, correctByRoomBorder};
 
 
 /**
@@ -130,4 +130,68 @@ function intersect(a, b, edge, barier) {
         edge & 2 ? {x: barier.right, y: a.y + (b.y - a.y) * (barier.right - a.x) / (b.x - a.x)} : // правее
         edge & 1 ? {x: barier.left, y: a.y + (b.y - a.y) * (barier.left - a.x) / (b.x - a.x)} : // левее
         null;
+}
+
+
+/**
+ * Корректировка положения выталкиванием к ближайшей границе препятствия
+ * @param bar
+ * @param barier
+ */
+function correctBarTouch(bar, barier) {
+    let
+
+        deepTop = bar.y - barier.top,
+        deepBottom = barier.bottom - (bar.y-bar.height),
+        deepLeft = bar.x + bar.width - barier.left,
+        deepRight = barier.right - bar.x;
+
+    let minDeep = Math.min(deepLeft, deepRight, deepTop, deepBottom);
+
+
+    //  Выталкиваем по приоритетам
+    //вверх
+    if(deepTop===minDeep){
+        bar.y = barier.top - 1;
+        bar.target && (bar.target.y = bar.y);
+    }
+    else if(deepLeft===minDeep){
+        bar.x = barier.left - bar.width - 1;
+        bar.target && (bar.target.x = bar.x);
+    }
+    else if(deepBottom===minDeep){
+        bar.y = barier.bottom + bar.height + 1;
+        bar.target && (bar.target.y = bar.y);
+    }
+    else{
+        bar.x = barier.right + 1;
+        bar.target && (bar.target.x = bar.x);
+    }
+}
+
+/**
+ * Корректировка положения выталкиванием от ближайшей границы комнаты
+ * @param bar
+ * @param room
+ */
+function correctByRoomBorder(bar, room) {
+
+    // Если уперлись в границу - остановимся и поправим цель
+    //TODO: поправлять путь
+    if (bar.x < 0 + room.dead_zone_left) {
+        bar.x = 0 + room.dead_zone_left;
+        bar.target && (bar.target.x = bar.x);
+    }
+    if (bar.y - bar.height < 0 + room.dead_zone_top) {
+        bar.y = 0 + bar.height + room.dead_zone_top;
+        bar.target && (bar.target.y = bar.y);
+    }
+    if (bar.x + bar.width > (room.width - room.dead_zone_right)) {
+        bar.x = room.width - room.dead_zone_right - bar.width;
+        bar.target && (bar.target.x = bar.x);
+    }
+    if (bar.y > (room.height - room.dead_zone_bottom)) {
+        bar.y = room.height - room.dead_zone_bottom;
+        bar.target && (bar.target.y = bar.y);
+    }
 }

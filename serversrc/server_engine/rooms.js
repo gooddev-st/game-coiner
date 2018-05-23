@@ -239,9 +239,35 @@ const roomsSettings = [
 
         file: 'glade.json',
 
-        coins_num: 10,
-        coins_max_limit: 10,
-        coins_generate_interval: 20.0,
+        coins_num: 100,
+        coins_max_limit: 100,
+        coins_generate_interval: 0.3,
+
+        populations: {
+            'skeleton': {maxNum:15, interval: 60.0},
+        },
+    },
+
+    {
+        ID: 'labirint',
+        type: 'loaded',
+
+        file: 'labirint.json',
+
+        coins_num: 100,
+        coins_max_limit: 100,
+        coins_generate_interval: 0.3,
+    },
+
+    {
+        ID: 'desert',
+        type: 'loaded',
+
+        file: 'desert.json',
+
+        coins_num: 100,
+        coins_max_limit: 100,
+        coins_generate_interval: 0.4,
     },
 ];
 
