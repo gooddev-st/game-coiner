@@ -119,6 +119,7 @@ export default class {
             'sea': 'rgba(170, 45, 210, 0.8)',
             'glade': 'rgba(234, 116, 31, 0.8)',
             'labirint': 'rgba(3, 0, 181, 0.8)',
+            'desert': 'rgba(155, 155, 0, 0.8)',
         };
 
 

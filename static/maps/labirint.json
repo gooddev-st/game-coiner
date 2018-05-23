@@ -635,8 +635,64 @@
          "visible":true,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "name":"populations",
+         "objects":[
+                {
+                 "height":278,
+                 "id":176,
+                 "name":"orkPopulation",
+                 "properties":
+                    {
+                     "maxNum":2,
+                     "monster":"ork",
+                     "spawnTime":60
+                    },
+                 "propertytypes":
+                    {
+                     "maxNum":"int",
+                     "monster":"string",
+                     "spawnTime":"float"
+                    },
+                 "rotation":0,
+                 "type":"population",
+                 "visible":true,
+                 "width":712,
+                 "x":248,
+                 "y":2896
+                }, 
+                {
+                 "height":312,
+                 "id":177,
+                 "name":"doc",
+                 "properties":
+                    {
+                     "maxNum":1,
+                     "monster":"doc",
+                     "spawnTime":60
+                    },
+                 "propertytypes":
+                    {
+                     "maxNum":"int",
+                     "monster":"string",
+                     "spawnTime":"float"
+                    },
+                 "rotation":0,
+                 "type":"population",
+                 "visible":true,
+                 "width":220,
+                 "x":1000,
+                 "y":1222
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextobjectid":176,
+ "nextobjectid":178,
  "orientation":"orthogonal",
  "renderorder":"left-up",
  "tiledversion":"1.1.4",

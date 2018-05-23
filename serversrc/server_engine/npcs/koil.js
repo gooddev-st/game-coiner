@@ -25,9 +25,9 @@ const
  * @param room_id
  * @constructor
  */
-function Koil(ID, x, y, room_id) {
+function Koil(ID, x, y, room_id, population_id) {
 
-    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_KOIL);
+    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_KOIL, population_id);
 
     this.width = WIDTH;
     this.height = HEIGHT;

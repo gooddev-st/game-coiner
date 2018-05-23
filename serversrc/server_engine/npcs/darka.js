@@ -23,11 +23,12 @@ const
  * @param x
  * @param y
  * @param room_id
+ * @param population_id
  * @constructor
  */
-function Darka(ID, x, y, room_id) {
+function Darka(ID, x, y, room_id, population_id) {
 
-    Heal.call(this, ID, x, y, room_id, characters.CHARACTER_DARKA);
+    Heal.call(this, ID, x, y, room_id, characters.CHARACTER_DARKA, population_id);
 
     this.width = WIDTH;
     this.height = HEIGHT;

@@ -137,7 +137,7 @@ RandomRoom.prototype.generateNpcs = function (){
         //До максимального количества
         for(let i=0; i<this.populations[character_id].maxNum;i++){
             let pos = this.randomPos(100, 100);
-            this.npcs.add(this.ID, pos.x, pos.y, character_id);
+            this.npcs.add(this.ID, character_id, pos.x, pos.y, character_id);
         }
 
         //Отметим сколько их теперь
@@ -190,7 +190,7 @@ RandomRoom.prototype.genNpcs = function () {
 
                 //Создаем моба
                 let pos = this.randomPos(44, 22),
-                    npc = this.npcs.add(this.ID, pos.x, pos.y, character_id);
+                    npc = this.npcs.add(this.ID, character_id, pos.x, pos.y, character_id);
                 character.num++;
 
                 events.room(this.ID, "room", "npc-create", {info: npc.info()});

@@ -23,9 +23,9 @@ const
  * @param room_id
  * @constructor
  */
-function Gob(ID, x, y, room_id) {
+function Gob(ID, x, y, room_id, population_id) {
 
-    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_GOB);
+    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_GOB, population_id);
 
     this.width = WIDTH;
     this.height = HEIGHT;

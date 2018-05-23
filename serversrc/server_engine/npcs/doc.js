@@ -23,9 +23,9 @@ const
  * @param room_id
  * @constructor
  */
-function Doc(ID, x, y, room_id) {
+function Doc(ID, x, y, room_id, population_id) {
 
-    Heal.call(this, ID, x, y, room_id, characters.CHARACTER_DOC);
+    Heal.call(this, ID, x, y, room_id, characters.CHARACTER_DOC, population_id);
 
     this.fraction = 'human';
 

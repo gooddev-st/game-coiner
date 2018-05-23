@@ -10,6 +10,7 @@ module.exports = LoadedRoom;
 
 const Room = require("./room");
 const events = require('../events.js');
+const collisions = require('../lib/collisions');
 
 require("../constants")();
 
@@ -34,7 +35,7 @@ function LoadedRoom(settings) {
     this.generation_interval = settings.coins_generate_interval || COINS_GENERATE_INTERVAL;
 
     //Популяции мобов
-    this.populations = settings.populations;
+    this.populations = [];//settings.populations;
 }
 
 LoadedRoom.prototype = Object.create(Room.prototype);
@@ -88,6 +89,10 @@ LoadedRoom.prototype.parseMap = function (map) {
         return (it.type==="objectgroup" && it.name==="bariers" && it.objects);
     });
 
+    let populationsLayer = map.layers.find((it, i)=>{
+        return (it.type==="objectgroup" && it.name==="populations" && it.objects);
+    });
+
 
     //Преграды
     if(bariersLayer){
@@ -96,6 +101,28 @@ LoadedRoom.prototype.parseMap = function (map) {
 
             this.bariers.push({left: bar.x, top: bar.y, right: bar.x+bar.width, bottom: bar.y+bar.height});
         }
+    }
+
+
+    //Популяции мобов
+    if(populationsLayer){
+        for(let i in populationsLayer.objects){
+            let population = populationsLayer.objects[i];
+
+            this.populations.push({
+                location: {
+                    left: population.x,
+                    top: population.y,
+                    right: population.x + population.width,
+                    bottom: population.y + population.height
+                },
+                maxNum: population.properties.maxNum || 1,
+                monster: population.properties.monster || 'skeleton',
+                spawnTime: population.properties.spawnTime || 1.0,
+
+            });
+        }
+        // log(this.populations);
     }
 };
 
@@ -144,20 +171,35 @@ LoadedRoom.prototype.info = function(){
 };
 
 
+LoadedRoom.prototype.correctBarPosition = function(bar){
+    //Если внутри препятствия - скорректируем
+    if(this.bariers) {
+        for (let i in this.bariers){
+            if(collisions.touchBar(bar, this.bariers[i])){
+                collisions.correctBarTouch(bar, this.bariers[i]);
+            }
+        }
+    }
 
+    // Если уперлись в границу карты
+    collisions.correctByRoomBorder(bar, this);
+};
 
 
 /**
- * Случайная позиция на карте (с учетом размера спрайта, чтоб не выпирал)
- * @param width - ширина размещаемого спрайта
- * @param height - высота размещаемого спрайта
- * @returns {{x: *, y: *}}
+ * Выталкиваем лут с барьеров и из-за границ комнаты
+ * @param pos
+ * @param width
+ * @param height
  */
-LoadedRoom.prototype.randomPos = function(width, height){
-    return {
-        x: this.dead_zone_left + Math.random() * (this.width - this.dead_zone_left - this.dead_zone_right - width),
-        y: this.dead_zone_top + Math.random() * (this.height - this.dead_zone_top - this.dead_zone_bottom - height),
-    }
+LoadedRoom.prototype.correctPosition = function(pos, width, height){
+
+    let bar = {x: pos.x, y: pos.y, width: width, height: height};
+
+    this.correctBarPosition(bar);
+
+    pos.x = bar.x;
+    pos.y = bar.y;
 };
 
 
@@ -166,13 +208,14 @@ LoadedRoom.prototype.randomLoot = function(num, width, height){
 
     let lootWidth = width==undefined ? 44 : width,
         lootHeight = height==undefined ? 22 : height,
-        content, pos;
+        content, pos, bar;
 
     for(let i = 0; i<num; i++){
         content = 1 + Math.floor(Math.random()*5);//Случайная стоимость от 1 до 5
         pos = this.randomPos(lootWidth, lootHeight);
 
-        //TODO: выталкивать лут с барьеров
+        //Выталкиваем лут с барьеров и из-за границ комнаты
+        this.correctPosition(pos, lootWidth, lootHeight);
 
         this.loot.add('coin', this.ID, pos.x, pos.y, content);
     }
@@ -194,19 +237,25 @@ LoadedRoom.prototype.generateNpcs = function (){
 
     if(!this.populations) return;
 
-    //Все виды мобов
-    for(let character_id in this.populations){
+    let character_id;
+
+    for(let k = 0; k < this.populations.length;k++){
 
         //До максимального количества
-        for(let i=0; i<this.populations[character_id].maxNum;i++){
-            let pos = this.randomPos(100, 100);
-            this.npcs.add(this.ID, pos.x, pos.y, character_id);
+        for(let i=0; i<this.populations[k].maxNum;i++){
+            let pos = this.randomPos(100, 100, this.populations[k].location);
+
+            this.correctPosition(pos, 100, 100);
+
+            character_id = this.populations[k].monster || 'skeleton';
+
+            this.npcs.add(this.ID, k, pos.x, pos.y, character_id);
         }
 
         //Отметим сколько их теперь
-        this.populations[character_id].num = this.populations[character_id].maxNum;
+        this.populations[k].num = this.populations[k].maxNum;
         //Инитим таймер рождений
-        this.populations[character_id].faza = this.populations[character_id].maxNum;
+        this.populations[k].faza = 0.0;
     }
 };
 
@@ -239,6 +288,8 @@ LoadedRoom.prototype.genCoins = function () {
             let content = 1 + Math.floor(Math.random()*5),
                 pos = this.randomPos(44, 22);
 
+            this.correctPosition(pos, 44, 22);
+
             let coin = this.loot.add('coin', this.ID, pos.x, pos.y, content);
 
             events.room(this.ID, "room", "loot-create", {info: coin.info()});
@@ -252,28 +303,33 @@ LoadedRoom.prototype.genCoins = function () {
 LoadedRoom.prototype.genNpcs = function () {
     if(!this.populations) return;
 
-    if(Object.keys(this.populations).length===0) return;
+    if(this.populations.length===0) return;
 
     //Для каждого типа
-    for(let character_id in this.populations) {
+    for(let k = 0; k < this.populations.length; k++) {
 
-        let character = this.populations[character_id];
+        let population = this.populations[k];
 
         //По игровому таймеру. Предполагается, что не больше одного за тик
-        if (character.faza > character.interval) {
-            character.faza -= character.interval;
+        if (population.faza > population.spawnTime) {
+            population.faza -= population.spawnTime;
 
             //Если не превышен лимит
-            if (character.num < character.maxNum) {
+            if (population.num < population.maxNum) {
 
                 //Создаем моба
-                let pos = this.randomPos(44, 22),
-                    npc = this.npcs.add(this.ID, pos.x, pos.y, character_id);
-                character.num++;
+                let pos = this.randomPos(44, 44, population.location);
+
+                this.correctPosition(pos, 44, 44);
+
+                let character_id = population.monster;
+
+                let npc = this.npcs.add(this.ID, k, pos.x, pos.y, character_id);
+                population.num++;
 
                 events.room(this.ID, "room", "npc-create", {info: npc.info()});
             }
         }
-        character.faza += STEP;
+        population.faza += STEP;
     }
 };

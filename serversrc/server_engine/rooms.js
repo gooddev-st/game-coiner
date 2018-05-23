@@ -239,13 +239,9 @@ const roomsSettings = [
 
         file: 'glade.json',
 
-        coins_num: 100,
-        coins_max_limit: 100,
+        coins_num: 10,
+        coins_max_limit: 10,
         coins_generate_interval: 0.3,
-
-        populations: {
-            'skeleton': {maxNum:15, interval: 60.0},
-        },
     },
 
     {
@@ -256,7 +252,7 @@ const roomsSettings = [
 
         coins_num: 100,
         coins_max_limit: 100,
-        coins_generate_interval: 0.3,
+        coins_generate_interval: 0.4,
     },
 
     {

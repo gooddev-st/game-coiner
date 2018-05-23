@@ -24,9 +24,9 @@ const
  * @param room_id
  * @constructor
  */
-function Pirat(ID, x, y, room_id) {
+function Pirat(ID, x, y, room_id, population_id) {
 
-    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_PIRAT);
+    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_PIRAT, population_id);
 
     this.width = WIDTH;
     this.height = HEIGHT;

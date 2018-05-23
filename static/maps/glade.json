@@ -1425,8 +1425,41 @@
          "visible":true,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "name":"populations",
+         "objects":[
+                {
+                 "height":664,
+                 "id":344,
+                 "name":"goblinsPlace",
+                 "properties":
+                    {
+                     "maxNum":3,
+                     "monster":"gob",
+                     "spawnTime":1
+                    },
+                 "propertytypes":
+                    {
+                     "maxNum":"int",
+                     "monster":"string",
+                     "spawnTime":"float"
+                    },
+                 "rotation":0,
+                 "type":"population",
+                 "visible":true,
+                 "width":738,
+                 "x":1162,
+                 "y":1224
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextobjectid":343,
+ "nextobjectid":345,
  "orientation":"orthogonal",
  "renderorder":"left-up",
  "tiledversion":"1.1.4",

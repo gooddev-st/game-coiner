@@ -24,9 +24,9 @@ const
  * @param room_id
  * @constructor
  */
-function Kroko(ID, x, y, room_id) {
+function Kroko(ID, x, y, room_id, population_id) {
 
-    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_KROKO);
+    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_KROKO, population_id);
 
     this.width = WIDTH;
     this.height = HEIGHT;

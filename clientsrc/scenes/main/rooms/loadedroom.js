@@ -211,8 +211,8 @@ export default class {
                             new EntityTiled(this.imageManager, this.tiles.get(obj.gid), x, y)
                         );
                     }
-                    //Кроме преград
-                    else if(it.name!=='bariers') {
+                    //Кроме преград и популяций
+                    else if(it.name!=='bariers' && it.name!=='populations') {
                         this.objects.push({tileGid: obj.gid, x: x, y: y});
                     }
                 }

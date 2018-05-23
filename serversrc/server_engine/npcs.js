@@ -37,58 +37,58 @@ function NpcsList() {
 }
 
 
-NpcsList.prototype.add = function (room_id, x, y, npc_id) {
+NpcsList.prototype.add = function (room_id, population_id, x, y, npc_id) {
 
 
     let ID = getName();
 
     switch(npc_id){
         case "pirat":
-            this.npcs[ID] = new Pirat(ID, x, y, room_id);
+            this.npcs[ID] = new Pirat(ID, x, y, room_id, population_id);
             break;
         case "elf":
-            this.npcs[ID] = new Elf(ID, x, y, room_id);
+            this.npcs[ID] = new Elf(ID, x, y, room_id, population_id);
             break;
         case "ork":
-            this.npcs[ID] = new Ork(ID, x, y, room_id);
+            this.npcs[ID] = new Ork(ID, x, y, room_id, population_id);
             break;
         case "darka":
-            this.npcs[ID] = new Darka(ID, x, y, room_id);
+            this.npcs[ID] = new Darka(ID, x, y, room_id, population_id);
             break;
         case "juk":
-            this.npcs[ID] = new Juk(ID, x, y, room_id);
+            this.npcs[ID] = new Juk(ID, x, y, room_id, population_id);
             break;
         case "gunner":
-            this.npcs[ID] = new Gunner(ID, x, y, room_id);
+            this.npcs[ID] = new Gunner(ID, x, y, room_id, population_id);
             break;
         case "koil":
-            this.npcs[ID] = new Koil(ID, x, y, room_id);
+            this.npcs[ID] = new Koil(ID, x, y, room_id, population_id);
             break;
         case "kroko":
-            this.npcs[ID] = new Kroko(ID, x, y, room_id);
+            this.npcs[ID] = new Kroko(ID, x, y, room_id, population_id);
             break;
         case "skeleton":
-            this.npcs[ID] = new Skeleton(ID, x, y, room_id);
+            this.npcs[ID] = new Skeleton(ID, x, y, room_id, population_id);
             break;
         case "mag":
-            this.npcs[ID] = new Mag(ID, x, y, room_id);
+            this.npcs[ID] = new Mag(ID, x, y, room_id, population_id);
             break;
         case "doc":
-            this.npcs[ID] = new Doc(ID, x, y, room_id);
+            this.npcs[ID] = new Doc(ID, x, y, room_id, population_id);
             break;
         case "dead":
-            this.npcs[ID] = new Dead(ID, x, y, room_id);
+            this.npcs[ID] = new Dead(ID, x, y, room_id, population_id);
             break;
         case "prof":
-            this.npcs[ID] = new Prof(ID, x, y, room_id);
+            this.npcs[ID] = new Prof(ID, x, y, room_id, population_id);
             break;
         case "gob":
-            this.npcs[ID] = new Gob(ID, x, y, room_id);
+            this.npcs[ID] = new Gob(ID, x, y, room_id, population_id);
             break;
         default:
             //TODO: убрать. Создавать только по типу
             //character_id === npc_id
-            this.npcs[ID] = new Npc(ID, x, y, room_id, npc_id);
+            this.npcs[ID] = new Npc(ID, x, y, room_id, npc_id, population_id);
             break;
     }
 

@@ -24,9 +24,9 @@ const
  * @param room_id
  * @constructor
  */
-function Elf(ID, x, y, room_id) {
+function Elf(ID, x, y, room_id, population_id) {
 
-    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_ELF);
+    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_ELF, population_id);
 
     this.width = WIDTH;
     this.height = HEIGHT;

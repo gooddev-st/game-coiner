@@ -26,9 +26,9 @@ const
  * @param speed
  * @constructor
  */
-function Dead(ID, x, y, room_id) {
+function Dead(ID, x, y, room_id, population_id) {
 
-    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_DEAD);
+    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_DEAD, population_id);
 
     this.width = WIDTH;
     this.height = HEIGHT;

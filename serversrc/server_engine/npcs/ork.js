@@ -24,9 +24,9 @@ const
  * @param room_id
  * @constructor
  */
-function Ork(ID, x, y, room_id) {
+function Ork(ID, x, y, room_id, population_id) {
 
-    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_ORK);
+    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_ORK, population_id);
 
     this.width = WIDTH;
     this.height = HEIGHT;

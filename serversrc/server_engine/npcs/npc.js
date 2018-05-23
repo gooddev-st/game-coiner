@@ -63,9 +63,10 @@ function getRandomCharacter(possible_characters) {
  * @param y
  * @param room_id
  * @param character_id
+ * @param population_id
  * @constructor
  */
-function Npc(ID, x, y, room_id, character_id) {
+function Npc(ID, x, y, room_id, character_id, population_id) {
 
     this.ID = ID;
     this.type = 'npc';
@@ -75,6 +76,10 @@ function Npc(ID, x, y, room_id, character_id) {
 
     this.x = x;
     this.y = y;
+
+    if(population_id!=undefined){
+        this.population_id = population_id;
+    }
 
     if(character_id){
 

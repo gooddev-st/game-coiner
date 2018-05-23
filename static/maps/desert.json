@@ -171,8 +171,64 @@
          "visible":true,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "name":"populations",
+         "objects":[
+                {
+                 "height":864,
+                 "id":21,
+                 "name":"kroko",
+                 "properties":
+                    {
+                     "maxNum":4,
+                     "monster":"kroko",
+                     "spawnTime":1
+                    },
+                 "propertytypes":
+                    {
+                     "maxNum":"int",
+                     "monster":"string",
+                     "spawnTime":"float"
+                    },
+                 "rotation":0,
+                 "type":"population",
+                 "visible":true,
+                 "width":922,
+                 "x":1600,
+                 "y":24
+                }, 
+                {
+                 "height":864,
+                 "id":22,
+                 "name":"koil",
+                 "properties":
+                    {
+                     "maxNum":4,
+                     "monster":"koil",
+                     "spawnTime":1
+                    },
+                 "propertytypes":
+                    {
+                     "maxNum":"int",
+                     "monster":"string",
+                     "spawnTime":"float"
+                    },
+                 "rotation":0,
+                 "type":"population",
+                 "visible":true,
+                 "width":922,
+                 "x":1576,
+                 "y":40
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextobjectid":17,
+ "nextobjectid":23,
  "orientation":"orthogonal",
  "renderorder":"left-up",
  "tiledversion":"1.1.4",

@@ -26,9 +26,9 @@ const
  * @param character_id
  * @constructor
  */
-function Heal(ID, x, y, room_id, character_id) {
+function Heal(ID, x, y, room_id, character_id, population_id) {
 
-    Npc.call(this, ID, x, y, room_id, character_id || characters.CHARACTER_DOC);
+    Npc.call(this, ID, x, y, room_id, character_id || characters.CHARACTER_DOC, population_id);
 
     this.width = WIDTH;
     this.height = HEIGHT;

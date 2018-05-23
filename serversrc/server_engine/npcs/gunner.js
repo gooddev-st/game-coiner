@@ -23,9 +23,9 @@ const
  * @param room_id
  * @constructor
  */
-function Gunner(ID, x, y, room_id) {
+function Gunner(ID, x, y, room_id, population_id) {
 
-    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_GUNNER);
+    Npc.call(this, ID, x, y, room_id, characters.CHARACTER_GUNNER, population_id);
 
     this.width = WIDTH;
     this.height = HEIGHT;

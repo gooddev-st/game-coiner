@@ -3,6 +3,7 @@ module.exports = Room;
 const characters = require("../characters.js");
 const Cartoon = require("../cartoon.js");
 const Teleport = require("../teleport.js");
+const log = require('../log');
 const events = require('../events.js');
 const LootList = require('../loot.js');
 const NpcsList = require('../npcs');
@@ -44,12 +45,21 @@ Room.prototype.initialize = function(){
  * Случайная позиция на карте (с учетом размера спрайта, чтоб не выпирал)
  * @param width - ширина размещаемого спрайта
  * @param height - высота размещаемого спрайта
+ * @param location
  * @returns {{x: *, y: *}}
  */
-Room.prototype.randomPos = function(width, height){
+Room.prototype.randomPos = function(width, height, location){
+
+    let _location = location || {
+        left: this.dead_zone_left,
+        right: (this.width - this.dead_zone_right - width),
+        top: this.dead_zone_top + height,
+        bottom: (this.height - this.dead_zone_bottom)
+    };
+
     return {
-        x: this.dead_zone_left + Math.random() * (this.width - this.dead_zone_left - this.dead_zone_right - width),
-        y: this.dead_zone_top + Math.random() * (this.height - this.dead_zone_top - this.dead_zone_bottom - height),
+        x: _location.left + Math.random() * (_location.right - _location.left),
+        y: _location.top + Math.random() * (_location.bottom - _location.top),
     }
 };
 
@@ -161,11 +171,12 @@ Room.prototype.cleanUp = function () {
     });
 
     //Удаляем "мертвых" мобов
+
     this.npcs.each((i, it)=>{
         if(it.isDie()){
             it.onDie();
             this.npcs.remove(i);
-            this.populations[it.character_id].num--;
+            this.populations[it.population_id].num--;
 
             events.room(this.ID, "room", "npc-remove", {info: it.info()});
 

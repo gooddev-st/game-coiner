@@ -25,9 +25,9 @@ const
  * @param speed
  * @constructor
  */
-function Prof(ID, x, y, room_id) {
+function Prof(ID, x, y, room_id, population_id) {
 
-    Heal.call(this, ID, x, y, room_id, characters.CHARACTER_MAN);
+    Heal.call(this, ID, x, y, room_id, characters.CHARACTER_MAN, population_id);
 
     this.fraction = 'human';
 
