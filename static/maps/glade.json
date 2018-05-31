@@ -1452,6 +1452,29 @@
                  "width":738,
                  "x":1162,
                  "y":1224
+                }, 
+                {
+                 "height":694,
+                 "id":345,
+                 "name":"piratBey",
+                 "properties":
+                    {
+                     "maxNum":40,
+                     "monster":"pirat",
+                     "spawnTime":1
+                    },
+                 "propertytypes":
+                    {
+                     "maxNum":"int",
+                     "monster":"string",
+                     "spawnTime":"float"
+                    },
+                 "rotation":0,
+                 "type":"population",
+                 "visible":true,
+                 "width":558,
+                 "x":8,
+                 "y":770
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1459,7 +1482,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":345,
+ "nextobjectid":346,
  "orientation":"orthogonal",
  "renderorder":"left-up",
  "tiledversion":"1.1.4",

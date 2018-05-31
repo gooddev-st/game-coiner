@@ -961,7 +961,7 @@ Player.prototype.calculatePath = function (pos) {
             }
         }
 
-        log(path);
+        // log(path);
 
         let posPath = [];
 

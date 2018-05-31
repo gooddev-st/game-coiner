@@ -492,18 +492,16 @@ Npc.prototype.targetNpc = function() {
 };
 
 /**
- * Шаримся
- * @param room
+ * Шаримся (гуляем по локации)
  * @returns {{x: *, y: *}}
  */
 Npc.prototype.targetRandom = function () {
 
     const room = rooms.get(this.room_id);
 
-    return {
-        x: room.dead_zone_left + Math.random()*(room.width - room.dead_zone_left - room.dead_zone_right-this.width),
-        y: room.dead_zone_top + Math.random()*(room.height - room.dead_zone_top - room.dead_zone_bottom-this.height)
-    };
+    let location = room.populations[this.population_id].location;
+
+    return room.randomPos(this.width, this.height, location);
 };
 
 
