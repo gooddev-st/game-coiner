@@ -217,24 +217,26 @@
             return false;
         });
 
-        $(document).keyup(function (e) {
+        var $doc = $(document);
+
+        $doc.keyup(function (e) {
             if (e.keyCode == 19 || e.keyCode == 192) {//Pause или тильда
                 $('body').toggleClass('consoled');
             }
         });
-        $(document).keydown(function (e) {
+        $doc.keydown(function (e) {
             $game_title.addClass('hidden');
             resetTimeout()
         });
-        $(document).click(function (e) {
+        $doc.click(function (e) {
             $game_title.addClass('hidden');
             resetTimeout()
         });
-        $(document).mousemove(function (e) {
+        $doc.mousemove(function (e) {
             $game_title.addClass('hidden');
             resetTimeout()
         });
-        $(document).on('touchmove', function (e) {
+        $doc.on('touchmove', function (e) {
             $game_title.addClass('hidden');
             resetTimeout()
         });
