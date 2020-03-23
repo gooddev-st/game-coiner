@@ -225,8 +225,6 @@ Npc.prototype.hit = function (hitPoints) {
 
 /**
  * Движение игрока по контроллеру в комнате
- * @param room
- * @param step
  */
 Npc.prototype.update = function () {
 

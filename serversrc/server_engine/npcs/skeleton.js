@@ -28,6 +28,8 @@ function Skeleton(ID, x, y, room_id, population_id) {
 
     Npc.call(this, ID, x, y, room_id, characters.CHARACTER_SKELETON, population_id);
 
+    this.fraction = 'dead';
+
     this.width = WIDTH;
     this.height = HEIGHT;
     this.initSpeed(SPEED, ATTACK_SPEED);

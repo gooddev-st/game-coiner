@@ -137,8 +137,12 @@ function on(eventName, callback) {
 }
 
 function off(eventName, handler) {
-    if(eventName in handlers && handlers[eventName]===handler){
-        delete handlers[eventName];
+    if(eventName in handlers){
+        if(Array.isArray(handlers[eventName])) {
+            handlers[eventName] = handlers[eventName].filter((value)=>{
+                return value!==handler;
+            });
+        }
     }
 
     serverSocket.off(eventName, handler);

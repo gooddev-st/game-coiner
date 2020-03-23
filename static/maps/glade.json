@@ -1459,7 +1459,7 @@
                  "name":"piratBey",
                  "properties":
                     {
-                     "maxNum":40,
+                     "maxNum":4,
                      "monster":"pirat",
                      "spawnTime":1
                     },

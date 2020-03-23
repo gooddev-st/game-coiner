@@ -112,7 +112,7 @@ LootList.prototype.nearest = function(room_id, x, y, conditionFunc, self) {
 
     let distances = [];
 
-    // Соберем в массив всех подходящих мобов в этой комнате
+    // Соберем в массив весь подходящий лут в этой комнате
     this.each((ID, item)=>{
         if(
             item.room_id===room_id &&

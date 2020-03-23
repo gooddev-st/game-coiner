@@ -22,13 +22,14 @@ const
  * @param x
  * @param y
  * @param room_id
- * @param character_id - персонаж или массив возможных персонажей
- * @param speed
+ * @param population_id
  * @constructor
  */
 function Dead(ID, x, y, room_id, population_id) {
 
     Npc.call(this, ID, x, y, room_id, characters.CHARACTER_DEAD, population_id);
+
+    this.fraction = 'dead';
 
     this.width = WIDTH;
     this.height = HEIGHT;

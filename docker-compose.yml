@@ -8,7 +8,7 @@ services:
         volumes:
             - ./static:/usr/share/nginx/html
         environment:
-            VIRTUAL_HOST: games.q-dev.ru
+            VIRTUAL_HOST: games.q-dev.ru,games.good-dev.ru,games.gd-home.ru
             TZ: Europe/Moscow
             HTTPS_METHOD: nohttps
         expose:
@@ -24,7 +24,7 @@ services:
             - ./serversrc:/home/node/app/server
             - ./static:/home/node/app/static
         environment:
-            VIRTUAL_HOST: server.games.q-dev.ru
+            VIRTUAL_HOST: server.games.q-dev.ru,server.games.good-dev.ru,server.games.gd-home.ru
             TZ: Europe/Moscow
             HTTPS_METHOD: nohttps
             NODE_ENV: production
