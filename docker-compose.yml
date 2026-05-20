@@ -8,7 +8,7 @@ services:
         volumes:
             - ./static:/usr/share/nginx/html
         environment:
-            VIRTUAL_HOST: games.q-dev.ru,games.good-dev.ru,games.gd-home.ru
+            VIRTUAL_HOST: ${CLIENT_HOSTS}
             TZ: Europe/Moscow
             HTTPS_METHOD: nohttps
         expose:
@@ -24,14 +24,14 @@ services:
             - ./serversrc:/home/node/app/server
             - ./static:/home/node/app/static
         environment:
-            VIRTUAL_HOST: server.games.q-dev.ru,server.games.good-dev.ru,server.games.gd-home.ru
+            VIRTUAL_HOST: ${SERVER_HOST}
             TZ: Europe/Moscow
             HTTPS_METHOD: nohttps
             NODE_ENV: production
-            MYSQL_HOST: game-db
-            MYSQL_DATABASE: games
-            MYSQL_USER: games
-            MYSQL_PASSWORD: BYYdHfX36W9yBFyM
+            MYSQL_HOST: game-db #${MYSQL_HOST}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
         expose:
              - "3000"
         command: "nodemon server.js"
@@ -42,7 +42,7 @@ services:
         expose:
             - "3306"
         ports:
-            - "3326:3306"
+            - "3336:3306"
         environment:
             MYSQL_ROOT_PASSWORD: 9B9TWa1sw29lF4cf
             MYSQL_DATABASE: games
