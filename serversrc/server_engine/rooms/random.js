@@ -40,6 +40,10 @@ RandomRoom.prototype.initialize = function () {
     //Фиксированые
     this.addTeleport(50, 100, null, {room_id: 'glade', x: 400, y: 400}, 'normal');
     this.addTeleport(150, 100, null, {room_id: 'labirint', x: 400, y: 400}, 'normal');
+
+    if (this.ID === 'start') {
+        this.addTeleport(250, 100, null, {room_id: 'maze', x: 100, y: 220}, 'normal');
+    }
 };
 
 /**

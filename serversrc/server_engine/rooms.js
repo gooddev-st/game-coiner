@@ -265,6 +265,18 @@ const roomsSettings = [
         coins_max_limit: 100,
         coins_generate_interval: 0.4,
     },
+
+    {
+        ID: 'maze',
+        type: 'loaded',
+
+        // Сгенерирована tools/generate-maze.js
+        file: 'maze.json',
+
+        coins_num: 50,
+        coins_max_limit: 50,
+        coins_generate_interval: 0.5,
+    },
 ];
 
 const rooms = {};
