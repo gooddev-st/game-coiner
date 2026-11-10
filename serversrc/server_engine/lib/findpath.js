@@ -240,86 +240,120 @@ function touchBorders(box, roomLeft, roomTop, roomRight, roomBottom) {
 
 
 function distance(a, b) {
-    return Math.floor(Math.sqrt((b.x-a.x)*(b.x-a.x)+(b.y-a.y)*(b.y-a.y)));
+    return Math.sqrt((b.x-a.x)*(b.x-a.x)+(b.y-a.y)*(b.y-a.y));
 }
 
 
-
-function PriorityQueue () {
-    this._nodes = [];
-
-    this.enqueue = function (priority, key) {
-        this._nodes.push({key: key, priority: priority });
-        this.sort();
-    };
-    this.dequeue = function () {
-        return this._nodes.shift().key;
-    };
-    this.sort = function () {
-        this._nodes.sort(function (a, b) {
-            return a.priority - b.priority;
-        });
-    };
-    this.isEmpty = function () {
-        return !this._nodes.length;
-    };
+/**
+ * Двоичная куча: извлекает элемент с наименьшим приоритетом
+ */
+function MinHeap() {
+    this.items = [];
 }
+
+MinHeap.prototype.size = function () {
+    return this.items.length;
+};
+
+MinHeap.prototype.push = function (priority, key) {
+    const items = this.items;
+    let i = items.length;
+
+    items.push({priority, key});
+
+    while (i > 0) {
+        const parent = (i - 1) >> 1;
+
+        if (items[parent].priority <= items[i].priority) break;
+
+        [items[parent], items[i]] = [items[i], items[parent]];
+        i = parent;
+    }
+};
+
+MinHeap.prototype.pop = function () {
+    const items = this.items,
+        top = items[0],
+        last = items.pop();
+
+    if (items.length) {
+        items[0] = last;
+
+        let i = 0;
+
+        for (;;) {
+            const left = 2 * i + 1,
+                right = left + 1;
+            let smallest = i;
+
+            if (left < items.length && items[left].priority < items[smallest].priority) smallest = left;
+            if (right < items.length && items[right].priority < items[smallest].priority) smallest = right;
+            if (smallest === i) break;
+
+            [items[smallest], items[i]] = [items[i], items[smallest]];
+            i = smallest;
+        }
+    }
+
+    return top;
+};
 
 
 function Graph(){
-    var INFINITY = 1/0;
     this.vertices = {};
 
+    /**
+     * Поиск A* с эвклидовой эвристикой
+     * @returns {Array} id вершин от finish к start без start, пустой - если пути нет
+     */
     this.shortestPath = function (start, finish) {
-        var nodes = new PriorityQueue(),
-            distances = {},
+        const vertices = this.vertices,
+            goal = vertices[finish],
+            open = new MinHeap(),
+            costs = {[start]: 0},
             previous = {},
-            path = [],
-            smallest, vertex, neighbor, alt;
+            closed = {};
 
-        for(vertex in this.vertices) {
-            if(vertex === start) {
-                distances[vertex] = 0;
-                nodes.enqueue(0, vertex);
-            }
-            else {
-                distances[vertex] = INFINITY;
-                nodes.enqueue(INFINITY, vertex);
-            }
-
-            previous[vertex] = null;
+        if (!vertices[start] || !goal) {
+            return [];
         }
 
-        while(!nodes.isEmpty()) {
-            smallest = nodes.dequeue();
+        open.push(distance(vertices[start], goal), start);
 
-            if(smallest === finish) {
-                path = [];
+        while (open.size()) {
+            let current = open.pop().key;
 
-                while(previous[smallest]) {
-                    path.push(smallest);
-                    smallest = previous[smallest];
+            // В куче могут остаться устаревшие записи вершины
+            if (closed[current]) continue;
+
+            if (current === finish) {
+                const path = [];
+
+                while (current !== start) {
+                    path.push(current);
+                    current = previous[current];
                 }
 
-                break;
+                return path;
             }
 
-            if(!smallest || distances[smallest] === INFINITY){
-                continue;
-            }
+            closed[current] = true;
 
-            for(neighbor in this.vertices[smallest].neighbors) {
-                alt = distances[smallest] + this.vertices[smallest].neighbors[neighbor];
+            const neighbors = vertices[current].neighbors;
 
-                if(alt < distances[neighbor]) {
-                    distances[neighbor] = alt;
-                    previous[neighbor] = smallest;
+            for (let id in neighbors) {
+                if (closed[id]) continue;
 
-                    nodes.enqueue(alt, neighbor);
+                const cost = costs[current] + neighbors[id];
+
+                if (costs[id] === undefined || cost < costs[id]) {
+                    costs[id] = cost;
+                    previous[id] = current;
+                    open.push(cost + distance(vertices[id], goal), id);
                 }
             }
         }
 
-        return path;
+        return [];
     };
 }
