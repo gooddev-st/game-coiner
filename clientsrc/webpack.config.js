@@ -21,7 +21,7 @@ module.exports = {
         ],
     },
     devtool: "#inline-sourcemap",
-    watch: true,
+    watch: process.env.WEBPACK_WATCH !== "0",
     mode: "development"
     // mode: "production"
 }

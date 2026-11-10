@@ -1,0 +1,16 @@
+server {
+    listen       80;
+    server_name  localhost;
+    root         /usr/share/nginx/html;
+
+    location / {
+        index  index.html index.htm;
+    }
+
+    # Адрес игрового сервера для клиента берётся из окружения контейнера
+    location = /config.js {
+        default_type application/javascript;
+        add_header Cache-Control "no-store";
+        return 200 'window.GAME_SERVER_URL = "${GAME_SERVER_URL}";\n';
+    }
+}

@@ -7,8 +7,10 @@ services:
         container_name: static-web
         volumes:
             - ./static:/usr/share/nginx/html
+            - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
         environment:
             VIRTUAL_HOST: ${CLIENT_HOSTS}
+            GAME_SERVER_URL: ${GAME_SERVER_URL:-http://${SERVER_HOST}}
             TZ: Europe/Moscow
             HTTPS_METHOD: nohttps
         expose:

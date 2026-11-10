@@ -25,7 +25,7 @@ function init(callback) {
 
     //Подключимся к серверу
     if(!serverSocket) {
-        serverSocket = io("http://server.games.q-dev.ru");
+        serverSocket = io(window.GAME_SERVER_URL || "http://server.games.q-dev.ru");
     }
 
     log('Подключаемся к серверу');

@@ -1,0 +1,52 @@
+# Локальный запуск: docker compose -f docker-compose.local.yml up -d
+name: game-coiner-local
+
+services:
+
+    static-web:
+        image: nginx:alpine
+        volumes:
+            - ./static:/usr/share/nginx/html:ro
+            - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+        environment:
+            GAME_SERVER_URL: ${GAME_SERVER_URL:-http://localhost:3000}
+        ports:
+            - "8090:80"
+
+    game-server:
+        image: node:14-alpine
+        working_dir: /home/node/app/server
+        volumes:
+            - ./serversrc:/home/node/app/server
+            - ./static:/home/node/app/static
+        environment:
+            MYSQL_HOST: game-db
+            MYSQL_DATABASE: games
+            MYSQL_USER: games
+            MYSQL_PASSWORD: games
+        ports:
+            - "3000:3000"
+        command: sh -c "npm ci && node server.js"
+        depends_on:
+            game-db:
+                condition: service_healthy
+
+    game-db:
+        image: mariadb:10.6
+        environment:
+            MARIADB_ROOT_PASSWORD: root
+            MARIADB_DATABASE: games
+            MARIADB_USER: games
+            MARIADB_PASSWORD: games
+        ports:
+            - "3336:3306"
+        volumes:
+            - ./local/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+            - db-data:/var/lib/mysql
+        healthcheck:
+            test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+            interval: 5s
+            retries: 20
+
+volumes:
+    db-data:
