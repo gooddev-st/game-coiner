@@ -28,7 +28,9 @@ const
     NPC_HEIGHT = 44.0,
     NPC_SPEED = 100,
     VIEW_DISTANCE = 250,
-    ATTACK_DISTANCE = 50;
+    ATTACK_DISTANCE = 50,
+    PATH_REPLAN_DISTANCE = 30, // смещение цели, после которого путь пересчитывается
+    PATH_REPLAN_INTERVAL = 0.3; // в секундах, минимальная пауза между пересчетами
 
 
 /**
@@ -115,6 +117,11 @@ function Npc(ID, x, y, room_id, character_id, population_id) {
     this.changed = true;
 
     this.target = null; //Позиция куда идет
+
+    this.path = []; //Точки пути к цели в обход препятствий
+    this.pathGoal = null; //Цель, для которой рассчитан путь
+    this.pathRoomId = null;
+    this.pathAge = Math.random() * PATH_REPLAN_INTERVAL; //Случайная фаза, чтобы мобы не пересчитывали пути в один тик
 
     this.targetOfAttack = null; //Позиция куда идет
 
@@ -669,9 +676,9 @@ Npc.prototype.setDirection = function() {
     if(this.targetOfAttack) {
         target = {x: this.targetOfAttack.x, y: this.targetOfAttack.y}
     }
-    //иначе если есть - к цели движения
+    //иначе если есть - к ближайшей точке пути или цели движения
     else if(this.target){
-        target = {x: this.target.x, y: this.target.y}
+        target = this.path.length ? this.path[0] : this.target;
     }
     else{
         return;
@@ -739,35 +746,80 @@ Npc.prototype.setState = function() {
  * Движем юнит
  */
 Npc.prototype.move = function() {
-    // если есть цель
-    if (this.target) {
-
-        //Если закончили движение - сбросим цель
-        if(
-            this.x === this.target.x &&
-            this.y === this.target.y
-        ){
-            this.target = null;
-        }
-
-        //иначе движемся
-        else{
-            let target = this.target,
-                increment = this.speed * STEP,
-                x = target.x - this.x,
-                y = target.y - this.y,
-                l = Math.sqrt(x * x + y * y),
-                x_increment = increment * x / l,
-                y_increment = increment * y / l;
-
-            if(Math.abs(x_increment) > Math.abs(x)) x_increment = x;
-            if(Math.abs(y_increment) > Math.abs(y)) y_increment = y;
-
-            this.x += x_increment;
-            this.y += y_increment;
-        }
-
+    if (!this.target) {
+        this.resetPath();
+        return;
     }
+
+    this.updatePath();
+
+    // Пути нет - стоим, пересчитаем позже
+    if (!this.path.length) {
+        this.target = null;
+        return;
+    }
+
+    // Проходим весь шаг, даже если по дороге миновали точку пути
+    let rest = this.speed * STEP;
+
+    while (rest > 0 && this.path.length) {
+        const point = this.path[0],
+            x = point.x - this.x,
+            y = point.y - this.y,
+            l = Math.sqrt(x * x + y * y);
+
+        if (l <= rest) {
+            this.x = point.x;
+            this.y = point.y;
+            this.path.shift();
+            rest -= l;
+        }
+        else {
+            this.x += rest * x / l;
+            this.y += rest * y / l;
+            rest = 0;
+        }
+    }
+
+    //Дошли до цели - сбросим её
+    if (!this.path.length) {
+        this.target = null;
+        this.resetPath();
+    }
+};
+
+
+/**
+ * Пересчет пути к цели, если она заметно сместилась
+ */
+Npc.prototype.updatePath = function () {
+    const target = this.target,
+        goal = this.pathGoal,
+        shift = goal ? Math.hypot(target.x - goal.x, target.y - goal.y) : Infinity;
+
+    this.pathAge += STEP;
+
+    const needReplan = !goal ||
+        this.pathRoomId !== this.room_id ||
+        (shift > PATH_REPLAN_DISTANCE && this.pathAge >= PATH_REPLAN_INTERVAL);
+
+    if (needReplan) {
+        const room = rooms.get(this.room_id);
+
+        this.path = findpath.findPath(room, {x: this.x, y: this.y}, {x: target.x, y: target.y}, this.width, this.height);
+        this.pathGoal = {x: target.x, y: target.y};
+        this.pathRoomId = this.room_id;
+        this.pathAge -= PATH_REPLAN_INTERVAL * Math.floor(this.pathAge / PATH_REPLAN_INTERVAL);
+    }
+    else if (shift > 0 && this.path.length) {
+        this.path[this.path.length - 1] = {x: target.x, y: target.y};
+    }
+};
+
+
+Npc.prototype.resetPath = function () {
+    this.path = [];
+    this.pathGoal = null;
 };
 
 
