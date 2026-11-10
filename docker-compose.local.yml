@@ -14,7 +14,7 @@ services:
             - "8090:80"
 
     game-server:
-        image: node:14-alpine
+        image: node:26-alpine
         working_dir: /home/node/app/server
         volumes:
             - ./serversrc:/home/node/app/server

@@ -1,10 +1,10 @@
-var path = require("path");
+const path = require("path");
 
 module.exports = {
 
     context: __dirname,
     entry: './index',
-    output:{
+    output: {
         path: path.resolve(__dirname, '../static/js'),
         filename: 'client.js'
     },
@@ -12,16 +12,16 @@ module.exports = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /(node_modules|bower_components)/,
+                exclude: /node_modules/,
                 loader: 'babel-loader',
-                query: {
-                    presets: ['es2015']
+                options: {
+                    presets: ['@babel/preset-env']
                 }
             }
         ],
     },
-    devtool: "#inline-sourcemap",
+    devtool: "inline-source-map",
     watch: process.env.WEBPACK_WATCH !== "0",
     mode: "development"
     // mode: "production"
-}
+};
