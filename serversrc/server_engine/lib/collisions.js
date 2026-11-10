@@ -1,4 +1,4 @@
-module.exports = {touchBar, touchPoint, touchSegment, touchPlayerSegmentBariers, correctBarTouch, correctByRoomBorder};
+module.exports = {touchBar, touchPoint, touchSegment, correctBarTouch, correctByRoomBorder};
 
 
 /**
@@ -57,48 +57,6 @@ function touchSegment(_a, _b, barier) {
 
     //Пересекаются или отрезок внутри препятствия
     return true;
-}
-
-
-/**
- * Пересечение отрезка пути объемного объекта с препятствием
- * @param _a
- * @param _b
- * @param barier
- * @param width
- * @param height
- * @returns {boolean}
- */
-function touchPlayerSegment(_a, _b, barier, width, height) {
-    let a = _a, b = _b,
-        points = [
-            {x: 0, y: 0},
-            {x: width, y: 0},
-            {x: width, y: height},
-            {x: 0, y: height},
-        ];
-
-    for(let i=0;i<points.length;i++){
-        if(
-            touchSegment(
-                {x: a.x + points[i].x, y: a.y - points[i].y},
-                {x: b.x + points[i].x, y: b.y - points[i].y},
-                barier
-            )
-        ){
-            return true;
-        }
-    }
-    return false;
-}
-
-
-function touchPlayerSegmentBariers(_a, _b, width, height, bariers){
-    for(let i=0;i<bariers.length;i++){
-        let is = touchPlayerSegment(_a, _b, bariers[i], width, height);
-        if(is) return true;
-    }
-    return false;
 }
 
 

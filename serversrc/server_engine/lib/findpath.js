@@ -1,8 +1,152 @@
 /**
- * Если подключаем как модуль
+ * Поиск пути с обходом препятствий
  */
 const collisions = require('./collisions');
-module.exports = {getPossibleNodes, check, getNeighbors, Graph};
+module.exports = {findPath, check};
+
+// Графы видимости: комната -> размер объекта -> граф
+const graphs = new WeakMap();
+
+
+/**
+ * Путь от start до finish в комнате для объекта размером width x height
+ * @param room
+ * @param start {x, y}
+ * @param finish {x, y}
+ * @param width
+ * @param height
+ * @returns {Array} точки пути без стартовой, пустой - если пути нет
+ */
+function findPath(room, start, finish, width, height) {
+    const bariers = room.bariers;
+
+    if (!bariers || !bariers.length || !check(bariers, -1, finish, width, height, getRoomBox(room))) {
+        return [finish];
+    }
+
+    const graph = getGraph(room, width, height);
+
+    if (isSegmentFree(start, finish, graph.inflated)) {
+        return [finish];
+    }
+
+    // Старт и финиш подключаем к копии графа, кешированный граф не меняем
+    const vertices = Object.assign({}, graph.nodes),
+        A = {id: 'A', x: start.x, y: start.y, neighbors: {}},
+        B = {id: 'B', x: finish.x, y: finish.y, neighbors: {}};
+
+    for (let id in graph.nodes) {
+        const node = graph.nodes[id];
+
+        if (isSegmentFree(A, node, graph.inflated)) {
+            A.neighbors[id] = distance(A, node);
+        }
+
+        if (isSegmentFree(node, B, graph.inflated)) {
+            vertices[id] = Object.assign({}, node, {
+                neighbors: Object.assign({}, node.neighbors, {B: distance(node, B)})
+            });
+        }
+    }
+
+    vertices.A = A;
+    vertices.B = B;
+
+    const g = new Graph();
+    g.vertices = vertices;
+
+    return g.shortestPath('A', 'B').reverse().map((id) => ({x: vertices[id].x, y: vertices[id].y}));
+}
+
+
+/**
+ * Граф видимости комнаты для объекта заданного размера, строится один раз
+ * @param room
+ * @param width
+ * @param height
+ * @returns {{inflated: Array, nodes: {}}}
+ */
+function getGraph(room, width, height) {
+    let roomGraphs = graphs.get(room);
+
+    if (!roomGraphs) {
+        roomGraphs = new Map();
+        graphs.set(room, roomGraphs);
+    }
+
+    const key = width + 'x' + height;
+    let graph = roomGraphs.get(key);
+
+    if (!graph) {
+        graph = buildGraph(room.bariers, width, height, getRoomBox(room));
+        roomGraphs.set(key, graph);
+    }
+
+    return graph;
+}
+
+
+function buildGraph(bariers, width, height, roomBox) {
+    const inflated = inflateBariers(bariers, width, height),
+        nodes = getPossibleNodes(bariers, width, height, roomBox),
+        ids = Object.keys(nodes);
+
+    ids.forEach((id) => {
+        nodes[id].neighbors = {};
+    });
+
+    for (let i = 0; i < ids.length; i++) {
+        for (let j = i + 1; j < ids.length; j++) {
+            const a = nodes[ids[i]], b = nodes[ids[j]];
+
+            if (isSegmentFree(a, b, inflated)) {
+                const d = distance(a, b);
+                a.neighbors[b.id] = d;
+                b.neighbors[a.id] = d;
+            }
+        }
+    }
+
+    return {inflated, nodes};
+}
+
+
+/**
+ * Препятствия, расширенные на размер объекта: объект (x - левый нижний угол)
+ * пересекает препятствие тогда и только тогда, когда точка (x, y) внутри расширенного
+ * @param bariers
+ * @param width
+ * @param height
+ * @returns {Array}
+ */
+function inflateBariers(bariers, width, height) {
+    return bariers.map((barier) => ({
+        left: barier.left - width,
+        right: barier.right,
+        top: barier.top,
+        bottom: barier.bottom + height,
+    }));
+}
+
+
+function isSegmentFree(a, b, inflated) {
+    for (let i = 0; i < inflated.length; i++) {
+        if (collisions.touchSegment(a, b, inflated[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+function getRoomBox(room) {
+    return {
+        left: room.dead_zone_left,
+        right: room.width - room.dead_zone_right,
+        top: room.dead_zone_top,
+        bottom: room.height - room.dead_zone_bottom,
+    };
+}
 
 /**
  * Получение возможных позиций игрока для обхода препятствий
@@ -97,32 +241,6 @@ function touchBorders(box, roomLeft, roomTop, roomRight, roomBottom) {
 
 function distance(a, b) {
     return Math.floor(Math.sqrt((b.x-a.x)*(b.x-a.x)+(b.y-a.y)*(b.y-a.y)));
-}
-
-
-/**
- * Получение соседей к которым можем пройти без препятствий
- * @param possibleNode
- * @param possibleNodes
- * @param bariers
- * @param width
- * @param height
- */
-function getNeighbors(possibleNode, possibleNodes, bariers, width, height) {
-    possibleNode.neighbors = {};
-
-    for(let i in possibleNodes){
-
-        if(possibleNodes[i].id===possibleNode.id) continue;
-
-        let A = possibleNode, B = possibleNodes[i];
-
-        if(collisions.touchPlayerSegmentBariers(A, B, width, height, bariers)){
-            continue;
-        }
-
-        possibleNode.neighbors[B.id] = distance(A, B);
-    }
 }
 
 

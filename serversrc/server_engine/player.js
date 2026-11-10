@@ -907,72 +907,13 @@ Player.prototype.targetKeyboard = function(){
  */
 Player.prototype.calculatePath = function (pos) {
     if (pos) {
-
-        //Веха
-        let startPoint = {
-            id: 'A',
-            x: this.x,
-            y: this.y,
-            },
-            pathPoint = {
-            id: 'B',
-            //Отцентрировано по центру игрока
+        //Отцентрировано по центру игрока
+        const finish = {
             x: pos.x - this.width / 2,
             y: pos.y + this.height / 2
         };
 
-        let possibleNodes = {'A': startPoint, 'B': pathPoint};
-
-        const room = rooms.get(this.room_id);
-        const roomBox = {
-            left: room.dead_zone_left,
-            right: room.width - room.dead_zone_right,
-            top: room.dead_zone_top,
-            bottom: room.height - room.dead_zone_bottom,
-        };
-
-        let path = ['B'];
-
-        if(room.bariers) {
-
-            let wrongTarget = false;
-
-            if (!findpath.check(room.bariers, -1, pathPoint, this.width, this.height, roomBox)) {
-                wrongTarget = true;
-            }
-
-            let itEasy = !collisions.touchPlayerSegmentBariers(startPoint, pathPoint, this.width, this.height, room.bariers);
-
-            if (!itEasy && !wrongTarget) {
-                possibleNodes = Object.assign({}, possibleNodes,
-                    findpath.getPossibleNodes(room.bariers, this.width, this.height, roomBox)
-                );
-
-
-                //Добавление ребер графа. Только узлы, в которые можно пройти без препятствий
-                for (let i in possibleNodes) {
-                    findpath.getNeighbors(possibleNodes[i], possibleNodes, room.bariers, this.width, this.height);
-                }
-
-                let g = new findpath.Graph();
-                g.vertices = possibleNodes;
-
-                path = g.shortestPath('A', 'B').reverse();
-            }
-        }
-
-        // log(path);
-
-        let posPath = [];
-
-
-        for(let step=0; step<path.length;step++){
-            let node = possibleNodes[path[step]];
-            posPath.push({x: node.x, y: node.y});
-        }
-
-        return posPath;
-
+        return findpath.findPath(rooms.get(this.room_id), {x: this.x, y: this.y}, finish, this.width, this.height);
     }
 };
 
