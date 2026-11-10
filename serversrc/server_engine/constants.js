@@ -15,4 +15,8 @@ function constants() {
     this.COINS_GENERATE_INTERVAL = 2.0;
 
     this.TELEPORT_RANDOM_TARGET = true;
+
+    // Размер игрока и мобов: для него граф обхода препятствий строится при загрузке карты
+    this.UNIT_WIDTH = 44.0;
+    this.UNIT_HEIGHT = 44.0;
 }

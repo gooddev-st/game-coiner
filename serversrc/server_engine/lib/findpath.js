@@ -2,13 +2,16 @@
  * Поиск пути с обходом препятствий
  */
 const collisions = require('./collisions');
-module.exports = {findPath, check};
+module.exports = {findPath, prepareGraph: getGraph, check};
 
 // Графы видимости: комната -> размер объекта -> граф
 const graphs = new WeakMap();
 
 // Шаг поиска свободной точки вместо недоступной цели, px
 const FREE_POINT_STEP = 4;
+
+// Отступы узлов графа от углов препятствий, px: основной и для узких проходов
+const NODE_OFFSETS = [4, 1];
 
 
 /**
@@ -212,29 +215,27 @@ function getRoomBox(room) {
  */
 function getPossibleNodes(bariers, width, height, room) {
     let possibleNodes = {},
-        offset = 1,
         nodeCounter = 1;
     bariers.forEach((barier, i)=>{
-        let l = barier.left - width - offset,
-            r = barier.right + offset,
-            t = barier.top - offset,
-            b = barier.bottom + height + offset;
+        // Углы: [сторона по x, сторона по y], -1 - левее/выше препятствия
+        const corners = [[-1, -1], [-1, 1], [1, 1], [1, -1]];
 
-        let nodes = [
-            {x: l, y: t},
-            {x: l, y: b},
-            {x: r, y: b},
-            {x: r, y: t},
-        ];
+        corners.forEach(([sx, sy]) => {
+            // В узком проходе отступ уменьшаем, чтобы узел поместился
+            for (let k = 0; k < NODE_OFFSETS.length; k++) {
+                const offset = NODE_OFFSETS[k],
+                    node = {
+                        x: sx < 0 ? barier.left - width - offset : barier.right + offset,
+                        y: sy < 0 ? barier.top - offset : barier.bottom + height + offset,
+                    };
 
-        for(let j=0;j<nodes.length;j++)
-        {
-            if (check(bariers, i, nodes[j], width, height, room)) {
-
-                possibleNodes[nodeCounter] = {id: nodeCounter, x: nodes[j].x, y: nodes[j].y};
-                nodeCounter++;
+                if (check(bariers, i, node, width, height, room)) {
+                    possibleNodes[nodeCounter] = {id: nodeCounter, x: node.x, y: node.y};
+                    nodeCounter++;
+                    break;
+                }
             }
-        }
+        });
     });
 
     return possibleNodes;

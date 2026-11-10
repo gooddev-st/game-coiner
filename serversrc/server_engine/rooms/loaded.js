@@ -11,6 +11,7 @@ module.exports = LoadedRoom;
 const Room = require("./room");
 const events = require('../events.js');
 const collisions = require('../lib/collisions');
+const findpath = require('../lib/findpath');
 
 require("../constants")();
 
@@ -69,6 +70,8 @@ LoadedRoom.prototype.load = function (callback) {
 
             //Разберем файл
             this.parseMap(map);
+
+            findpath.prepareGraph(this, UNIT_WIDTH, UNIT_HEIGHT);
 
             this.isLoaded = true;
 
