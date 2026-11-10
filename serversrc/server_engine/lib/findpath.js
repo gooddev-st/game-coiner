@@ -7,6 +7,9 @@ module.exports = {findPath, check};
 // Графы видимости: комната -> размер объекта -> граф
 const graphs = new WeakMap();
 
+// Шаг поиска свободной точки вместо недоступной цели, px
+const FREE_POINT_STEP = 4;
+
 
 /**
  * Путь от start до finish в комнате для объекта размером width x height
@@ -18,9 +21,21 @@ const graphs = new WeakMap();
  * @returns {Array} точки пути без стартовой, пустой - если пути нет
  */
 function findPath(room, start, finish, width, height) {
-    const bariers = room.bariers;
+    const bariers = room.bariers || [],
+        roomBox = getRoomBox(room);
 
-    if (!bariers || !bariers.length || !check(bariers, -1, finish, width, height, getRoomBox(room))) {
+    // Цель в препятствии или за границей - идем к ближайшей свободной точке со стороны старта
+    if (!check(bariers, -1, finish, width, height, roomBox)) {
+        const freePoint = nearestFreePoint(bariers, finish, start, width, height, roomBox);
+
+        if (!freePoint) {
+            return [finish];
+        }
+
+        finish = freePoint;
+    }
+
+    if (!bariers.length) {
         return [finish];
     }
 
@@ -56,6 +71,45 @@ function findPath(room, start, finish, width, height) {
     g.vertices = vertices;
 
     return g.shortestPath('A', 'B').reverse().map((id) => ({x: vertices[id].x, y: vertices[id].y}));
+}
+
+
+/**
+ * Первая позиция на отрезке from -> to, где объект не задевает препятствия и границы комнаты
+ * @returns {{x, y}|null}
+ */
+function nearestFreePoint(bariers, from, to, width, height, roomBox) {
+    const dx = to.x - from.x,
+        dy = to.y - from.y,
+        steps = Math.ceil(Math.sqrt(dx * dx + dy * dy) / FREE_POINT_STEP),
+        at = (t) => ({x: from.x + dx * t, y: from.y + dy * t}),
+        isFree = (t) => check(bariers, -1, at(t), width, height, roomBox);
+
+    let busy = 0;
+
+    for (let i = 1; i <= steps; i++) {
+        let free = i / steps;
+
+        if (isFree(free)) {
+            // Уточняем границу между занятой и свободной позицией
+            for (let k = 0; k < 10; k++) {
+                const middle = (busy + free) / 2;
+
+                if (isFree(middle)) {
+                    free = middle;
+                }
+                else {
+                    busy = middle;
+                }
+            }
+
+            return at(free);
+        }
+
+        busy = free;
+    }
+
+    return null;
 }
 
 
