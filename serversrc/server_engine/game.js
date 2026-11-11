@@ -237,13 +237,20 @@ function start(){
         });
 
 
-        //Проверим как там монеты
-        //TODO: Проверять только для плееров/мобов в той же комнате
+        //Касания лута: лут неподвижен, поэтому новый лут проверяем со всеми в комнате, остальной - только с теми, кто изменился
+        const targetsByRoom = {};
+        for (const id in targets) {
+            (targetsByRoom[targets[id].room_id] ||= []).push(targets[id]);
+        }
+
         rooms.each((room_id, room)=>{
+            const roomTargets = targetsByRoom[room.ID];
+            if (!roomTargets) return;
+
+            const changedTargets = roomTargets.filter((target) => target.changed);
+
             room.loot.each((id, loot)=>{
-
-                loot.touch(targets);
-
+                loot.touch(loot.changed ? roomTargets : changedTargets);
             });
         });
 
@@ -292,37 +299,33 @@ function sendGameState(){
         }
     });
 
-    //Шлем информацию о комнатах
+    //Шлем информацию о комнатах: только комнатам с игроками и только если есть изменения
+    const watchedRooms = new Set();
+    players.each((playerID, player) => watchedRooms.add(player.room_id));
+
     rooms.each((room_id, room)=>{
 
-        let room_info = {room_id: room.ID, npcs: {}, loot: {}, teleports: {}};
+        const watched = watchedRooms.has(room.ID);
+        let room_info = {room_id: room.ID, npcs: {}, loot: {}, teleports: {}},
+            hasChanges = false;
 
-        //мобы
-        room.npcs.each((ID, npc)=>{
-
-            if(npc.changed) {
-                room_info.npcs[npc.ID] = npc.info();
-                npc.changed = false;
-
+        // Флаги сбрасываем и в пустых комнатах: вошедший игрок получает комнату целиком через room.info()
+        const collect = (changes) => (id, item) => {
+            if (!item.changed) return;
+            if (watched) {
+                changes[item.ID] = item.info();
+                hasChanges = true;
             }
-        });
-        //лут
-        room.loot.each((id, loot) => {
-            if (loot.changed) {
-                room_info.loot[loot.ID] = loot.info();
-                loot.changed = false;
-            }
-        });
-        //Телепорты
-        room.teleportsEach((id, teleport) => {
-            if (teleport.changed) {
-                room_info.teleports[teleport.ID] = teleport.info();
-                teleport.changed = false;
-            }
-        });
+            item.changed = false;
+        };
 
+        room.npcs.each(collect(room_info.npcs));
+        room.loot.each(collect(room_info.loot));
+        room.teleportsEach(collect(room_info.teleports));
 
-        events.room(room.ID, "room", "all-info", {info: room_info});
+        if (hasChanges) {
+            events.room(room.ID, "room", "all-info", {info: room_info});
+        }
     });
 
     //Шлем информацию о звуковых событиях
