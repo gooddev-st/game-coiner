@@ -12,6 +12,19 @@ const EXTRA_PASSAGES = 0.3; // доля лишних проходов, чтоб�
 const MONSTERS = ['ork', 'skeleton', 'gob', 'pirat', 'dead', 'kroko', 'juk', 'elf', 'koil', 'darka', 'gunner', 'mag', 'doc', 'prof'];
 const MONSTERS_PER_GROUP = 2;
 
+// Одиночные прямые перегородки по очереди становятся деревьями, водоемами, провалами или остаются стеной
+const OBSTACLE_TYPES = ['trees', 'water', 'pit', 'stone'];
+// Блоки 3x3 из terrain_atlas: строки сверху вниз, в каждой - левый край, середина, правый край
+const OBSTACLE_TILES = {
+    water: [[362, 363, 364], [394, 395, 396], [426, 427, 428]],
+    pit: [[89, 90, 91], [121, 122, 123], [153, 154, 155]],
+};
+// Картинки tree_XX.png 128x128 (номера как на карте glade), ствол примерно в точке (64, 100)
+const TREE_FIRSTGID = 1025;
+const TREE_IMAGES = [0, 1, 2, 3, 8, 10, 11, 16, 17, 18, 23, 26];
+const TREE_SIZE = 128;
+const TREE_STEP = 72;
+
 const FLOOR_TILES = [640, 672];
 // Стены из того же набора, что на карте labirint: горизонтальная, вертикальные (в левой или правой половине тайла) и углы
 const WALL_HORIZONTAL = 918;
@@ -124,9 +137,51 @@ for (let y = 0; y < CELLS - 1; y++) {
     }
 }
 
+const wallRows = cellStart.slice(1).map((s) => s - 1);
+
+// Особые перегородки - прямые отрезки стен. Водоем и провал шире стены на тайл с каждой стороны, поэтому конец, к которому
+// примыкает другая стена, остается каменным на два тайла (столб и тайл стены), а отрезки с примыканием в середине не берем
+const specials = [];
+{
+    const at = (r, c) => r >= 0 && c >= 0 && r < MAP_TILES && c < MAP_TILES && wall[r][c];
+    const runs = [];
+
+    wallRows.forEach((line) => {
+        [true, false].forEach((horizontal) => {
+            const isWall = (i) => horizontal ? at(line, i) : at(i, line);
+            const isFree = (i) => horizontal ? !at(line - 1, i) && !at(line + 1, i) : !at(i, line - 1) && !at(i, line + 1);
+
+            for (let i = 0; i < MAP_TILES;) {
+                if (!isWall(i)) { i++; continue; }
+                const from = i;
+                while (i < MAP_TILES && isWall(i)) i++;
+                const to = i - 1;
+
+                const startJoined = !isFree(from - 1) || !isFree(from),
+                    endJoined = !isFree(to) || !isFree(to + 1),
+                    run = {horizontal, line, from: from + (startJoined ? 2 : 0), to: to - (endJoined ? 2 : 0), startJoined, endJoined};
+
+                let free = run.to > run.from;
+                for (let k = run.from; free && k <= run.to; k++) free = isFree(k);
+                if (free) runs.push(run);
+            }
+        });
+    });
+
+    shuffle(runs).forEach((run, i) => {
+        run.type = OBSTACLE_TYPES[i % OBSTACLE_TYPES.length];
+        if (run.type === 'stone') return;
+
+        for (let k = run.from; k <= run.to; k++) {
+            if (run.horizontal) wall[run.line][k] = false;
+            else wall[k][run.line] = false;
+        }
+        specials.push(run);
+    });
+}
+
 // Препятствия: горизонтальные отрезки в строках стен и вертикальные в столбцах стен
 const bariers = [];
-const wallRows = cellStart.slice(1).map((s) => s - 1);
 
 wallRows.forEach((r) => {
     for (let c = 0; c < MAP_TILES;) {
@@ -158,6 +213,47 @@ wallRows.forEach((c) => {
     }
 });
 
+// Тайлы и препятствия особых перегородок
+const specialTiles = wall.map((row) => row.map(() => 0));
+const treeObjects = [];
+
+specials.forEach(({type, horizontal, line, from, to, startJoined, endJoined}) => {
+    const length = to - from + 1;
+
+    if (type === 'trees') {
+        bariers.push(horizontal ? {x: from, y: line, w: length, h: 1} : {x: line, y: from, w: 1, h: length});
+
+        const count = Math.max(2, Math.round(length * TILE / TREE_STEP));
+        for (let i = 0; i < count; i++) {
+            const along = (from + (i + 0.5) * length / count) * TILE + (random() - 0.5) * 16,
+                across = (line + 0.5) * TILE + (random() - 0.5) * 12,
+                cx = horizontal ? along : across,
+                cy = horizontal ? across : along;
+
+            treeObjects.push({gid: TREE_FIRSTGID + pick(TREE_IMAGES), x: Math.round(cx - 64), y: Math.round(cy - 100 + TREE_SIZE)});
+        }
+        return;
+    }
+
+    // Вода и провал - на всю толщину блока 3x3, с отступом у скругленных свободных концов. У столба - вплотную, чтобы не было щели
+    const start = from + (startJoined ? 0 : 0.25),
+        end = to + 1 - (endJoined ? 0 : 0.25);
+
+    bariers.push(horizontal ?
+        {x: start, y: line - 0.5, w: end - start, h: 2} :
+        {x: line - 0.5, y: start, w: 2, h: end - start});
+
+    const block = OBSTACLE_TILES[type];
+    for (let k = from; k <= to; k++) {
+        const end = k === from ? 0 : k === to ? 2 : 1;
+        for (let d = -1; d <= 1; d++) {
+            const r = horizontal ? line + d : k, c = horizontal ? k : line + d;
+            if (specialTiles[r][c] || wall[r][c]) throw new Error(`Перегородки пересекаются в тайле ${c},${r}`);
+            specialTiles[r][c] = horizontal ? block[d + 1][end] : block[end][d + 1];
+        }
+    }
+});
+
 const barierObjects = bariers.map((b, i) => ({
     height: b.h * TILE, id: i + 1, name: '', rotation: 0, type: '', visible: true,
     width: b.w * TILE, x: b.x * TILE, y: b.y * TILE,
@@ -186,7 +282,8 @@ for (let r = 0; r < MAP_TILES; r++) {
         baseTiles.push(pick(FLOOR_TILES));
 
         const nearEntrance = r < cellSize[0] && c < cellSize[0];
-        if (wall[r][c]) decor.push(wallTile(r, c));
+        if (specialTiles[r][c]) decor.push(specialTiles[r][c]);
+        else if (wall[r][c]) decor.push(wallTile(r, c));
         else if (!nearEntrance && random() < FLOOR_DECOR_CHANCE) decor.push(pick(FLOOR_DECOR));
         else decor.push(0);
     }
@@ -233,7 +330,7 @@ for (let spacing = 3; spacing >= 0 && groupCells.length < MONSTERS.length; spaci
 }
 
 const populations = groupCells.map((cell, i) => ({
-    height: cellSize[cell.y] * TILE, id: barierObjects.length + i + 1, name: MONSTERS[i] + 'Population',
+    height: cellSize[cell.y] * TILE, id: barierObjects.length + treeObjects.length + i + 1, name: MONSTERS[i] + 'Population',
     properties: {maxNum: MONSTERS_PER_GROUP, monster: MONSTERS[i], spawnTime: 30},
     propertytypes: {maxNum: 'int', monster: 'string', spawnTime: 'float'},
     rotation: 0, type: 'population', visible: true,
@@ -249,17 +346,29 @@ const map = {
         tileLayer('baseTiles', baseTiles),
         tileLayer('decor', decor),
         objectLayer('bariers', barierObjects),
+        // Слой cartoons клиент рисует вместе с юнитами в порядке по y, поэтому деревья могут закрывать персонажей
+        objectLayer('cartoons', treeObjects.map((tree, i) => ({
+            gid: tree.gid, height: TREE_SIZE, id: barierObjects.length + i + 1, name: '', rotation: 0, type: '', visible: true,
+            width: TREE_SIZE, x: tree.x, y: tree.y,
+        }))),
         objectLayer('populations', populations),
     ],
-    nextobjectid: barierObjects.length + populations.length + 1,
+    nextobjectid: barierObjects.length + treeObjects.length + populations.length + 1,
     orientation: 'orthogonal', renderorder: 'left-up', tiledversion: '1.1.4',
     tileheight: TILE, tilewidth: TILE,
     tilesets: [{
         columns: 32, firstgid: 1, image: 'terrain_atlas.png', imageheight: 2048, imagewidth: 2048,
         margin: 0, name: 'terrain_atlas', spacing: 0, tilecount: 1024, tileheight: TILE, tilewidth: TILE,
+    }, {
+        columns: 0, firstgid: TREE_FIRSTGID, grid: {height: 1, orientation: 'orthogonal', width: 1},
+        margin: 0, name: 'trees', spacing: 0, tilecount: 32, tileheight: TREE_SIZE, tilewidth: TREE_SIZE,
+        tiles: Object.fromEntries(Array.from({length: 32}, (_, i) => [i, {
+            image: `tree_${String(i).padStart(2, '0')}.png`, imageheight: TREE_SIZE, imagewidth: TREE_SIZE,
+        }])),
     }],
     type: 'map', version: 1,
 };
 
 fs.writeFileSync(out, JSON.stringify(map));
-console.log(`Карта ${out}: препятствий ${barierObjects.length}, групп мобов ${populations.length}`);
+const counts = OBSTACLE_TYPES.slice(0, -1).map((type) => `${type} ${specials.filter((run) => run.type === type).length}`).join(', ');
+console.log(`Карта ${out}: препятствий ${barierObjects.length} (особые: ${counts}), деревьев ${treeObjects.length}, групп мобов ${populations.length}`);
