@@ -147,6 +147,10 @@ function Npc(ID, x, y, room_id, character_id, population_id) {
     this.currentWeapon = 'weapon1';
 
     this.neededLoot = {'coin':1};
+
+    // Лут, к которому не подойти из-за препятствий (ID), и лут текущей цели
+    this.unreachableLoot = new Set();
+    this.targetLootId = null;
 }
 
 /**
@@ -278,6 +282,11 @@ Npc.prototype.update = function () {
     //Если не сдвинулись даже на пиксель - сбросим путь
     if(Math.floor(this.x) === Math.floor(oldPos.x) && Math.floor(this.y) === Math.floor(oldPos.y)){
         this.target = null;
+
+        // Шли к луту и не сдвинулись - ближе не подойти, иначе будем выбирать его вечно
+        if (this.targetLootId && !this.targetOfAttack) {
+            this.unreachableLoot.add(this.targetLootId);
+        }
     }
 
     //Проверим - не умерла ли цель атаки
@@ -332,6 +341,8 @@ Npc.prototype.runEffects = function () {
 Npc.prototype.calculateTarget = function() {
     let target;
 
+    this.targetLootId = null;
+
     /*// Эффекты движения
     target = this.targetEffects();
     if(target) return target;*/
@@ -374,7 +385,7 @@ Npc.prototype.needed = function (loot) {
  * @returns {*}
  */
 Npc.prototype.targetLootCondition = function(target, self) {
-    return self.needed(target);
+    return self.needed(target) && !self.unreachableLoot.has(target.ID);
 };
 
 Npc.prototype.targetLoot = function() {
@@ -383,18 +394,31 @@ Npc.prototype.targetLoot = function() {
 
     if(!room || !room.loot.size()) return false;
 
+    this.forgetEatenLoot(room);
+
     let nearest = room.loot.nearest(this.room_id, this.x, this.y, this.targetLootCondition, this);
 
     if(!nearest) return null;
 
     // Если в поле зрения - идем к луту
     if(nearest.distance <= this.viewDistance){
+        this.targetLootId = nearest.id;
         return nearest.pos;
     }
 
     return null;
 
 };
+
+// Убираем из недостижимого съеденный лут и лут другой комнаты
+Npc.prototype.forgetEatenLoot = function (room) {
+    if (this.unreachableLoot.size < 20) return;
+
+    for (const id of this.unreachableLoot) {
+        if (!room.loot.get(id)) this.unreachableLoot.delete(id);
+    }
+};
+
 
 /**
  * Условие пригодности игрока как цели
