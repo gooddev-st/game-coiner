@@ -30,7 +30,9 @@ const
     VIEW_DISTANCE = 250,
     ATTACK_DISTANCE = 50,
     PATH_REPLAN_DISTANCE = 30, // смещение цели, после которого путь пересчитывается
-    PATH_REPLAN_INTERVAL = 0.3; // в секундах, минимальная пауза между пересчетами
+    PATH_REPLAN_INTERVAL = 0.3, // в секундах, минимальная пауза между пересчетами
+    SEPARATION_FACTOR = 0.8, // мобы расходятся, если ближе этой доли от своего размера
+    SEPARATION_SPEED = 60; // пикселей в секунду
 
 
 /**
@@ -151,6 +153,7 @@ function Npc(ID, x, y, room_id, character_id, population_id) {
     // Лут, к которому не подойти из-за препятствий (ID), и лут текущей цели
     this.unreachableLoot = new Set();
     this.targetLootId = null;
+    this.claimedLoot = new Set();
 }
 
 /**
@@ -262,6 +265,9 @@ Npc.prototype.update = function () {
 
     //Движемся
     this.move();
+
+    //Расходимся с соседями, чтобы не сливаться в одного
+    this.separate();
 
     //Скорректируем позицию по препятствиям
     this.correctPosition();
@@ -385,7 +391,7 @@ Npc.prototype.needed = function (loot) {
  * @returns {*}
  */
 Npc.prototype.targetLootCondition = function(target, self) {
-    return self.needed(target) && !self.unreachableLoot.has(target.ID);
+    return self.needed(target) && !self.unreachableLoot.has(target.ID) && !self.claimedLoot.has(target.ID);
 };
 
 Npc.prototype.targetLoot = function() {
@@ -395,6 +401,12 @@ Npc.prototype.targetLoot = function() {
     if(!room || !room.loot.size()) return false;
 
     this.forgetEatenLoot(room);
+
+    // Лут, к которому уже идут другие мобы комнаты
+    this.claimedLoot = new Set();
+    room.npcs.each((id, npc) => {
+        if (npc !== this && npc.targetLootId) this.claimedLoot.add(npc.targetLootId);
+    });
 
     let nearest = room.loot.nearest(this.room_id, this.x, this.y, this.targetLootCondition, this);
 
@@ -810,6 +822,46 @@ Npc.prototype.move = function() {
         this.target = null;
         this.resetPath();
     }
+};
+
+
+/**
+ * Отталкиваемся от слишком близких мобов. Каждый сдвигает только себя, сосед сделает то же в своем update
+ */
+Npc.prototype.separate = function () {
+    const room = rooms.get(this.room_id);
+    let dx = 0, dy = 0;
+
+    room.npcs.each((id, other) => {
+        if (other === this || other.isDie()) return;
+
+        const minDistance = (this.width + other.width) / 2 * SEPARATION_FACTOR;
+        let x = this.x - other.x,
+            y = this.y - other.y,
+            d = Math.sqrt(x * x + y * y);
+
+        if (d >= minDistance) return;
+
+        // В одной точке направления нет - расходимся в случайную сторону
+        if (d === 0) {
+            const angle = Math.random() * 2 * Math.PI;
+            x = Math.cos(angle);
+            y = Math.sin(angle);
+            d = 1;
+        }
+
+        const overlap = (minDistance - d) / d;
+        dx += x * overlap;
+        dy += y * overlap;
+    });
+
+    const length = Math.sqrt(dx * dx + dy * dy);
+    if (!length) return;
+
+    // Половину перекрытия убирает каждый из пары, но не быстрее SEPARATION_SPEED
+    const k = Math.min(0.5, SEPARATION_SPEED * STEP / length);
+    this.x += dx * k;
+    this.y += dy * k;
 };
 
 
