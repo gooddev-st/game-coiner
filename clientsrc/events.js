@@ -10,58 +10,68 @@ import ui from "./engine/ui/ui.js";
 import signIn from "./scenes/signin";
 
 
-export default {init, add, on, off, disconnect}
+export default {init, add, on, off, disconnect, isKicked}
 
 // Подключение к серверу
 let serverSocket = null;
 
 let logged = false;
 
+// Ждём ввода логина, чтобы не открывать форму повторно на каждый hello
+let signingIn = false;
+
+// Вошли с тем же логином в другом окне - сами не переподключаемся, иначе окна выбивают друг друга
+let kicked = false;
+
+let onLogged = null;
+
 
 /**
- * Инитим игровые события
+ * Инитим игровые события. Обработчики сокета навешиваются один раз, переподключение делает socket.io
  */
 function init(callback) {
+    onLogged = callback;
 
-    //Подключимся к серверу
-    if(!serverSocket) {
-        serverSocket = io(window.GAME_SERVER_URL || "http://server.games.q-dev.ru");
-    }
+    if (serverSocket) return;
+
+    serverSocket = io(window.GAME_SERVER_URL || "http://server.games.q-dev.ru");
 
     log('Подключаемся к серверу');
-    serverSocket.connect();
 
     on("server", (eventName, type, data)=>{
 
-        if (type === "hello") {
-            //Если ещё не вошли
-            if (!logged) {
+        if (type !== "hello" || logged) return;
 
-                if(data.version && data.version <= 0.19) {
-
-                    //Получаем от пользователя аккаунт
-                    signIn.start(function (account) {
-
-                        // отправим аккаунт серверу
-                        add('login', account);
-
-                        //После успешного входа (Если неуспешный - сервер опять пошлет hello)
-                        on('logged', (eventName, type, data) => {
-                            if (type === 'success') {
-                                logged = true;
-                                off('logged');
-                                callback();
-                            }
-                        });
-                    });
-
-                }
-                else{
-                    ui.waitScreen.show('Жми Ctrl-F5');
-                }
-            }
+        if(!(data.version && data.version <= 0.19)) {
+            ui.waitScreen.show('Жми Ctrl-F5');
+            return;
         }
 
+        if (signingIn) return;
+        signingIn = true;
+
+        //Получаем от пользователя аккаунт (из localStorage или через форму)
+        signIn.start(function (account) {
+            signingIn = false;
+
+            // Пока вводили логин, соединение могло оборваться: тогда войдём по следующему hello
+            if (serverSocket.connected) {
+                add('login', account);
+            }
+        });
+    });
+
+    //После успешного входа (если неуспешный - сервер опять пошлет hello)
+    on('logged', (eventName, type) => {
+        if (type === 'success' && !logged) {
+            logged = true;
+            onLogged();
+        }
+    });
+
+    on("another-coming", () => {
+        kicked = true;
+        ui.waitScreen.show('Вы вошли в другом окне. Обновите страницу, чтобы играть здесь');
     });
 
     // Действия при серверных проблемах
@@ -69,30 +79,24 @@ function init(callback) {
         log('Ошибка подключения к серверу');
     });
 
-
-    serverSocket.on("disconnect", function () {
-        log('от сервера поступил disconnect');
+    serverSocket.on("disconnect", function (reason) {
         log('Вы отключены от сервера');
 
-        ui.waitScreen.show();
         logged = false;
 
-        setTimeout(function () {
-            init(callback);
-        }, 1000);
-    });
+        if (kicked) return;
 
-
-    on("another-coming", () => {
-        log('Вы отключены от сервера');
-
-        //TODO: Вместо экрана ожидания - Окно с кнопкой - подключиться - по которой init(callback);
         ui.waitScreen.show();
-    });
 
+        // После обрыва сети socket.io переподключается сам, а после отключения сервером или клиентом (выход) - нет
+        if (reason === 'io server disconnect' || reason === 'io client disconnect') {
+            setTimeout(() => serverSocket.connect(), 1000);
+        }
+    });
 }
 
 
+// Обработчики по событиям. На сокет для каждого события вешается один слушатель, который их вызывает
 const handlers = {};
 
 /**
@@ -112,40 +116,43 @@ function add(eventName, data) {
 
 function on(eventName, callback) {
 
-    //Сохраним на случай если события возникнут локально
     if(eventName in handlers===false){
         handlers[eventName] = [];
+
+        serverSocket.on(eventName, (data) => dispatch(eventName, data));
     }
     handlers[eventName].push(callback);
-
-
-    serverSocket.on(eventName, (data)=>{
-        try{
-            data = JSON.parse(data)
-        }
-        catch (e){}
-        let type = data.type ? data.type : "simple";
-
-        // Если в данных события есть поле message - выведем в лог
-        data.message && log(data.message/* + ' (Событие '+event+'.'+type+')'*/);
-
-        // Отладка событий без message
-        // data.message || log(' (Событие '+event+'.'+type+')');
-
-        callback(eventName, type, data);
-    });
 }
 
-function off(eventName, handler) {
-    if(eventName in handlers){
-        if(Array.isArray(handlers[eventName])) {
-            handlers[eventName] = handlers[eventName].filter((value)=>{
-                return value!==handler;
-            });
-        }
-    }
 
-    serverSocket.off(eventName, handler);
+// Событие с сервера - всем текущим обработчикам
+function dispatch(eventName, data) {
+    try{
+        data = JSON.parse(data)
+    }
+    catch (e){}
+
+    let type = data && data.type ? data.type : "simple";
+
+    // Если в данных события есть поле message - выведем в лог
+    data && data.message && log(data.message);
+
+    // Копия: обработчик может отписаться во время вызова
+    for (const h of [...handlers[eventName]]) {
+        h(eventName, type, data);
+    }
+}
+
+
+/**
+ * Отписка. Без handler - от всех обработчиков события
+ */
+function off(eventName, handler) {
+    if(eventName in handlers===false) return;
+
+    handlers[eventName] = handler
+        ? handlers[eventName].filter((value) => value !== handler)
+        : [];
 }
 
 
@@ -162,4 +169,9 @@ function runHandlers(eventName, data) {
 
 function disconnect() {
     serverSocket.close();
+}
+
+
+function isKicked() {
+    return kicked;
 }

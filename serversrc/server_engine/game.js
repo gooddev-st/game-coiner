@@ -41,13 +41,16 @@ function run(io) {
     //При новом подключении
     io.on('connection', (socket) => {
 
-        let user = null;
+        let user = null,
+            loggingIn = false;
 
         //Отправим приветствие (уведомление об ожидании логина)
         events.one(socket, "server", "hello", {version: 0.19, message: "Добро пожаловать на сервер игры в монеты"});
 
-        //При получении логина
+        //При получении логина. Повторные логины на том же сокете игнорируем: вход асинхронный и иначе создаст дубли
         socket.on('login', (account) => {
+            if (user || loggingIn) return;
+            loggingIn = true;
 
             login(account, socket, (addedUser, message) => {
                 user = addedUser;
@@ -55,18 +58,18 @@ function run(io) {
                 db.updateUser(user.login);
 
                 events.one(socket, "logged", "success", {message: message});
-
-                //При получении запроса на аватара
-                socket.on('need-avatar', _ => {
-
-
-                    //"Покажем" аватара клиенту
-                    user.avatar.init();
-
-                    players.add(user.avatar.ID, user.avatar);
-                });
             });
 
+        });
+
+        //При получении запроса на аватара
+        socket.on('need-avatar', _ => {
+            if (!user || players.get(user.avatar.ID) === user.avatar) return;
+
+            //"Покажем" аватара клиенту
+            user.avatar.init();
+
+            players.add(user.avatar.ID, user.avatar);
         });
 
         socket.on('disconnect', () => {

@@ -44,5 +44,8 @@ export default {run}
 
 
     function gameover(){
+        // Выбитое другим окном сообщение не перетираем
+        if (events.isKicked()) return;
+
         ui.waitScreen.show('Game Over');
     }

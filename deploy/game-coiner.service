@@ -1,0 +1,24 @@
+[Unit]
+Description=Game Coiner server
+After=network.target mariadb.service
+Wants=mariadb.service
+
+[Service]
+Type=simple
+User=game
+Group=game
+WorkingDirectory=/opt/game-coiner/serversrc
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/game-coiner.env
+ExecStart=/usr/bin/node --max-old-space-size=192 server.js
+Restart=always
+RestartSec=3
+MemoryMax=300M
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

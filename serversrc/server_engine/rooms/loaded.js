@@ -47,7 +47,7 @@ LoadedRoom.prototype = Object.create(Room.prototype);
 LoadedRoom.prototype.load = function (callback) {
 
     fs.readFile(
-        path.resolve("../static/maps/", this.mapFile),
+        path.resolve(__dirname, "../../../static/maps/", this.mapFile),
         "utf8",
         (err, data) => {
 

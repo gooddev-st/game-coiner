@@ -1,0 +1,17 @@
+# Профиль MariaDB для VPS с 1 ГБ ОЗУ: /etc/mysql/mariadb.conf.d/60-game-coiner.cnf
+[mysqld]
+bind-address = 127.0.0.1
+skip-name-resolve
+
+max_connections = 20
+performance_schema = OFF
+
+innodb_buffer_pool_size = 32M
+innodb_log_buffer_size = 4M
+key_buffer_size = 8M
+
+table_open_cache = 200
+table_definition_cache = 200
+thread_cache_size = 4
+tmp_table_size = 8M
+max_heap_table_size = 8M

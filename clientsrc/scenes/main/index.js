@@ -25,6 +25,8 @@ let finalCallback = null;
 
 let interval = null;
 
+let started = false;
+
 let rooms = {},
     room_id = null,
     room = null,
@@ -61,8 +63,9 @@ function start(callback) {
     camera.resize();
 
     //При ресайзе окна браузера - изменяем камеру под окно
-    window.addEventListener('resize', () => {camera.resize();});
+    window.addEventListener('resize', onResize);
 
+    started = true;
 
     //Запросим аватара
     events.add('need-avatar');
@@ -156,7 +159,17 @@ function start(callback) {
 }
 
 function stop() {
+    // При выходе stop вызывается дважды: из signout и из disconnect
+    if (!started) return;
+    started = false;
+
     clearInterval(interval);
+
+    window.removeEventListener('resize', onResize);
+
+    events.off("signout");
+    events.off("disconnect");
+    events.off("mouse-down-left");
 
     events.off("reconnect", onReconnect);
     events.off("room", onRoom);
@@ -179,6 +192,10 @@ function stop() {
     ui.top10.stop();
 
     finalCallback();
+}
+
+function onResize() {
+    camera.resize();
 }
 
 function onReconnect(event, type, data) {

@@ -72,6 +72,9 @@ function start() {
 }
 
 function stop() {
+    events.off('skill-change');
+    events.off('skills');
+
     skillsPanel.removeEventListener('mousedown', onMouseDown, false);
     skillsPanel.removeEventListener('mouseup', onMouseUp, false);
     skillsPanel.removeEventListener('touchstart', onMouseDown, false);
