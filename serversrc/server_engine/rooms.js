@@ -250,9 +250,11 @@ const roomsSettings = [
 
         file: 'labirint.json',
 
-        coins_num: 100,
-        coins_max_limit: 100,
-        coins_generate_interval: 0.3,
+        coins_num: 250,
+        coins_max_limit: 250,
+        coins_generate_interval: 0.2,
+
+        teleports_num: 8,
     },
 
     {

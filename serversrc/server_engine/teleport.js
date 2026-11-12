@@ -47,28 +47,38 @@ Teleport.prototype.run = function(step){
 
         if(this.type==='random' && this.room_id!=='finish') {
             //По деактивации - изменим цель на случайную
-            let roomsArray = rooms.toArray(),
-                room_id = roomsArray[Math.floor(Math.random() * roomsArray.length)].ID;
-
-            //Цели в финишной комнате - в стартовую
-            if(room_id==='finish'){
-                room_id = 'start';
-            }
-
-            let room = rooms.get(room_id),
-                pos = room.randomPos(this.width, this.height);
-
-            this.target = {
-                room_id: room_id,
-                x: pos.x,
-                y: pos.y,
-            };
+            this.randomizeTarget();
         }
     }
 
     if(this.state !== oldState){
         this.changed = true;
     }
+};
+
+
+Teleport.prototype.randomizeTarget = function(){
+    let roomsArray = rooms.toArray(),
+        room_id = roomsArray[Math.floor(Math.random() * roomsArray.length)].ID;
+
+    //Цели в финишной комнате - в стартовую
+    if(room_id==='finish'){
+        room_id = 'start';
+    }
+
+    let room = rooms.get(room_id),
+        pos = room.randomPos(this.width, this.height);
+
+    // В загружаемых комнатах не выходим внутри препятствия
+    if (room.correctPosition) {
+        room.correctPosition(pos, this.width, this.height);
+    }
+
+    this.target = {
+        room_id: room_id,
+        x: pos.x,
+        y: pos.y,
+    };
 };
 
 

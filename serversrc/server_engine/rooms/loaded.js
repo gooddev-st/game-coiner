@@ -15,6 +15,9 @@ const findpath = require('../lib/findpath');
 
 require("../constants")();
 
+const TELEPORT_WIDTH = 70,
+    TELEPORT_HEIGHT = 50;
+
 
 function LoadedRoom(settings) {
     Room.call(this, settings);
@@ -30,6 +33,8 @@ function LoadedRoom(settings) {
 
     this.coins_max_limit = settings.coins_max_limit;
     this.coins_num = settings.coins_num;
+
+    this.teleports_num = settings.teleports_num || 0;
 
     //Для генерации монет
     this.generation_faza = 0.0;
@@ -141,6 +146,7 @@ LoadedRoom.prototype.initialize = function () {
     this.load(()=>{
 
         this.randomLoot(this.coins_num);
+        this.randomTeleports(this.teleports_num);
         // this.addCartoons(this.cartoons_num);
 
         this.generateNpcs();
@@ -205,6 +211,22 @@ LoadedRoom.prototype.correctPosition = function(pos, width, height){
     pos.y = bar.y;
 };
 
+
+
+/**
+ * Телепорты в случайные места карты, ведут в случайную комнату (цель меняется после каждого срабатывания)
+ */
+LoadedRoom.prototype.randomTeleports = function(num){
+    for(let i = 0; i < num; i++){
+        const pos = this.randomPos(TELEPORT_WIDTH, TELEPORT_HEIGHT);
+
+        this.correctPosition(pos, TELEPORT_WIDTH, TELEPORT_HEIGHT);
+
+        this.addTeleport(pos.x, pos.y, null, {room_id: this.ID, x: pos.x, y: pos.y}, 'random');
+
+        this.teleports[this.teleports.length - 1].randomizeTarget();
+    }
+};
 
 
 LoadedRoom.prototype.randomLoot = function(num, width, height){
