@@ -168,9 +168,22 @@ const specials = [];
         });
     });
 
+    // Столбы, у которых уже есть водоем или провал: два широких препятствия у одного столба образуют карман, где застревают
+    const wideJunctions = new Set();
+
     shuffle(runs).forEach((run, i) => {
         run.type = OBSTACLE_TYPES[i % OBSTACLE_TYPES.length];
         if (run.type === 'stone') return;
+
+        const junctions = [];
+        if (run.startJoined) junctions.push(run.from - 2);
+        if (run.endJoined) junctions.push(run.to + 2);
+        const keys = junctions.map((k) => run.horizontal ? `${run.line},${k}` : `${k},${run.line}`);
+
+        if (run.type !== 'trees') {
+            if (keys.some((key) => wideJunctions.has(key))) run.type = 'trees';
+            else keys.forEach((key) => wideJunctions.add(key));
+        }
 
         for (let k = run.from; k <= run.to; k++) {
             if (run.horizontal) wall[run.line][k] = false;

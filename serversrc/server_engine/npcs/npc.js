@@ -32,7 +32,8 @@ const
     PATH_REPLAN_DISTANCE = 30, // смещение цели, после которого путь пересчитывается
     PATH_REPLAN_INTERVAL = 0.3, // в секундах, минимальная пауза между пересчетами
     SEPARATION_FACTOR = 0.8, // мобы расходятся, если ближе этой доли от своего размера
-    SEPARATION_SPEED = 60; // пикселей в секунду
+    SEPARATION_SPEED = 60, // пикселей в секунду
+    IGNORE_TARGET_TIME = 5; // в секундах, сколько не выбирать игрока или моба, к которому нет пути
 
 
 /**
@@ -154,6 +155,11 @@ function Npc(ID, x, y, room_id, character_id, population_id) {
     this.unreachableLoot = new Set();
     this.targetLootId = null;
     this.claimedLoot = new Set();
+
+    // Игроки и мобы, к которым не подойти: ID -> до какого момента (this.age) не выбирать
+    this.age = 0;
+    this.ignoredTargets = new Map();
+    this.targetEntityId = null;
 }
 
 /**
@@ -242,6 +248,8 @@ Npc.prototype.hit = function (hitPoints) {
  */
 Npc.prototype.update = function () {
 
+    this.age += STEP;
+
     //Сохраним старое, чтоб понимать - изменился ли
     let oldPos = {x: this.x, y: this.y},
         oldState = this.state,
@@ -289,9 +297,12 @@ Npc.prototype.update = function () {
     if(Math.floor(this.x) === Math.floor(oldPos.x) && Math.floor(this.y) === Math.floor(oldPos.y)){
         this.target = null;
 
-        // Шли к луту и не сдвинулись - ближе не подойти, иначе будем выбирать его вечно
+        // Шли к луту, игроку или мобу и не сдвинулись - ближе не подойти, иначе будем выбирать его вечно
         if (this.targetLootId && !this.targetOfAttack) {
             this.unreachableLoot.add(this.targetLootId);
+        }
+        if (this.targetEntityId && !this.targetOfAttack) {
+            this.ignoredTargets.set(this.targetEntityId, this.age + IGNORE_TARGET_TIME);
         }
     }
 
@@ -348,6 +359,7 @@ Npc.prototype.calculateTarget = function() {
     let target;
 
     this.targetLootId = null;
+    this.targetEntityId = null;
 
     /*// Эффекты движения
     target = this.targetEffects();
@@ -432,6 +444,26 @@ Npc.prototype.forgetEatenLoot = function (room) {
 };
 
 
+// Условие выбора цели плюс пропуск тех, к кому недавно не нашли пути
+Npc.prototype.reachableCondition = function (condition) {
+    return (target, self) => condition(target, self) && !self.isIgnoredTarget(target.ID);
+};
+
+
+Npc.prototype.isIgnoredTarget = function (id) {
+    const until = this.ignoredTargets.get(id);
+
+    if (until === undefined) return false;
+
+    if (until <= this.age) {
+        this.ignoredTargets.delete(id);
+        return false;
+    }
+
+    return true;
+};
+
+
 /**
  * Условие пригодности игрока как цели
  * @param target
@@ -462,7 +494,7 @@ Npc.prototype.targetPlayerCondition = playerCondition;
  */
 Npc.prototype.targetPlayer = function() {
 
-    let nearest = players.nearest(this.room_id, this.x, this.y, this.targetPlayerCondition, this);
+    let nearest = players.nearest(this.room_id, this.x, this.y, this.reachableCondition(this.targetPlayerCondition), this);
 
     if(!nearest) return null;
 
@@ -480,6 +512,7 @@ Npc.prototype.targetPlayer = function() {
             return null;//{x: this.x, y: this.y};
         }
         else{
+            this.targetEntityId = nearest.id;
             return nearest.pos;
         }
     }
@@ -503,7 +536,7 @@ Npc.prototype.targetNpc = function() {
     let room = rooms.get(this.room_id),
         npcs = room.npcs;
 
-    let nearest = npcs.nearest(this.room_id, this.x, this.y, this.targetNpcCondition, this);
+    let nearest = npcs.nearest(this.room_id, this.x, this.y, this.reachableCondition(this.targetNpcCondition), this);
 
     if(!nearest) return null;
 
@@ -521,6 +554,7 @@ Npc.prototype.targetNpc = function() {
             return null;
         }
         else{
+            this.targetEntityId = nearest.id;
             return nearest.pos;
         }
     }

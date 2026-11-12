@@ -52,7 +52,7 @@ Mag.prototype = Object.create(Npc.prototype);
  */
 Mag.prototype.targetPlayer = function() {
 
-    let nearest = players.nearest(this.room_id, this.x, this.y, this.targetPlayerCondition, this);
+    let nearest = players.nearest(this.room_id, this.x, this.y, this.reachableCondition(this.targetPlayerCondition), this);
 
     if(!nearest) return null;
 
@@ -79,6 +79,7 @@ Mag.prototype.targetPlayer = function() {
             return {x: this.x + x, y: this.y + y};
         }
         else{
+            this.targetEntityId = nearest.id;
             return nearest.pos;
         }
     }

@@ -1,10 +1,13 @@
 module.exports = Teleport;
 
 const rooms = require('./rooms.js');
+require('./constants')();
 
 const
     WIDTH = 70,
-    HEIGHT = 50;
+    HEIGHT = 50,
+    // Сколько секунд игрок должен простоять центром на телепорте, чтобы его перенесло. Проход насквозь короче
+    STAND_TIME = 0.5;
 
 function Teleport(room_id, x, y, character_id, target, type) {
     this.ID = 'teleport'+Math.floor(Math.random()*65536);
@@ -28,6 +31,9 @@ function Teleport(room_id, x, y, character_id, target, type) {
     };
 
     this.changed = true;
+
+    // Сколько уже стоят на телепорте: ID игрока -> секунды
+    this.standing = new Map();
 }
 
 Teleport.prototype.run = function(step){
@@ -105,21 +111,29 @@ Teleport.prototype.touch = function(players){
         //Если разные комнаты, то не касаются
         if(this.room_id !== players[i].room_id) continue;
 
-        if(isTouch(this, players[i])){
+        if(isStanding(this, players[i])){
             touchers.push(players[i]);
         }
     }
 
+    // Сошедших с телепорта забываем
+    const standing = new Map();
+    for (const player of touchers) {
+        standing.set(player.ID, (this.standing.get(player.ID) || 0) + STEP);
+    }
+    this.standing = standing;
+
     if(touchers.length===0) return;
 
-    //Если коснулись - переместим коснувшихся
+    //Переместим тех, кто простоял достаточно
     for(let i in touchers){
 
         //Если телепорт активен
-        if(this.workTime<=0) {
+        if(this.workTime<=0 && this.standing.get(touchers[i].ID) >= STAND_TIME) {
 
             // Переместим
             touchers[i].teleport(this);
+            this.standing.delete(touchers[i].ID);
 
             this.workTime = 3.0; //деактивируем на 3 секунды
 
@@ -130,17 +144,10 @@ Teleport.prototype.touch = function(players){
 };
 
 
-function isTouch(item, player){
-    if (
-        item.x < player.x + player.width
-        &&
-        item.x + item.width > player.x
-        &&
-        item.y - item.height < player.y
-        &&
-        item.y > player.y - player.height
-    ) {
-        return true;
-    }
-    return false;
+// Центр игрока внутри телепорта (y у объектов - нижний край)
+function isStanding(item, player){
+    const x = player.x + player.width / 2,
+        y = player.y - player.height / 2;
+
+    return item.x < x && x < item.x + item.width && item.y - item.height < y && y < item.y;
 }
