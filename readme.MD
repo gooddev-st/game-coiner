@@ -9,7 +9,7 @@
 | `static/` | HTML, собранный клиент, спрайты, звуки, карты |
 | `nginx/` | шаблон конфига nginx для `static-web` |
 | `local/init.sql` | схема БД |
-| `deploy/` | конфиги для запуска на VPS без Docker |
+| `deploy/` | конфиги и хук деплоя для запуска на VPS без Docker |
 
 ## Локальный запуск
 
@@ -71,9 +71,11 @@ docker compose -f docker-compose.local.yml down -v
 
 ## VPS без Docker
 
-Рассчитано на VPS с 1 ГБ ОЗУ и Debian 12 или Ubuntu 24.04. Сервер занимает около 100 МБ, MariaDB с профилем из `deploy/` — около 100 МБ. Наружу открыт только nginx: он отдаёт `static/` и проксирует `/socket.io/` на игровой сервер, который слушает `127.0.0.1:3000`. Клиент подключается к тому же домену (`static/config.js`).
+Рассчитано на VPS с 1 ГБ ОЗУ и Debian 12 или Ubuntu 24.04. Сервер занимает около 100 МБ, MariaDB с профилем из `deploy/` — около 70 МБ. Игровой сервер слушает `127.0.0.1:3000`, наружу открыт только веб-сервер (nginx или Caddy): он отдаёт `static/` и проксирует `/socket.io/` на игровой сервер. Клиент подключается к тому же домену (`static/config.js`).
 
 A-запись домена `game.good-dev.tech` должна указывать на VPS.
+
+Код лежит в bare-репозитории `/opt/game-coiner.git`, рабочая копия — `/opt/game-coiner`. Деплой — `git push` в этот репозиторий, см. [Деплой](#деплой).
 
 1. Swap, чтобы установка пакетов не упиралась в память:
    ```bash
@@ -83,14 +85,16 @@ A-запись домена `game.good-dev.tech` должна указывать
 
 2. Пакеты и Node.js 26:
    ```bash
-   apt update && apt install -y git nginx mariadb-server certbot python3-certbot-nginx
+   apt update && apt install -y git mariadb-server
    curl -fsSL https://deb.nodesource.com/setup_26.x | bash - && apt install -y nodejs
    ```
 
-3. Код. Клиент на VPS не собирается: `static/js/client.js` лежит в репозитории.
+3. Код и хук деплоя. Клиент на VPS не собирается: `static/js/client.js` лежит в репозитории.
    ```bash
    useradd --system --home /opt/game-coiner --shell /usr/sbin/nologin game
-   git clone https://github.com/gooddev-st/game-coiner.git /opt/game-coiner
+   git clone --bare https://github.com/gooddev-st/game-coiner.git /opt/game-coiner.git
+   mkdir /opt/game-coiner && git --git-dir=/opt/game-coiner.git --work-tree=/opt/game-coiner checkout -f master
+   install -m 755 /opt/game-coiner/deploy/post-receive /opt/game-coiner.git/hooks/
    cd /opt/game-coiner/serversrc && npm ci --omit=dev
    ```
 
@@ -111,8 +115,19 @@ A-запись домена `game.good-dev.tech` должна указывать
    systemctl daemon-reload && systemctl enable --now game-coiner
    ```
 
-6. HTTPS и nginx. Сертификат получаем, пока работает стандартный сайт nginx, затем включаем свой конфиг:
+6. HTTPS — один из вариантов.
+
+   **Caddy.** Подходит, если Caddy уже занимает 80/443 (например, с NaiveProxy) или nginx не нужен. Сертификат Caddy получает и продлевает сам. Дописать блок сайта в конец `/etc/caddy/Caddyfile` и перечитать конфиг:
    ```bash
+   cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.bak
+   (echo; cat /opt/game-coiner/deploy/Caddyfile.game-coiner) >> /etc/caddy/Caddyfile
+   caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy
+   ```
+   Сайт с конкретным доменом приоритетнее catch-all блоков вроде `:443`, поэтому остальные сайты Caddy не затрагиваются. Email для Let's Encrypt можно указать директивой `tls email@example.com` в блоке сайта.
+
+   **nginx.** Сертификат получаем, пока работает стандартный сайт nginx, затем включаем свой конфиг:
+   ```bash
+   apt install -y nginx certbot python3-certbot-nginx
    certbot certonly --nginx -d game.good-dev.tech
    cp /opt/game-coiner/deploy/nginx-game-coiner.conf /etc/nginx/sites-available/game-coiner
    ln -s /etc/nginx/sites-available/game-coiner /etc/nginx/sites-enabled/ && rm /etc/nginx/sites-enabled/default
@@ -122,14 +137,35 @@ A-запись домена `game.good-dev.tech` должна указывать
 
 7. Файрвол (если используется `ufw`):
    ```bash
-   ufw allow OpenSSH && ufw allow 'Nginx Full' && ufw enable
+   ufw allow OpenSSH && ufw allow 80/tcp && ufw allow 443/tcp && ufw enable
    ```
 
 Игра: https://game.good-dev.tech/game.html
 
-Обновление и логи:
+### Деплой
+
+Один раз добавить VPS как remote (нужен SSH-доступ по ключу):
 
 ```bash
-cd /opt/game-coiner && git pull && (cd serversrc && npm ci --omit=dev) && systemctl restart game-coiner
-journalctl -u game-coiner -f
+git remote add prod root@game.good-dev.tech:/opt/game-coiner.git
+```
+
+Выкладка — push ветки `master`:
+
+```bash
+git push prod master
+```
+
+Хук `deploy/post-receive` выкладывает код в `/opt/game-coiner`, запускает `npm ci` в `serversrc/`, если изменился `package-lock.json`, и перезапускает `game-coiner`. Результат выводится в консоль push. Push других веток код не выкладывает. Клиент собирается локально: перед деплоем закоммитить пересобранный `static/js/client.js` и поднять версию в `static/game.html`.
+
+После правок самого хука в репозитории его нужно обновить на сервере:
+
+```bash
+ssh root@game.good-dev.tech install -m 755 /opt/game-coiner/deploy/post-receive /opt/game-coiner.git/hooks/
+```
+
+Логи:
+
+```bash
+ssh root@game.good-dev.tech journalctl -u game-coiner -f
 ```

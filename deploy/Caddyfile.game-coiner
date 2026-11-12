@@ -1,0 +1,7 @@
+game.good-dev.tech {
+  encode gzip
+  root * /opt/game-coiner/static
+  header /config.js Cache-Control no-store
+  reverse_proxy /socket.io/* 127.0.0.1:3000
+  file_server
+}

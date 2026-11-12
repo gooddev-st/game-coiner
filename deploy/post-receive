@@ -1,0 +1,24 @@
+#!/bin/sh
+# Деплой при push в master: выкладывает код в рабочую папку, ставит зависимости при изменении lock-файла и перезапускает сервер
+set -e
+
+APP=/opt/game-coiner
+ZERO=0000000000000000000000000000000000000000
+
+while read old new ref; do
+    if [ "$ref" != refs/heads/master ]; then
+        echo "$ref не деплоится, деплоится только master"
+        continue
+    fi
+
+    git --work-tree="$APP" checkout -f master
+
+    if [ "$old" = "$ZERO" ] || ! git diff --quiet "$old" "$new" -- serversrc/package-lock.json; then
+        echo "Ставим зависимости сервера"
+        (cd "$APP/serversrc" && npm ci --omit=dev --no-audit --no-fund)
+    fi
+
+    systemctl restart game-coiner
+    sleep 2
+    echo "game-coiner: $(systemctl is-active game-coiner), версия $(git rev-parse --short "$new")"
+done
