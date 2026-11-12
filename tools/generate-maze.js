@@ -8,12 +8,15 @@ const path = require('path');
 const MAP_TILES = 50; // карта 50x50 тайлов
 const CELLS = 10; // лабиринт 10x10 клеток, между клетками стены в один тайл
 const TILE = 64;
-const EXTRA_PASSAGES = 0.12; // доля лишних проходов, чтобы были петли
-const ORK_GROUPS = 4;
-const ORKS_PER_GROUP = 2;
+const EXTRA_PASSAGES = 0.3; // доля лишних проходов, чтобы были петли
+const MONSTERS = ['ork', 'skeleton', 'gob', 'pirat', 'dead', 'kroko', 'juk', 'elf', 'koil', 'darka', 'gunner', 'mag', 'doc', 'prof'];
+const MONSTERS_PER_GROUP = 2;
 
 const FLOOR_TILES = [640, 672];
-const WALL_TILES = [849, 850, 851, 852, 881, 882, 883, 884, 913, 914, 915, 916];
+// Стены из того же набора, что на карте labirint: горизонтальная, вертикальные (в левой или правой половине тайла) и углы
+const WALL_HORIZONTAL = 918;
+const WALL_VERTICAL = {left: 885, right: 887};
+const WALL_CORNERS = {ES: 853, WS: 855, EN: 917, WN: 919};
 const FLOOR_DECOR = [828, 829, 830, 924, 987, 1019];
 const FLOOR_DECOR_CHANCE = 0.03;
 
@@ -135,13 +138,23 @@ wallRows.forEach((r) => {
     }
 });
 
+// Сторона тайла, в которой нарисована вертикальная стена: к ней примыкают горизонтальные стены на концах
+const verticalSide = wall.map((row) => row.map(() => null));
+
 wallRows.forEach((c) => {
     for (let r = 0; r < MAP_TILES;) {
         if (!wall[r][c]) { r++; continue; }
         const r0 = r;
         while (r < MAP_TILES && wall[r][c]) r++;
         // Одиночный столб без вертикальной стены уже покрыт горизонтальным отрезком
-        if (r - r0 > 1) bariers.push({x: c, y: r0, w: 1, h: r - r0});
+        if (r - r0 < 2) continue;
+
+        const east = wall[r0][c + 1] || wall[r - 1][c + 1],
+            west = wall[r0][c - 1] || wall[r - 1][c - 1],
+            side = east && !west ? 'left' : 'right';
+
+        for (let rr = r0; rr < r; rr++) verticalSide[rr][c] = side;
+        bariers.push({x: side === 'left' ? c : c + 0.5, y: r0, w: 0.5, h: r - r0});
     }
 });
 
@@ -150,6 +163,22 @@ const barierObjects = bariers.map((b, i) => ({
     width: b.w * TILE, x: b.x * TILE, y: b.y * TILE,
 }));
 
+// Тайл стены по соседним стенам
+function wallTile(r, c) {
+    const at = (rr, cc) => rr >= 0 && cc >= 0 && rr < MAP_TILES && cc < MAP_TILES && wall[rr][cc];
+    const n = at(r - 1, c), s = at(r + 1, c), w = at(r, c - 1), e = at(r, c + 1);
+
+    const side = verticalSide[r][c] || 'right';
+
+    if ((n || s) && !(w || e)) return WALL_VERTICAL[side];
+
+    // Угол рисуем, только если его вертикальная часть с той же стороны, что и стена под/над ним
+    const corner = (e && !w ? 'E' : w && !e ? 'W' : '') + (s && !n ? 'S' : n && !s ? 'N' : '');
+    const cornerSide = corner[0] === 'E' ? 'left' : 'right';
+
+    return corner.length === 2 && cornerSide === side ? WALL_CORNERS[corner] : WALL_HORIZONTAL;
+}
+
 // Тайлы
 const baseTiles = [], decor = [];
 for (let r = 0; r < MAP_TILES; r++) {
@@ -157,7 +186,7 @@ for (let r = 0; r < MAP_TILES; r++) {
         baseTiles.push(pick(FLOOR_TILES));
 
         const nearEntrance = r < cellSize[0] && c < cellSize[0];
-        if (wall[r][c]) decor.push(pick(WALL_TILES));
+        if (wall[r][c]) decor.push(wallTile(r, c));
         else if (!nearEntrance && random() < FLOOR_DECOR_CHANCE) decor.push(pick(FLOOR_DECOR));
         else decor.push(0);
     }
@@ -189,17 +218,23 @@ const cells = [];
 for (let y = 0; y < CELLS; y++) for (let x = 0; x < CELLS; x++) cells.push({x, y, d: distance[y][x]});
 if (cells.some((cell) => cell.d === Infinity)) throw new Error('Лабиринт несвязный');
 
-// Самые дальние клетки, не соседствующие друг с другом
-const orkCells = [];
-cells.sort((a, b) => b.d - a.d).forEach((cell) => {
-    if (orkCells.length < ORK_GROUPS && orkCells.every((o) => Math.abs(o.x - cell.x) + Math.abs(o.y - cell.y) > 3)) {
-        orkCells.push(cell);
-    }
-});
+// Клетки групп мобов: сначала дальние от входа, разнесенные друг от друга. Если не помещаются - сближаем
+cells.sort((a, b) => b.d - a.d);
 
-const populations = orkCells.map((cell, i) => ({
-    height: cellSize[cell.y] * TILE, id: barierObjects.length + i + 1, name: 'orkPopulation' + (i + 1),
-    properties: {maxNum: ORKS_PER_GROUP, monster: 'ork', spawnTime: 30},
+let groupCells = [];
+for (let spacing = 3; spacing >= 0 && groupCells.length < MONSTERS.length; spacing--) {
+    groupCells = [];
+    cells.forEach((cell) => {
+        if (cell.d > 2 && groupCells.length < MONSTERS.length &&
+            groupCells.every((o) => Math.abs(o.x - cell.x) + Math.abs(o.y - cell.y) > spacing)) {
+            groupCells.push(cell);
+        }
+    });
+}
+
+const populations = groupCells.map((cell, i) => ({
+    height: cellSize[cell.y] * TILE, id: barierObjects.length + i + 1, name: MONSTERS[i] + 'Population',
+    properties: {maxNum: MONSTERS_PER_GROUP, monster: MONSTERS[i], spawnTime: 30},
     propertytypes: {maxNum: 'int', monster: 'string', spawnTime: 'float'},
     rotation: 0, type: 'population', visible: true,
     width: cellSize[cell.x] * TILE, x: cellStart[cell.x] * TILE, y: cellStart[cell.y] * TILE,
@@ -227,4 +262,4 @@ const map = {
 };
 
 fs.writeFileSync(out, JSON.stringify(map));
-console.log(`Карта ${out}: препятствий ${barierObjects.length}, групп орков ${populations.length}`);
+console.log(`Карта ${out}: препятствий ${barierObjects.length}, групп мобов ${populations.length}`);

@@ -275,9 +275,11 @@ const roomsSettings = [
         // Сгенерирована tools/generate-maze.js
         file: 'maze.json',
 
-        coins_num: 50,
-        coins_max_limit: 50,
-        coins_generate_interval: 0.5,
+        coins_num: 120,
+        coins_max_limit: 120,
+        coins_generate_interval: 0.3,
+
+        teleports_num: 11,
     },
 ];
 
