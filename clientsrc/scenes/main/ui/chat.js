@@ -7,8 +7,13 @@ export default {start, stop}
 
 
 const MAX_LENGTH = 500;
-const EMOJI = ['😀', '😂', '🤣', '😊', '😍', '😘', '😎', '🤔', '😏', '😢', '😭', '😡', '😱', '🤯', '😴', '🙄',
+// Если полный список эмодзи не загрузился
+const FALLBACK_EMOJI = ['😀', '😂', '🤣', '😊', '😍', '😘', '😎', '🤔', '😏', '😢', '😭', '😡', '😱', '🤯', '😴', '🙄',
     '👍', '👎', '👏', '🙏', '💪', '🤝', '👋', '✌️', '❤️', '🔥', '⭐', '🎉', '💰', '⚔️', '🛡️', '💀'];
+const EMOJI_URL = 'data/emoji.json?v=2';
+const RECENT_KEY = 'chat_emoji_recent';
+const RECENT_LIMIT = 40;
+const SEARCH_LIMIT = 300;
 const URL_PATTERN = /https?:\/\/[^\s<>"']+/g;
 
 const panel = document.getElementById("chat-panel");
@@ -26,6 +31,10 @@ const counter = document.getElementById("chat-counter");
 
 const baseTitle = document.title;
 
+// На телефоне Enter переносит строку, отправка - кнопкой
+const touchInput = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+const MAX_INPUT_HEIGHT = 140;
+
 // Отдельная страница: панель всегда развернута
 let standalone = false;
 
@@ -34,7 +43,8 @@ let me = null,
     hasMore = false,
     loadingOlder = false,
     unread = 0,
-    editingId = null;
+    editingId = null,
+    pinnedToBottom = true;
 
 
 function start(options) {
@@ -61,6 +71,9 @@ function start(options) {
     input.addEventListener('input', updateCounter, false);
     document.addEventListener('keydown', onDocumentKeydown, false);
     document.addEventListener('visibilitychange', markRead, false);
+    window.addEventListener('resize', onResize, false);
+
+    if (touchInput) input.placeholder = 'Сообщение';
 
     events.add('chat', {action: 'history'});
 }
@@ -84,6 +97,7 @@ function stop() {
     input.removeEventListener('input', updateCounter, false);
     document.removeEventListener('keydown', onDocumentKeydown, false);
     document.removeEventListener('visibilitychange', markRead, false);
+    window.removeEventListener('resize', onResize, false);
 
     panel.style.display = 'none';
     document.title = baseTitle;
@@ -133,7 +147,9 @@ function onHistory(data) {
         messages = new Map();
         data.messages.forEach((item) => list.appendChild(render(item)));
 
-        panel.style.display = 'block';
+        // Пустое значение - вид панели задает CSS (в игре блок, на отдельной странице flex)
+        panel.style.display = '';
+        updateCounter();
         if (!isCollapsed()) scrollToBottom();
         return;
     }
@@ -297,6 +313,7 @@ function toggle() {
     panel.classList.toggle('collapsed');
 
     if (!isCollapsed()) {
+        updateCounter();
         scrollToBottom();
         markRead();
         input.focus();
@@ -313,6 +330,8 @@ function scrollToBottom() {
 
 
 function onScroll() {
+    pinnedToBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 40;
+
     if (list.scrollTop > 30 || !hasMore || loadingOlder || !list.firstElementChild) return;
 
     loadingOlder = true;
@@ -393,11 +412,22 @@ function updateCounter() {
 
     counter.textContent = length > MAX_LENGTH - 100 ? length + ' / ' + MAX_LENGTH : '';
     counter.classList.toggle('over', length > MAX_LENGTH);
+
+    // Поле растет по тексту до MAX_INPUT_HEIGHT, дальше - прокрутка
+    // У скрытой панели высота 0 - тогда оставляем высоту из CSS
+    input.style.height = 'auto';
+    input.style.height = input.scrollHeight ? Math.min(input.scrollHeight + 2, MAX_INPUT_HEIGHT) + 'px' : '';
+}
+
+
+// Клавиатура телефона или поворот экрана меняют высоту - остаемся у последних сообщений
+function onResize() {
+    if (pinnedToBottom) scrollToBottom();
 }
 
 
 function onInputKeydown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !touchInput) {
         e.preventDefault();
         submit();
     }
@@ -420,27 +450,173 @@ function onDocumentKeydown(e) {
 }
 
 
+/*
+ * Палитра эмодзи: вкладки категорий, недавние и поиск. Список грузится при первом открытии
+ */
+let emojiGroups = null, // [{name, icon, emojis: [[эмодзи, строка поиска]]}]
+    emojiTab = 0, // -1 - недавние
+    emojiTabs = null,
+    emojiSearch = null,
+    emojiGrid = null;
+
+
 function toggleEmoji() {
-    if (!emojiPanel.childElementCount) {
-        EMOJI.forEach((emoji) => emojiPanel.appendChild(button('', emoji, emoji)));
+    if (!emojiGrid) buildEmojiPanel();
+
+    const show = emojiPanel.style.display === 'none';
+    emojiPanel.style.display = show ? '' : 'none';
+}
+
+
+function buildEmojiPanel() {
+    emojiTabs = document.createElement('div');
+    emojiTabs.className = 'chat-emoji-tabs';
+
+    emojiSearch = document.createElement('input');
+    emojiSearch.className = 'chat-emoji-search';
+    emojiSearch.type = 'search';
+    emojiSearch.placeholder = 'Поиск: смех, кот, пицца, flag…';
+    emojiSearch.addEventListener('input', renderEmojiGrid, false);
+    emojiSearch.addEventListener('keydown', onEmojiSearchKeydown, false);
+
+    emojiGrid = document.createElement('div');
+    emojiGrid.className = 'chat-emoji-grid';
+    emojiGrid.textContent = 'Загрузка…';
+
+    emojiPanel.appendChild(emojiTabs);
+    emojiPanel.appendChild(emojiSearch);
+    emojiPanel.appendChild(emojiGrid);
+
+    fetch(EMOJI_URL)
+        .then((response) => response.json())
+        .then((data) => data.groups)
+        .catch(() => [{name: 'Смайлы', icon: '😀', emojis: FALLBACK_EMOJI.map((emoji) => [emoji, ''])}])
+        .then((groups) => {
+            emojiGroups = groups;
+            emojiTab = readRecent().length ? -1 : 0;
+            renderEmojiTabs();
+            renderEmojiGrid();
+        });
+}
+
+
+function renderEmojiTabs() {
+    emojiTabs.textContent = '';
+
+    const tabs = [{icon: '🕘', name: 'Недавние', index: -1}].concat(emojiGroups.map((group, index) => ({icon: group.icon, name: group.name, index})));
+
+    tabs.forEach((tab) => {
+        const element = button('chat-emoji-tab' + (tab.index === emojiTab ? ' active' : ''), tab.icon, tab.name);
+        element.dataset.tab = tab.index;
+        emojiTabs.appendChild(element);
+    });
+}
+
+
+function renderEmojiGrid() {
+    if (!emojiGroups) return;
+
+    const query = emojiSearch.value.trim().toLowerCase();
+    let list;
+
+    if (query) {
+        // Каждое слово запроса - начало одного из слов названия: «разведение рук», «кот», «фейс»
+        const parts = query.split(/\s+/);
+        list = [];
+        for (const group of emojiGroups) {
+            for (const [emoji, words] of group.emojis) {
+                const text = ' ' + words;
+                if (parts.every((part) => text.indexOf(' ' + part) >= 0)) list.push(emoji);
+                if (list.length >= SEARCH_LIMIT) break;
+            }
+        }
+    }
+    else {
+        list = emojiTab === -1 ? readRecent() : emojiGroups[emojiTab].emojis.map((item) => item[0]);
     }
 
-    emojiPanel.style.display = emojiPanel.style.display === 'none' ? 'flex' : 'none';
+    emojiGrid.textContent = '';
+
+    if (!list.length) {
+        emojiGrid.textContent = query ? 'Ничего не найдено' : 'Здесь появятся смайлы, которые вы отправляли';
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    list.forEach((emoji) => {
+        const element = button('chat-emoji-item', emoji, '');
+        fragment.appendChild(element);
+    });
+    emojiGrid.appendChild(fragment);
+    emojiGrid.scrollTop = 0;
 }
 
 
 function onEmojiClick(e) {
-    if (e.target.tagName !== 'BUTTON') return;
+    const target = e.target.closest('button');
+    if (!target) return;
 
-    // Вставляем в позицию курсора
-    const emoji = e.target.textContent,
-        start = input.selectionStart,
+    if (target.classList.contains('chat-emoji-tab')) {
+        emojiTab = Number(target.dataset.tab);
+        emojiSearch.value = '';
+        renderEmojiTabs();
+        renderEmojiGrid();
+        return;
+    }
+
+    if (target.classList.contains('chat-emoji-item')) {
+        insertEmoji(target.textContent);
+    }
+}
+
+
+function onEmojiSearchKeydown(e) {
+    // Enter - первый найденный, Esc - закрыть палитру
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const first = emojiGrid.querySelector('.chat-emoji-item');
+        if (first) insertEmoji(first.textContent);
+    }
+    else if (e.key === 'Escape') {
+        emojiPanel.style.display = 'none';
+        input.focus();
+    }
+}
+
+
+// Вставляем в позицию курсора
+function insertEmoji(emoji) {
+    const start = input.selectionStart,
         end = input.selectionEnd;
 
     input.value = input.value.slice(0, start) + emoji + input.value.slice(end);
     input.selectionStart = input.selectionEnd = start + emoji.length;
-    input.focus();
+    if (!touchInput) input.focus();
     updateCounter();
+
+    rememberRecent(emoji);
+}
+
+
+// Недавние хранятся в браузере. localStorage может быть недоступен (приватный режим) - тогда без них
+function readRecent() {
+    try {
+        const list = JSON.parse(localStorage.getItem(RECENT_KEY));
+        return Array.isArray(list) ? list : [];
+    }
+    catch (e) {
+        return [];
+    }
+}
+
+
+function rememberRecent(emoji) {
+    const list = [emoji].concat(readRecent().filter((item) => item !== emoji)).slice(0, RECENT_LIMIT);
+
+    try {
+        localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+    }
+    catch (e) {}
 }
 
 
