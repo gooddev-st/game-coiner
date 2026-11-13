@@ -13,6 +13,8 @@ const log = require('./log.js');
 const KEYS_FILE = path.join(__dirname, '../.vapid.json');
 const BODY_LENGTH = 100; // символов текста в уведомлении
 const TTL = 24 * 60 * 60; // секунд, сколько push-сервис хранит пуш для выключенного устройства
+// Высокий приоритет: иначе Android в режиме экономии откладывает пуш, пока не проснется сам или не откроют браузер
+const URGENCY = 'high';
 
 const keys = loadKeys();
 
@@ -72,7 +74,7 @@ async function send(item, exceptLogins) {
     await Promise.all(subscriptions.map((row) => {
         const subscription = {endpoint: row.endpoint, keys: {p256dh: row.p256dh, auth: row.auth}};
 
-        return webpush.sendNotification(subscription, payload, {TTL})
+        return webpush.sendNotification(subscription, payload, {TTL, urgency: URGENCY})
             .catch((err) => {
                 // Подписка отозвана или браузер удален - больше не шлем
                 if (err.statusCode === 404 || err.statusCode === 410) {
