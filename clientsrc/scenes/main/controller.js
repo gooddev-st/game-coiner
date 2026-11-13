@@ -40,6 +40,9 @@ const keys = {
 
 let clickPad = null;
 
+// Клавиши в полях ввода (чат) героем не управляют
+const isTyping = (e) => e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
+
 //Для генерации событий движения в направлении от hero к позиции мыши  (при нажатой левой клавише)
 let interval = null,
     lastMousePos = {},
@@ -103,6 +106,8 @@ function setClickPad(_clickPad) {
  * @param e
  */
 function onKeydown(e) {
+    if (isTyping(e)) return;
+
     switch (e.keyCode) {
 
         case keys.LEFT:
@@ -166,6 +171,8 @@ function onKeydown(e) {
  * @param e
  */
 function onKeyup(e) {
+    if (isTyping(e)) return;
+
     switch (e.keyCode) {
         case keys.LEFT:
         case keys.A:

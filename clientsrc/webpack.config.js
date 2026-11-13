@@ -3,10 +3,13 @@ const path = require("path");
 module.exports = {
 
     context: __dirname,
-    entry: './index',
+    entry: {
+        client: './index',
+        chat: './chat-page',
+    },
     output: {
         path: path.resolve(__dirname, '../static/js'),
-        filename: 'client.js'
+        filename: '[name].js'
     },
     module: {
         rules: [

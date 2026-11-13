@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="css/style.css?v=0.20">
     <link rel="stylesheet" href="css/skills.css?v=0.20">
+    <link rel="stylesheet" href="css/chat.css?v=0.23">
     <title>Игра в монеты</title>
 </head>
 <body>
@@ -103,6 +104,28 @@
 </div>
 
 
+<div id="chat-panel" class="chat-panel collapsed" style="display: none">
+    <div id="chat-header" class="chat-header">
+        <span class="chat-title">Чат</span>
+        <span id="chat-unread" class="chat-unread"></span>
+        <span id="chat-online" class="chat-online"></span>
+    </div>
+    <div class="chat-body">
+        <div id="chat-messages" class="chat-messages"></div>
+        <div id="chat-emoji" class="chat-emoji" style="display: none"></div>
+        <div id="chat-editing" class="chat-editing" style="display: none">
+            Редактирование <button id="chat-edit-cancel" type="button" title="Отменить (Esc)">×</button>
+        </div>
+        <div class="chat-form">
+            <button id="chat-emoji-button" class="chat-emoji-button" type="button" title="Смайлики">😀</button>
+            <textarea id="chat-input" rows="2" placeholder="Сообщение. Enter — отправить, Shift+Enter — новая строка"></textarea>
+            <button id="chat-send" class="chat-send" type="button" title="Отправить">➤</button>
+        </div>
+        <div id="chat-counter" class="chat-counter"></div>
+    </div>
+</div>
+
+
 <div class="logs-wrapper">
     <div id="logs" class="logs"></div>
 </div>
@@ -117,9 +140,10 @@
 <div id="login-panel" class="login-panel" style="display: none"></div>
 <div id="login-form" class="login-form" style="display: none">
     <div>
-        <input id="login-input" type="text" placeholder="login"><br>
-        <input id="password-input" type="text" placeholder="passwprd">
+        <input id="login-input" type="text" placeholder="login" maxlength="20"><br>
+        <input id="password-input" type="password" placeholder="password" maxlength="64">
         <button id="login-button">Войти</button>
+        <div id="login-error" class="login-error"></div>
     </div>
 </div>
 
@@ -172,7 +196,7 @@
 </div>
 
 <script src="config.js"></script>
-<script src="js/client.js?v=0.22"></script>
+<script src="js/client.js?v=0.24"></script>
 <script src="js/jquery.min.js"></script>
 <script>
 
@@ -221,6 +245,7 @@
         var $doc = $(document);
 
         $doc.keyup(function (e) {
+            if ($(e.target).is('input, textarea')) return;
             if (e.keyCode == 19 || e.keyCode == 192) {//Pause или тильда
                 $('body').toggleClass('consoled');
             }

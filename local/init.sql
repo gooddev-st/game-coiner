@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     `password` VARCHAR(255) NOT NULL,
     `current_avatar` INT UNSIGNED NULL,
     `lastvisit` DATETIME NULL,
+    `chat_allowed` TINYINT(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `login` (`login`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -23,5 +24,14 @@ CREATE TABLE IF NOT EXISTS `avatar` (
     `y` FLOAT NULL,
     `maxHealth` FLOAT NULL,
     `health` FLOAT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `chat_message` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `login` VARCHAR(64) NOT NULL,
+    `text` VARCHAR(500) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `edited_at` DATETIME NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -137,6 +137,8 @@ function start(callback) {
 
     ui.top10.start();
 
+    ui.chat.start();
+
 
     /**
      * Основной цикл
@@ -190,6 +192,8 @@ function stop() {
     ui.unitInfo.stop();
 
     ui.top10.stop();
+
+    ui.chat.stop();
 
     finalCallback();
 }

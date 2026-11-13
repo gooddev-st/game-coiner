@@ -9,6 +9,8 @@ import ui from "./engine/ui/ui.js";
 
 import signIn from "./scenes/signin";
 
+import account from "./account";
+
 
 export default {init, add, on, off, disconnect, isKicked}
 
@@ -25,12 +27,16 @@ let kicked = false;
 
 let onLogged = null;
 
+// Событие входа: 'login' - в игру, 'chat-login' - только в чат (страница chat.html)
+let loginEvent = 'login';
+
 
 /**
  * Инитим игровые события. Обработчики сокета навешиваются один раз, переподключение делает socket.io
  */
-function init(callback) {
+function init(callback, event) {
     onLogged = callback;
+    loginEvent = event || 'login';
 
     if (serverSocket) return;
 
@@ -56,16 +62,30 @@ function init(callback) {
 
             // Пока вводили логин, соединение могло оборваться: тогда войдём по следующему hello
             if (serverSocket.connected) {
-                add('login', account);
+                add(loginEvent, account);
             }
         });
     });
 
     //После успешного входа (если неуспешный - сервер опять пошлет hello)
-    on('logged', (eventName, type) => {
+    on('logged', (eventName, type, data) => {
         if (type === 'success' && !logged) {
             logged = true;
             onLogged();
+        }
+
+        // Неверный пароль: сохраненный вход забываем и спрашиваем заново
+        if (type === 'fail' && !logged && !signingIn) {
+            account.signout();
+            signingIn = true;
+
+            signIn.start(function (account) {
+                signingIn = false;
+
+                if (serverSocket.connected) {
+                    add(loginEvent, account);
+                }
+            }, data && data.message);
         }
     });
 

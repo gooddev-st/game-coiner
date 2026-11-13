@@ -458,3 +458,10 @@ and (max-device-width: 320px) {
         left: -9999px;
     }
 }
+
+.login-form .login-error{
+    color: #ff4d4d;
+    font: bold 13px sans-serif;
+    margin-top: 6px;
+    min-height: 16px;
+}

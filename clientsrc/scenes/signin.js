@@ -7,6 +7,7 @@ const login_panelElement = document.getElementById("login-panel");
 const login_formElement = document.getElementById("login-form");
 const login_inputElement = document.getElementById("login-input");
 const password_inputElement = document.getElementById("password-input");
+const login_errorElement = document.getElementById("login-error");
 
 
 let finalCallback = null;
@@ -16,10 +17,12 @@ let
     timeout_p = null;
 
 
-// Выведем окно авторизации. Модальное
-function start(callback) {
+// Выведем окно авторизации. Модальное. error - причина, по которой спрашиваем снова
+function start(callback, error) {
 
     finalCallback = callback;
+
+    login_errorElement.textContent = error || '';
 
     //Получим из локал стора
     let userAccount = account.get();
@@ -72,9 +75,10 @@ function keyupHandler(e) {
     }
 
     else if (
-        //символы разрешенные в логине
-    /^[a-zA-Z0-9 +.\-_:"()]*?$/.test(obj.value) &&
-    obj.value.length < 10 // Максимальная длина логина
+        // Пароль - любые символы, логин - буквы (в том числе кириллица), цифры и немного знаков
+        obj === password_inputElement ?
+            obj.value.length <= 64 :
+            /^[a-zA-Zа-яА-ЯёЁ0-9 +.\-_:"()]*$/.test(obj.value) && obj.value.length <= 20
     ) {
         obj.defaultValue = obj.value;
 

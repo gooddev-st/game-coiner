@@ -19,6 +19,7 @@ const players = require("./players.js");//,// игроки
 const effects = require("./effects.js");
 
 const db = require('./db.js');
+const chat = require('./chat.js');
 
 const log = require("./log.js");
 
@@ -42,6 +43,7 @@ function run(io) {
     io.on('connection', (socket) => {
 
         let user = null,
+            chatLogin = null,
             loggingIn = false;
 
         //Отправим приветствие (уведомление об ожидании логина)
@@ -49,7 +51,7 @@ function run(io) {
 
         //При получении логина. Повторные логины на том же сокете игнорируем: вход асинхронный и иначе создаст дубли
         socket.on('login', (account) => {
-            if (user || loggingIn) return;
+            if (user || chatLogin || loggingIn) return;
             loggingIn = true;
 
             login(account, socket, (addedUser, message) => {
@@ -57,9 +59,35 @@ function run(io) {
 
                 db.updateUser(user.login);
 
-                events.one(socket, "logged", "success", {message: message});
+                events.one(socket, "logged", "success", {message: message, chat: user.chatAllowed});
+
+                if (user.chatAllowed) chat.join(user.login, socket);
+            }, (message) => {
+                loggingIn = false;
+
+                events.one(socket, "logged", "fail", {message: message});
             });
 
+        });
+
+        // Вход только в чат (страница chat.html): проверяем пароль и доступ, персонажа в мир не добавляем
+        socket.on('chat-login', (account) => {
+            if (user || chatLogin || loggingIn) return;
+            if (!account || typeof account.login !== 'string' || typeof account.password !== 'string') return;
+            loggingIn = true;
+
+            db.getUser(account, (res) => {
+                loggingIn = false;
+
+                if (!res.length || !res[0].chat_allowed) {
+                    events.one(socket, "logged", "fail", {message: res.length ? "Чат вам недоступен" : "Неверный логин или пароль"});
+                    return;
+                }
+
+                chatLogin = account.login;
+                chat.join(chatLogin, socket);
+                events.one(socket, "logged", "success", {chat: true});
+            });
         });
 
         //При получении запроса на аватара
@@ -73,7 +101,11 @@ function run(io) {
         });
 
         socket.on('disconnect', () => {
+            if (chatLogin) chat.leave(chatLogin, socket);
+
             if (user) {
+                chat.leave(user.login, socket);
+
                 db.updateUser(user.login);
                 user.avatar && user.avatar.destroy();
 
@@ -90,7 +122,17 @@ function run(io) {
 
 
 //логин
-function login(account, socket, callback) {
+function login(account, socket, callback, fail) {
+
+    if (!account || typeof account.login !== 'string' || typeof account.password !== 'string' || !account.login || !account.password) {
+        fail("Нужны логин и пароль");
+        return;
+    }
+
+    if ([...account.login].length > 20 || account.password.length > 64) {
+        fail("Логин до 20 символов, пароль до 64");
+        return;
+    }
 
 
     let user = users.get(account.login);
@@ -125,6 +167,7 @@ function login(account, socket, callback) {
                 };
 
                 user = new User( account, socket, userData );
+                user.chatAllowed = !!res[0].chat_allowed;
 
                 db.getAvatar(user.avatarID, (res)=>{
                     user.makeAvatar(res[0]);
@@ -138,60 +181,73 @@ function login(account, socket, callback) {
             //Если нет - создадим и вернем
                 //TODO: Тут можно сделать выбор аватара
             else{
-
-                //Параметры нового аватара
-                const avatarData = {
-                    name: account.login,
-                    character_id: false, //Выдаст случайный
-
-                    coins_count: 0,
-
-                    level: 1,
-                    score: 0,
-
-                    speed: PLAYER_START_SPEED,
-                    normal_speed: PLAYER_START_SPEED,
-                    attack_speed: PLAYER_START_SPEED,
-
-                    room_id: PLAYER_START_ROOM,
-                    x: PLAYER_START_X,
-                    y: PLAYER_START_Y,
-
-                    health: PLAYER_START_HEALTH,
-                    maxHealth: PLAYER_START_HEALTH,
-
-                };
-
-                log('Создадим аватара');
-                log(avatarData);
-
-                //Создадим аватара
-                db.createAvatar(avatarData, (avatarID) => {
-
-                    //Создадим пользователя
-                    //TODO: тут можно бы ругаться на отсутствие игрока или уже существующий логин
-                    db.createUser(account, avatarID);
-
-                    userData = {
-                        current_avatar: avatarID,
-                    };
-
-                    user = new User(account, socket, userData);
-
-                    avatarData.ID = 'avatar'+avatarID;
-                    user.makeAvatar(avatarData);
-
-                    users.add(account.login, user);
-
-                    log('создан новый пользователь: [' + account.login + ']');
-
-                    callback(user, "создан новый пользователь");
-                });
-
+                // Логин занят, а пароль не подошел - отказ, а не новый пользователь
+                db.userExists(account.login).then((exists) => {
+                    if (exists) {
+                        fail("Неверный пароль");
+                    }
+                    else {
+                        createUser(account, socket, callback);
+                    }
+                }).catch(() => fail("Ошибка сервера, попробуйте позже"));
             }
         });
 
     }
+}
+
+
+function createUser(account, socket, callback) {
+    let user, userData;
+
+    //Параметры нового аватара
+    const avatarData = {
+        name: account.login,
+        character_id: false, //Выдаст случайный
+
+        coins_count: 0,
+
+        level: 1,
+        score: 0,
+
+        speed: PLAYER_START_SPEED,
+        normal_speed: PLAYER_START_SPEED,
+        attack_speed: PLAYER_START_SPEED,
+
+        room_id: PLAYER_START_ROOM,
+        x: PLAYER_START_X,
+        y: PLAYER_START_Y,
+
+        health: PLAYER_START_HEALTH,
+        maxHealth: PLAYER_START_HEALTH,
+
+    };
+
+    log('Создадим аватара');
+    log(avatarData);
+
+    //Создадим аватара
+    db.createAvatar(avatarData, (avatarID) => {
+
+        //Создадим пользователя
+        //TODO: тут можно бы ругаться на отсутствие игрока или уже существующий логин
+        db.createUser(account, avatarID);
+
+        userData = {
+            current_avatar: avatarID,
+        };
+
+        user = new User(account, socket, userData);
+
+        avatarData.ID = 'avatar'+avatarID;
+        user.makeAvatar(avatarData);
+
+        users.add(account.login, user);
+
+        log('создан новый пользователь: [' + account.login + ']');
+
+        callback(user, "создан новый пользователь");
+    });
 }
 
 
