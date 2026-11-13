@@ -7,6 +7,7 @@ export default {start, stop, disablePush}
 
 
 const MAX_LENGTH = 500;
+const GROUP_INTERVAL = 5 * 60 * 1000; // мс между сообщениями автора, после которых начинается новая группа
 // Если полный список эмодзи не загрузился
 const FALLBACK_EMOJI = ['😀', '😂', '🤣', '😊', '😍', '😘', '😎', '🤔', '😏', '😢', '😭', '😡', '😱', '🤯', '😴', '🙄',
     '👍', '👎', '👏', '🙏', '💪', '🤝', '👋', '✌️', '❤️', '🔥', '⭐', '🎉', '💰', '⚔️', '🛡️', '💀'];
@@ -159,6 +160,7 @@ function onHistory(data) {
         list.textContent = '';
         messages = new Map();
         data.messages.forEach((item) => list.appendChild(render(item)));
+        regroup();
 
         // Пустое значение - вид панели задает CSS (в игре блок, на отдельной странице flex)
         panel.style.display = '';
@@ -176,6 +178,7 @@ function onHistory(data) {
     const fragment = document.createDocumentFragment();
     data.messages.filter((item) => !messages.has(item.id)).forEach((item) => fragment.appendChild(render(item)));
     list.insertBefore(fragment, list.firstChild);
+    regroup();
     list.scrollTop += list.scrollHeight - height;
 
     loadingOlder = false;
@@ -188,6 +191,7 @@ function addMessage(item) {
     const atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 40;
 
     list.appendChild(render(item));
+    regroup();
 
     if (item.login === me || atBottom) scrollToBottom();
 
@@ -200,7 +204,10 @@ function addMessage(item) {
 
 function updateMessage(item) {
     const old = messages.get(item.id);
-    if (old) old.replaceWith(render(item));
+    if (!old) return;
+
+    old.replaceWith(render(item));
+    regroup();
 }
 
 
@@ -210,47 +217,96 @@ function removeMessage(id) {
 
     element.remove();
     messages.delete(id);
+    regroup();
 
     if (editingId === id) cancelEdit();
 }
 
 
 function render(item) {
+    const own = item.login === me;
+
     const element = document.createElement('div');
-    element.className = 'chat-msg' + (item.login === me ? ' own' : '');
+    element.className = 'chat-msg' + (own ? ' own' : '');
     element.dataset.id = item.id;
     element.chatItem = item;
 
-    const meta = document.createElement('div');
-    meta.className = 'chat-meta';
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
 
-    const author = document.createElement('span');
+    const author = document.createElement('div');
     author.className = 'chat-author';
     author.textContent = item.login;
-    meta.appendChild(author);
-
-    const time = document.createElement('span');
-    time.textContent = formatTime(item.created) + (item.edited ? ' (изменено)' : '');
-    meta.appendChild(time);
-
-    if (item.login === me) {
-        const actions = document.createElement('span');
-        actions.className = 'chat-actions';
-        actions.appendChild(button('chat-edit', '✎', 'Изменить'));
-        actions.appendChild(button('chat-delete', '✕', 'Удалить'));
-        meta.appendChild(actions);
-    }
+    bubble.appendChild(author);
 
     const text = document.createElement('div');
     text.className = 'chat-text';
     appendText(text, item.text);
 
-    element.appendChild(meta);
-    element.appendChild(text);
+    // Время в правом нижнем углу облачка; невидимая копия в конце текста резервирует под него место
+    const timeText = (item.edited ? 'изменено ' : '') + formatTime(item.created);
+    const spacer = document.createElement('span');
+    spacer.className = 'chat-time-spacer';
+    spacer.textContent = timeText;
+    text.appendChild(spacer);
+    bubble.appendChild(text);
+
+    const time = document.createElement('span');
+    time.className = 'chat-time';
+    time.textContent = timeText;
+    time.title = new Date(item.created).toLocaleString();
+    bubble.appendChild(time);
+
+    if (own) {
+        const actions = document.createElement('div');
+        actions.className = 'chat-actions';
+        actions.appendChild(button('chat-edit', '✎', 'Изменить'));
+        actions.appendChild(button('chat-delete', '✕', 'Удалить'));
+        element.appendChild(actions);
+    }
+
+    element.appendChild(bubble);
 
     messages.set(item.id, element);
 
     return element;
+}
+
+
+// Подряд идущие сообщения одного автора - одна группа: имя у первого, хвостик у последнего. Между днями - дата
+function regroup() {
+    list.querySelectorAll('.chat-date').forEach((element) => element.remove());
+
+    let prev = null, prevDay = null;
+
+    Array.prototype.forEach.call(list.children, (element) => {
+        if (!element.chatItem) {
+            prev = null;
+            return;
+        }
+
+        const item = element.chatItem,
+            date = new Date(item.created),
+            day = date.toDateString();
+
+        if (day !== prevDay) {
+            const separator = document.createElement('div');
+            separator.className = 'chat-date';
+            separator.textContent = formatDay(date);
+            list.insertBefore(separator, element);
+            prev = null;
+            prevDay = day;
+        }
+
+        const first = !prev || prev.chatItem.login !== item.login ||
+            new Date(item.created) - new Date(prev.chatItem.created) > GROUP_INTERVAL;
+
+        element.classList.toggle('first', first);
+        if (prev) prev.classList.toggle('last', first);
+        element.classList.add('last');
+
+        prev = element;
+    });
 }
 
 
@@ -289,13 +345,26 @@ function appendText(element, text) {
 
 
 function formatTime(value) {
-    const date = new Date(value),
-        pad = (n) => String(n).padStart(2, '0'),
-        time = pad(date.getHours()) + ':' + pad(date.getMinutes());
+    const date = new Date(value);
+    return pad(date.getHours()) + ':' + pad(date.getMinutes());
+}
 
-    return date.toDateString() === new Date().toDateString() ?
-        time :
-        pad(date.getDate()) + '.' + pad(date.getMonth() + 1) + ' ' + time;
+
+function formatDay(date) {
+    const today = new Date(),
+        yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) return 'Сегодня';
+    if (date.toDateString() === yesterday.toDateString()) return 'Вчера';
+
+    return date.toLocaleDateString('ru-RU', date.getFullYear() === today.getFullYear() ?
+        {day: 'numeric', month: 'long'} :
+        {day: 'numeric', month: 'long', year: 'numeric'});
+}
+
+
+function pad(n) {
+    return String(n).padStart(2, '0');
 }
 
 
