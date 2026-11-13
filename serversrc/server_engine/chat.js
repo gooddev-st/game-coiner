@@ -6,6 +6,7 @@ module.exports = {join, leave};
 const db = require('./db.js');
 const events = require('./events.js');
 const log = require('./log.js');
+const push = require('./push.js');
 
 const MAX_LENGTH = 500; // в символах, эмодзи - один символ
 const HISTORY_LIMIT = 100;
@@ -15,6 +16,8 @@ const MIN_INTERVAL = 1000; // мс между отправками и правк
 const members = new Map();
 // Время последней отправки или правки: логин -> мс
 const lastAction = new Map();
+// Видна ли вкладка с чатом: сокет -> true/false. Пока клиент не сообщил - считаем видимой
+const visibility = new WeakMap();
 
 
 /**
@@ -55,6 +58,18 @@ function leave(login, socket) {
 }
 
 
+// Логины, у которых хотя бы в одной вкладке чат сейчас виден
+function watchingLogins() {
+    const result = [];
+
+    for (const [login, sockets] of members) {
+        if ([...sockets].some((socket) => visibility.get(socket) !== false)) result.push(login);
+    }
+
+    return result;
+}
+
+
 function isMember(login, socket) {
     return !!members.get(login) && members.get(login).has(socket);
 }
@@ -69,7 +84,7 @@ async function handle(login, socket, request) {
 
             if (more) messages.shift();
 
-            reply(socket, 'history', {messages: messages.map(format), more, older: !!beforeId, me: login});
+            reply(socket, 'history', {messages: messages.map(format), more, older: !!beforeId, me: login, pushKey: push.publicKey()});
             reply(socket, 'online', {users: [...members.keys()]});
             return;
         }
@@ -78,7 +93,31 @@ async function handle(login, socket, request) {
             const text = check(login, socket, request.text);
             if (text === null) return;
 
-            broadcast('message', {item: format(await db.chatAdd(login, text))});
+            const item = format(await db.chatAdd(login, text));
+            broadcast('message', {item});
+
+            push.send(item, [login].concat(watchingLogins())).catch((err) => log('Ошибка рассылки пушей: ' + err.message));
+            return;
+        }
+
+        case 'visibility': {
+            visibility.set(socket, !!request.visible);
+            return;
+        }
+
+        case 'push-subscribe': {
+            const subscription = request.subscription;
+            const valid = subscription && typeof subscription.endpoint === 'string' && /^https:\/\//.test(subscription.endpoint) &&
+                subscription.endpoint.length <= 512 && subscription.keys &&
+                typeof subscription.keys.p256dh === 'string' && subscription.keys.p256dh.length <= 255 &&
+                typeof subscription.keys.auth === 'string' && subscription.keys.auth.length <= 255;
+
+            if (valid) await db.pushSubscribe(login, subscription);
+            return;
+        }
+
+        case 'push-unsubscribe': {
+            if (typeof request.endpoint === 'string') await db.pushUnsubscribe(request.endpoint, login);
             return;
         }
 

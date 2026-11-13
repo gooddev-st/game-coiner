@@ -169,3 +169,29 @@ ssh root@game.good-dev.tech install -m 755 /opt/game-coiner/deploy/post-receive 
 ```bash
 ssh root@game.good-dev.tech journalctl -u game-coiner -f
 ```
+
+## Чат
+
+Общий чат на весь сервер: панель в игре и отдельная страница `chat.html`. Пишут и читают только пользователи с флагом `user.chat_allowed`:
+
+```bash
+ssh root@game.good-dev.tech "mariadb games -e \"UPDATE user SET chat_allowed=1 WHERE login='Логин'\""
+```
+
+Миграции базы лежат в `deploy/migrations/`, их можно запускать повторно. Перед деплоем кода, которому они нужны:
+
+```bash
+ssh root@game.good-dev.tech 'mariadb games' < deploy/migrations/002-chat-push.sql
+```
+
+### Пуши
+
+Уведомления о новых сообщениях (Web Push) включаются кнопкой 🔔 в шапке чата. Пуш получают подписанные пользователи, у которых чат сейчас не на экране. На iPhone пуши работают только для сайта, добавленного на экран «Домой».
+
+Нужны ключи VAPID. Локально сервер создает их сам в `serversrc/.vapid.json` (файл не в git). На проде - один раз сгенерировать и вписать в `/etc/game-coiner.env` (см. `deploy/game-coiner.env.example`), затем перезапустить сервис:
+
+```bash
+ssh root@game.good-dev.tech 'cd /opt/game-coiner/serversrc && node -e "console.log(require(\"web-push\").generateVAPIDKeys())"'
+```
+
+Если ключи сменить, старые подписки перестанут работать - пользователям придется включить уведомления заново.

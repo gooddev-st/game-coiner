@@ -223,3 +223,42 @@ module.exports.chatDelete = function (id, login) {
     return query("DELETE FROM chat_message WHERE id=? AND login=?", [id, login])
         .then((res) => res.affectedRows > 0);
 };
+
+
+/**
+ * Сохранить подписку на пуши. Тот же браузер мог раньше подписаться под другим логином - перепривязываем
+ */
+module.exports.pushSubscribe = function (login, subscription) {
+    const data = {
+        login,
+        endpoint: subscription.endpoint,
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth,
+        created_at: now(),
+    };
+
+    return query("INSERT INTO chat_push_subscription SET ? ON DUPLICATE KEY UPDATE login=VALUES(login), p256dh=VALUES(p256dh), auth=VALUES(auth)", data);
+};
+
+
+/**
+ * Удалить подписку. С login - только свою (запрос из браузера), без - любую (push-сервис сказал, что ее больше нет)
+ */
+module.exports.pushUnsubscribe = function (endpoint, login) {
+    return login ?
+        query("DELETE FROM chat_push_subscription WHERE endpoint=? AND login=?", [endpoint, login]) :
+        query("DELETE FROM chat_push_subscription WHERE endpoint=?", [endpoint]);
+};
+
+
+/**
+ * Подписки пользователей с доступом к чату, кроме перечисленных логинов
+ */
+module.exports.pushSubscriptions = function (exceptLogins) {
+    const except = exceptLogins.length ? "AND s.login NOT IN (?)" : "";
+
+    return query(`SELECT s.login, s.endpoint, s.p256dh, s.auth FROM chat_push_subscription s
+        JOIN user u ON u.login = s.login AND u.chat_allowed = 1
+        WHERE 1 ${except}`, exceptLogins.length ? [exceptLogins] : []);
+};
+

@@ -18,8 +18,11 @@ window.onload = function () {
         chat.start({standalone: true});
     }, 'chat-login');
 
+    // При выходе выключаем пуши в этом браузере, чтобы не приходили сообщения прежнего пользователя
     document.getElementById('chat-signout').addEventListener('click', function () {
-        account.signout();
-        window.location.reload();
+        chat.disablePush().then(function () {
+            account.signout();
+            window.location.reload();
+        });
     }, false);
 };

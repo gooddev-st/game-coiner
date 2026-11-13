@@ -3,7 +3,7 @@ import events from "../../../events";
 /**
  * Чат на весь сервер. Панель показывается, только если сервер ответил историей (чат разрешен пользователю)
  */
-export default {start, stop}
+export default {start, stop, disablePush}
 
 
 const MAX_LENGTH = 500;
@@ -28,6 +28,11 @@ const editCancelButton = document.getElementById("chat-edit-cancel");
 const input = document.getElementById("chat-input");
 const sendButton = document.getElementById("chat-send");
 const counter = document.getElementById("chat-counter");
+const pushButton = document.getElementById("chat-push");
+
+// Пуши: нужны service worker, Push API и HTTPS (или localhost). На iPhone - только для сайта на экране «Домой»
+const pushSupported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && window.isSecureContext;
+const SW_URL = '/chat-sw.js';
 
 const baseTitle = document.title;
 
@@ -44,7 +49,9 @@ let me = null,
     loadingOlder = false,
     unread = 0,
     editingId = null,
-    pinnedToBottom = true;
+    pinnedToBottom = true,
+    pushKey = null,
+    pushBusy = false;
 
 
 function start(options) {
@@ -71,7 +78,10 @@ function start(options) {
     input.addEventListener('input', updateCounter, false);
     document.addEventListener('keydown', onDocumentKeydown, false);
     document.addEventListener('visibilitychange', markRead, false);
+    document.addEventListener('visibilitychange', sendVisibility, false);
     window.addEventListener('resize', onResize, false);
+    pushButton.addEventListener('click', onPushClick, false);
+    events.on('signout', disablePush);
 
     if (touchInput) input.placeholder = 'Сообщение';
 
@@ -97,7 +107,10 @@ function stop() {
     input.removeEventListener('input', updateCounter, false);
     document.removeEventListener('keydown', onDocumentKeydown, false);
     document.removeEventListener('visibilitychange', markRead, false);
+    document.removeEventListener('visibilitychange', sendVisibility, false);
     window.removeEventListener('resize', onResize, false);
+    pushButton.removeEventListener('click', onPushClick, false);
+    events.off('signout', disablePush);
 
     panel.style.display = 'none';
     document.title = baseTitle;
@@ -151,6 +164,10 @@ function onHistory(data) {
         panel.style.display = '';
         updateCounter();
         if (!isCollapsed()) scrollToBottom();
+
+        sendVisibility();
+        pushKey = data.pushKey;
+        setupPush();
         return;
     }
 
@@ -332,10 +349,11 @@ function scrollToBottom() {
 function onScroll() {
     pinnedToBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 40;
 
-    if (list.scrollTop > 30 || !hasMore || loadingOlder || !list.firstElementChild) return;
+    const oldest = list.querySelector('.chat-msg');
+    if (list.scrollTop > 30 || !hasMore || loadingOlder || !oldest) return;
 
     loadingOlder = true;
-    events.add('chat', {action: 'history', beforeId: Number(list.firstElementChild.dataset.id)});
+    events.add('chat', {action: 'history', beforeId: Number(oldest.dataset.id)});
 }
 
 
@@ -617,6 +635,122 @@ function rememberRecent(emoji) {
         localStorage.setItem(RECENT_KEY, JSON.stringify(list));
     }
     catch (e) {}
+}
+
+
+/*
+ * Пуши
+ */
+
+// Сервер не шлет пуши тем, у кого вкладка с чатом сейчас на экране
+function sendVisibility() {
+    events.add('chat', {action: 'visibility', visible: !document.hidden});
+}
+
+
+function setupPush() {
+    if (!pushSupported || !pushKey) {
+        pushButton.style.display = 'none';
+        return;
+    }
+
+    pushButton.style.display = '';
+
+    getSubscription().then((subscription) => {
+        // Уже подписаны - напоминаем серверу, под каким логином (браузер мог сменить пользователя)
+        if (subscription && Notification.permission === 'granted') {
+            events.add('chat', {action: 'push-subscribe', subscription: subscription.toJSON()});
+        }
+        showPushState(subscription);
+    }).catch(() => showPushState(null));
+}
+
+
+function getSubscription() {
+    return navigator.serviceWorker.register(SW_URL)
+        .then(() => navigator.serviceWorker.ready)
+        .then((registration) => registration.pushManager.getSubscription());
+}
+
+
+function showPushState(subscription) {
+    const on = !!subscription && Notification.permission === 'granted',
+        denied = Notification.permission === 'denied';
+
+    pushButton.textContent = on ? '🔔' : '🔕';
+    pushButton.classList.toggle('on', on);
+    pushButton.title = denied ?
+        'Уведомления запрещены в настройках браузера для этого сайта' :
+        (on ? 'Уведомления включены. Нажмите, чтобы выключить' : 'Включить уведомления о новых сообщениях');
+}
+
+
+function onPushClick(e) {
+    // В игре клик по шапке сворачивает панель - кнопка не должна
+    e.stopPropagation();
+
+    if (pushBusy) return;
+    pushBusy = true;
+
+    getSubscription()
+        .then((subscription) => subscription ? disablePush() : enablePush())
+        .catch((err) => notice('Не удалось изменить уведомления: ' + err.message))
+        .then(() => getSubscription())
+        .then(showPushState, () => showPushState(null))
+        .then(() => { pushBusy = false; });
+}
+
+
+function enablePush() {
+    return Notification.requestPermission().then((permission) => {
+        if (permission !== 'granted') {
+            notice('Уведомления не разрешены. Разрешить можно в настройках сайта в браузере');
+            return;
+        }
+
+        return navigator.serviceWorker.ready
+            .then((registration) => registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: base64ToBytes(pushKey),
+            }))
+            .then((subscription) => {
+                events.add('chat', {action: 'push-subscribe', subscription: subscription.toJSON()});
+                notice('Уведомления включены');
+            });
+    });
+}
+
+
+// Выключить пуши в этом браузере. Если сервер недоступен (выход из игры), подписку он удалит сам при следующей отправке
+function disablePush() {
+    if (!pushSupported) return Promise.resolve();
+
+    return navigator.serviceWorker.getRegistration(SW_URL)
+        .then((registration) => registration && registration.pushManager.getSubscription())
+        .then((subscription) => {
+            if (!subscription) return;
+
+            events.add('chat', {action: 'push-unsubscribe', endpoint: subscription.endpoint});
+            return subscription.unsubscribe();
+        })
+        .catch(() => {});
+}
+
+
+// Ключ VAPID приходит в base64url, Push API нужен массив байт
+function base64ToBytes(value) {
+    const base64 = (value + '='.repeat((4 - value.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/');
+    return Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+}
+
+
+// Служебная строка в ленте
+function notice(text) {
+    const element = document.createElement('div');
+    element.className = 'chat-system';
+    element.textContent = text;
+    list.appendChild(element);
+    scrollToBottom();
 }
 
 

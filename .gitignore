@@ -1,2 +1,4 @@
 node_modules
 .idea
+# Ключи VAPID для пушей локального сервера (на проде - в /etc/game-coiner.env)
+serversrc/.vapid.json
