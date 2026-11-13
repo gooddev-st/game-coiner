@@ -167,6 +167,9 @@ function onHistory(data) {
         updateCounter();
         if (!isCollapsed()) scrollToBottom();
 
+        // На телефоне не фокусируем: клавиатура закрыла бы половину ленты
+        if (standalone && !touchInput && document.activeElement === document.body) input.focus();
+
         sendVisibility();
         pushKey = data.pushKey;
         setupPush();
